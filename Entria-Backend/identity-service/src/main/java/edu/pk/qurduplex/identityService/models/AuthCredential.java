@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Account {
+public class AuthCredential {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
