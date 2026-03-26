@@ -1,0 +1,1 @@
+CREATE DATABASE identity_db;

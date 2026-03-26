@@ -7,21 +7,47 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
+          memory: 2048M
 
     ports:
       - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
     networks:
-      - erecepta-network
+      - entria-network
     depends_on:
-      identity-db:
+      postgres:
         condition: service_healthy
     environment:
       SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
 
+      DB_HOST: postgres
+      DB_PORT: ${POSTGRES_DB_PORT}
+      DB_NAME: ${POSTGRES_IDENTITY_DB_NAME}
+      DB_USER: ${POSTGRES_DB_USER}
+      DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "${POSTGRES_DB_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - entria-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
-  erecepta-network:
+  entria-network:
     driver: bridge
 volumes:
   postgres_data:
+    driver: local
