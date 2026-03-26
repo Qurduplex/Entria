@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  identity-service:
+    build: ./identity-service
+    container_name: identity-service
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+    ports:
+      - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
+    networks:
+      - erecepta-network
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
+
+networks:
+  erecepta-network:
+    driver: bridge
+volumes:
+  postgres_data:

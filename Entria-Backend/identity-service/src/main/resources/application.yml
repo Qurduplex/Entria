@@ -1,0 +1,6 @@
+server:
+  port: ${SERVER_PORT:12001}
+
+spring:
+  application:
+    name: identity-service
