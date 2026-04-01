@@ -1,5 +1,6 @@
 package edu.pk.qurduplex.identityService.services;
 
+import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
 import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
 import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
@@ -32,6 +33,9 @@ public class AuthService {
                 .build();
 
         AuthCredential savedCredential = authRepository.save(credential);
+
+        //todo: send verification email and set isActive to true only after verification
+
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
     }
 }
