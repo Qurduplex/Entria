@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: identity-service-test
+
+  datasource:
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;NOT_FIXED_PORT=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 1m
+      refresh-expiration: 1h
