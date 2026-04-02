@@ -1,5 +1,6 @@
 package edu.pk.qurduplex.identityService.exceptions;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,11 +22,49 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
+    // --- Authentication & Identity Errors ---
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String,String>> handleAuthOperationException(UserAlreadyExistsException ex) {
-        Map<String,String> map = new HashMap<>();
+    public ResponseEntity<Map<String, String>> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(createErrorMap(ex.getMessage())); // 409 Conflict
+    }
 
-        map.put("message", ex.getMessage());
-        return ResponseEntity.status(401).body(map);
+    @ExceptionHandler(InvalidCredentialException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidCredentialException(InvalidCredentialException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createErrorMap(ex.getMessage())); // 401 Unauthorized
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorMap(ex.getMessage())); // 404 Not Found
+    }
+
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotVerifiedException(UserNotVerifiedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(createErrorMap(ex.getMessage())); // 403 Forbidden
+    }
+
+    @ExceptionHandler(UserAlreadyVerifiedException.class)
+    public ResponseEntity<Map<String, String>> handleUserAlreadyVerifiedException(UserAlreadyVerifiedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(createErrorMap(ex.getMessage())); // 409 Conflict (lub 400 Bad Request)
+    }
+
+    // --- Verification Code Errors ---
+
+    @ExceptionHandler(VerificationCodeNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVerificationCodeNotFoundException(VerificationCodeNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorMap(ex.getMessage())); // 404 Not Found
+    }
+
+    @ExceptionHandler(InvalidVerificationCodeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidVerificationCodeException(InvalidVerificationCodeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMap(ex.getMessage())); // 400 Bad Request
+    }
+
+    // --- Helper Method ---
+
+    private Map<String, String> createErrorMap(String message) {
+        Map<String, String> map = new HashMap<>();
+        map.put("message", message);
+        return map;
     }
 }
