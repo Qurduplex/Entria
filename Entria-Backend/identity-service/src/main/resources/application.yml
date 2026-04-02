@@ -1,0 +1,35 @@
+server:
+  port: ${SERVER_PORT:12001}
+
+spring:
+  application:
+    name: identity-service
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:identity_db}
+    username: ${DB_USER:user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+application:
+  security:
+    jwt:
+      secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
+      expiration: ${APPLICATION_SECURITY_JWT_EXPIRATION:5m}
+      refresh-expiration: ${APPLICATION_SECURITY_REFRESH_EXPIRATION:1d}
+  verification-code:
+    expiration-in-seconds: ${APPLICATION_VERIFICATION_CODE_EXPIRATION_IN_SECONDS:300}
+    code-length: ${APPLICATION_VERIFICATION_CODE_LENGTH:6}
+  reset-password-code:
+    expiration-in-seconds: ${APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS:300}
+    code-length: ${APPLICATION_RESET_PASSWORD_CODE_LENGTH:6}
