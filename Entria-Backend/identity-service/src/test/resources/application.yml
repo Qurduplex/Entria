@@ -3,7 +3,7 @@ spring:
     name: identity-service-test
 
   datasource:
-    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;NOT_FIXED_PORT=TRUE
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;
     username: sa
     password:
     driver-class-name: org.h2.Driver
