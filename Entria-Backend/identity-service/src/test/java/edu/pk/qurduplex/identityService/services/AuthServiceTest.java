@@ -30,6 +30,9 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private VerificationCodeService verificationCodeService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -39,9 +42,11 @@ class AuthServiceTest {
         String TEST_EMAIL = Instancio.create(String.class);
         String TEST_PASSWORD = Instancio.create(String.class);
         String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
+        String VERIFICATION_CODE = Instancio.create(String.class);
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
         when(passwordEncoder.encode(TEST_PASSWORD)).thenReturn(ENCODED_PASSWORD);
+        when(verificationCodeService.generateVerificationCode(any())).thenReturn(VERIFICATION_CODE);
 
         AuthCredential savedCredential = AuthCredential.builder()
                 .email(TEST_EMAIL)

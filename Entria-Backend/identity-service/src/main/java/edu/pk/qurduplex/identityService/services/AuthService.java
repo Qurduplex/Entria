@@ -7,17 +7,20 @@ import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Set;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
+    private final VerificationCodeService verificationCodeService;
 
     public RegisterResponseDTO register(String email, String password) {
         if (authRepository.existsByEmail(email)) {
@@ -32,9 +35,14 @@ public class AuthService {
                 .roles(Set.of(UserRole.USER))
                 .build();
 
+        log.info("Saving new user with email: {}", email);
         AuthCredential savedCredential = authRepository.save(credential);
+        log.info("User with email: {} saved successfully with id: {}", email, savedCredential.getId());
 
-        //todo: send verification email and set isActive to true only after verification
+        String verificationCode = verificationCodeService.generateVerificationCode(savedCredential.getId());
+        log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
+
+        //todo: send verification email
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
     }
