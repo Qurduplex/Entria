@@ -1,13 +1,10 @@
 package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.config.ResetPasswordCodeProperties;
-import edu.pk.qurduplex.identityService.config.VerificationCodeProperties;
 import edu.pk.qurduplex.identityService.exceptions.InvalidVerificationCodeException;
 import edu.pk.qurduplex.identityService.exceptions.VerificationCodeNotFoundException;
 import edu.pk.qurduplex.identityService.models.ResetPasswordCode;
-import edu.pk.qurduplex.identityService.models.VerificationCode;
 import edu.pk.qurduplex.identityService.repositories.ResetPasswordCodeRepository;
-import edu.pk.qurduplex.identityService.repositories.VerificationCodeRepository;
 import edu.pk.qurduplex.identityService.util.CodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,7 @@ public class ResetPasswordCodeService {
             resetPasswordCodeRepository.deleteById(id);
         }
 
-        String code = codeGenerator.generateCode(6);
+        String code = codeGenerator.generateCode(resetPasswordCodeProperties.getCodeLength());
 
         ResetPasswordCode resetPasswordCode = ResetPasswordCode.builder()
                 .id(id)

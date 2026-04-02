@@ -27,7 +27,7 @@ public class VerificationCodeService {
             verificationCodeRepository.deleteById(id);
         }
 
-        String code = codeGenerator.generateCode(6);
+        String code = codeGenerator.generateCode(verificationCodeProperties.getCodeLength());
 
         VerificationCode verificationCode = VerificationCode.builder()
                 .id(id)

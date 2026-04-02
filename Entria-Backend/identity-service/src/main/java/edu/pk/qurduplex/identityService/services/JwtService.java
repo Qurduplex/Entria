@@ -4,7 +4,6 @@ package edu.pk.qurduplex.identityService.services;
 import edu.pk.qurduplex.identityService.config.JwtProperties;
 import edu.pk.qurduplex.identityService.dto.JwtTokenDTO;
 import edu.pk.qurduplex.identityService.models.UserRole;
-import edu.pk.qurduplex.identityService.util.TimeFormatter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
@@ -25,11 +25,11 @@ import java.util.UUID;
 public class JwtService {
 
     private final JwtProperties jwtProperties;
-    private final TimeFormatter timeFormatter;
+    private final Clock clock;
 
     public JwtTokenDTO generateToken(UUID id, Set<UserRole> roles) {
 
-        Instant now = timeFormatter.now();
+        Instant now = Instant.now(clock);
         Instant expiration = now.plus(jwtProperties.getExpiration());
 
         log.info("Time to add {}", jwtProperties.getExpiration());
@@ -44,8 +44,7 @@ public class JwtService {
                 .signWith(getSignInKey())
                 .compact();
 
-        String formattedExpiration = timeFormatter.formatInstant(expiration);
-        return new JwtTokenDTO(token, formattedExpiration);
+        return new JwtTokenDTO(token, expiration);
     }
 
     public String extractUserId(String token) {

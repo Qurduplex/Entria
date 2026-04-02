@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class LoginResponseDTO {
     private String refreshToken;
     private String jwtToken;
-    private String expiresAt;
+    private Instant expiresAt;
 }

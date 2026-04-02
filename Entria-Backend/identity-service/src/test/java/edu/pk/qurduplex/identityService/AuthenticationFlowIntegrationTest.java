@@ -22,6 +22,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,6 +53,9 @@ class AuthenticationFlowIntegrationTest {
     private AuthRepository authRepository;
 
     @MockitoBean
+    private Clock clock;
+
+    @MockitoBean
     private VerificationCodeRepository verificationCodeRepo;
 
     @MockitoBean
@@ -62,6 +68,8 @@ class AuthenticationFlowIntegrationTest {
     private Map<UUID, ResetPasswordCode> resetPasswordCodeStore;
     private Map<UUID, RefreshToken> refreshTokenStore;
 
+    private Instant testTime;
+
     @BeforeEach
     void setUp() {
         authRepository.deleteAll();
@@ -69,6 +77,10 @@ class AuthenticationFlowIntegrationTest {
         verificationCodeStore = new ConcurrentHashMap<>();
         resetPasswordCodeStore = new ConcurrentHashMap<>();
         refreshTokenStore = new ConcurrentHashMap<>();
+
+        testTime = Instant.now();
+        when(clock.instant()).thenAnswer(invocation -> testTime);
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
 
         setupRedisMocks();
     }
@@ -132,7 +144,7 @@ class AuthenticationFlowIntegrationTest {
         assertThat(refreshTokenStore.containsKey(refreshToken)).isTrue();
 
         // 5. REFRESH TOKEN
-        Thread.sleep(1000); // Adding a small delay to ensure the new token will have a different timestamp
+        testTime = testTime.plusSeconds(10); // Adding a small delay to ensure the new token will have a different timestamp
 
         RefreshTokenRequestDTO refreshRequest = new RefreshTokenRequestDTO(refreshToken);
         MvcResult refreshResult = mockMvc.perform(post("/api/auth/refresh-token")
