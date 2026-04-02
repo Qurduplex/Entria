@@ -21,6 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationCodeService verificationCodeService;
     private final JwtService jwtService;
+    private final ResetPasswordCodeService resetPasswordCodeService;
 
     @Transactional
     public RegisterResponseDTO register(String email, String password) {
@@ -46,6 +47,27 @@ public class AuthService {
         //todo: send verification email
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
+    }
+
+    public LoginResponseDTO login(String email, String password) {
+        AuthCredential credential = authRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialException("User with email " + email + " not found"));
+
+        if (!passwordEncoder.matches(password, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("Invalid email or password");
+        }
+
+        if (!credential.isActive()) {
+            throw new InvalidCredentialException("Account with email " + email + " is not verified");
+        }
+
+        log.info("User with email: {} logged in successfully", email);
+
+        JwtTokenDTO token = jwtService.generateToken(credential.getId(), credential.getRoles());
+
+        log.info("Generated JWT token for user with email: {}", email);
+
+        return new LoginResponseDTO(token.token(), token.expiresAt());
     }
 
     public GenerateVerificationCodeResponseDTO requestVerificationCode(String email) {
@@ -82,24 +104,18 @@ public class AuthService {
         return new AccountVerificationResponseDTO(credential.getEmail(), true);
     }
 
-    public LoginResponseDTO login(String email, String password) {
+    public GenerateResetPasswordCodeResponseDTO requestResetPasswordCode(String email) {
         AuthCredential credential = authRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidCredentialException("User with email " + email + " not found"));
-
-        if (!passwordEncoder.matches(password, credential.getPasswordHash())) {
-            throw new InvalidCredentialException("Invalid email or password");
-        }
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
 
         if (!credential.isActive()) {
-            throw new InvalidCredentialException("Account with email " + email + " is not verified");
+            throw new UserNotVerifiedException("Account with email " + email + " is not verified");
         }
 
-        log.info("User with email: {} logged in successfully", email);
+        String resetPasswordCode = resetPasswordCodeService.generateResetPasswordCode(credential.getId());
+        log.info("Generated reset-password code for user with email: {}: {}", email, resetPasswordCode);
+        //todo: send verification email
 
-        JwtTokenDTO token = jwtService.generateToken(credential.getId(), credential.getRoles());
-
-        log.info("Generated JWT token for user with email: {}", email);
-
-        return new LoginResponseDTO(token.token(), token.expiresAt());
+        return new GenerateResetPasswordCodeResponseDTO(credential.getEmail(), true);
     }
 }

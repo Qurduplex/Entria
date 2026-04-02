@@ -30,3 +30,6 @@ application:
   verification-code:
     expiration-in-seconds: ${APPLICATION_VERIFICATION_CODE_EXPIRATION_IN_SECONDS:300}
     code-length: ${APPLICATION_VERIFICATION_CODE_LENGTH:6}
+  reset-password-code:
+    expiration-in-seconds: ${APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS:300}
+    code-length: ${APPLICATION_RESET_PASSWORD_CODE_LENGTH:6}

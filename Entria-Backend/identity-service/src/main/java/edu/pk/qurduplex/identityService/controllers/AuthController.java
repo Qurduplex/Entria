@@ -55,6 +55,27 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("reset-password-code/request")
+    public ResponseEntity<GenerateResetPasswordCodeResponseDTO> requestResetPassword(
+            @RequestBody @Valid GenerateResetPasswordCodeRequestDTO request) {
+
+        log.info("Received request for reset password code for email: {}", request.getEmail());
+        GenerateResetPasswordCodeResponseDTO response = authService.requestResetPasswordCode(request.getEmail());
+
+        return ResponseEntity.ok(response);
+    }
+
+//    @PostMapping("verification-code/verify")
+//    public ResponseEntity<AccountVerificationResponseDTO> verifyCode(
+//            @RequestBody @Valid AccountVerificationRequestDTO request
+//    ) {
+//        log.info("Received account verification request for email: {}", request.getEmail());
+//        AccountVerificationResponseDTO response = authService.verifyAccount(request.getEmail(), request.getVerificationCode());
+//        return ResponseEntity.ok(response);
+//    }
+
+
+
 
 
 
