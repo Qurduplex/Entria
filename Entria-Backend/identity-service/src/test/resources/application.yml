@@ -30,6 +30,12 @@ application:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
       expiration: 1m
       refresh-expiration: 1h
+  verification-code:
+    expiration-in-seconds: 300
+    code-length: 6
+  reset-password-code:
+    expiration-in-seconds: 300
+    code-length: 6
 
 springdoc:
   api-docs:

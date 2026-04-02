@@ -5,6 +5,7 @@ import edu.pk.qurduplex.identityService.models.VerificationCode;
 import edu.pk.qurduplex.identityService.repositories.VerificationCodeRepository;
 import edu.pk.qurduplex.identityService.util.CodeGenerator;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,11 @@ class VerificationCodeServiceTest {
 
     @InjectMocks
     private VerificationCodeService verificationCodeService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(verificationCodeProperties.getCodeLength()).thenReturn(6);
+    }
 
     @Test
     @DisplayName("Should generate and save verification code when no prior code exists")

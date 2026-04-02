@@ -5,6 +5,7 @@ import edu.pk.qurduplex.identityService.models.ResetPasswordCode;
 import edu.pk.qurduplex.identityService.repositories.ResetPasswordCodeRepository;
 import edu.pk.qurduplex.identityService.util.CodeGenerator;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,11 @@ class ResetPasswordCodeServiceTest {
 
     @InjectMocks
     private ResetPasswordCodeService resetPasswordCodeService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(resetPasswordCodeProperties.getCodeLength()).thenReturn(6);
+    }
 
     @Test
     @DisplayName("Should generate and save reset-password code when no prior code exists")
