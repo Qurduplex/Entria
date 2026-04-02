@@ -2,6 +2,7 @@ package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
 import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
+import edu.pk.qurduplex.identityService.dto.TokenDTO;
 import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.UserRole;
@@ -42,6 +43,9 @@ class AuthServiceTest {
 
     @Mock
     private ResetPasswordCodeService resetPasswordCodeService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @InjectMocks
     private AuthService authService;
@@ -213,14 +217,14 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should successfully log in and return JWT token")
+    @DisplayName("Should successfully log in and return JWT and Refresh tokens")
     void login_Success() {
         String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
         String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
         UUID TEST_ID = Instancio.create(UUID.class);
-        String GENERATED_TOKEN = Instancio.create(String.class);
-        String EXPIRATION_TIME = Instancio.create(String.class);
+        String GENERATED_JWT = Instancio.create(String.class);
+        UUID GENERATED_REFRESH_TOKEN = Instancio.create(UUID.class);
         Set<UserRole> ROLES = Set.of(UserRole.USER);
 
         AuthCredential credential = AuthCredential.builder()
@@ -232,20 +236,27 @@ class AuthServiceTest {
                 .build();
 
         edu.pk.qurduplex.identityService.dto.JwtTokenDTO jwtTokenDTO =
-                new edu.pk.qurduplex.identityService.dto.JwtTokenDTO(GENERATED_TOKEN, EXPIRATION_TIME);
+                new edu.pk.qurduplex.identityService.dto.JwtTokenDTO(GENERATED_JWT, null);
+
+        edu.pk.qurduplex.identityService.models.RefreshToken refreshToken =
+                edu.pk.qurduplex.identityService.models.RefreshToken.builder()
+                        .token(GENERATED_REFRESH_TOKEN)
+                        .build();
 
         when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
         when(passwordEncoder.matches(TEST_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
         when(jwtService.generateToken(TEST_ID, ROLES)).thenReturn(jwtTokenDTO);
+        when(refreshTokenService.createRefreshToken(TEST_ID)).thenReturn(refreshToken);
 
         LoginResponseDTO response = authService.login(TEST_EMAIL, TEST_PASSWORD);
 
-        assertThat(response.getToken()).isEqualTo(GENERATED_TOKEN);
-        assertThat(response.getExpiresAt()).isEqualTo(EXPIRATION_TIME);
+        assertThat(response.getJwtToken()).isEqualTo(GENERATED_JWT);
+        assertThat(response.getRefreshToken()).isEqualTo(GENERATED_REFRESH_TOKEN.toString());
 
         verify(authRepository).findByEmail(TEST_EMAIL);
         verify(passwordEncoder).matches(TEST_PASSWORD, ENCODED_PASSWORD);
         verify(jwtService).generateToken(TEST_ID, ROLES);
+        verify(refreshTokenService).createRefreshToken(TEST_ID);
     }
 
     @Test
@@ -441,5 +452,117 @@ class AuthServiceTest {
         verifyNoInteractions(resetPasswordCodeService);
         verifyNoInteractions(passwordEncoder);
         verify(authRepository, never()).save(any());
+    }
+
+    // --- REFRESH TOKEN TESTS ---
+
+    @Test
+    @DisplayName("Should successfully refresh access token")
+    void refreshAccessToken_Success() {
+        UUID REFRESH_TOKEN_ID = Instancio.create(UUID.class);
+        UUID USER_ID = Instancio.create(UUID.class);
+        String NEW_JWT = Instancio.create(String.class);
+        Set<UserRole> ROLES = Set.of(UserRole.USER);
+
+        edu.pk.qurduplex.identityService.models.RefreshToken validRefreshToken =
+                edu.pk.qurduplex.identityService.models.RefreshToken.builder()
+                        .token(REFRESH_TOKEN_ID)
+                        .userId(USER_ID)
+                        .build();
+
+        AuthCredential user = AuthCredential.builder()
+                .id(USER_ID)
+                .roles(ROLES)
+                .build();
+
+        edu.pk.qurduplex.identityService.dto.JwtTokenDTO newJwtDTO =
+                new edu.pk.qurduplex.identityService.dto.JwtTokenDTO(NEW_JWT, null);
+
+        when(refreshTokenService.verifyAndGetToken(REFRESH_TOKEN_ID)).thenReturn(validRefreshToken);
+        when(authRepository.findById(USER_ID)).thenReturn(java.util.Optional.of(user));
+        when(jwtService.generateToken(USER_ID, ROLES)).thenReturn(newJwtDTO);
+
+        TokenDTO response = authService.refreshAccessToken(REFRESH_TOKEN_ID);
+
+        assertThat(response.getJwtToken()).isEqualTo(NEW_JWT);
+
+        verify(refreshTokenService).verifyAndGetToken(REFRESH_TOKEN_ID);
+        verify(authRepository).findById(USER_ID);
+        verify(jwtService).generateToken(USER_ID, ROLES);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when refreshing token for non-existent user")
+    void refreshAccessToken_UserNotFound_ThrowsException() {
+        UUID REFRESH_TOKEN_ID = Instancio.create(UUID.class);
+        UUID USER_ID = Instancio.create(UUID.class);
+
+        edu.pk.qurduplex.identityService.models.RefreshToken validRefreshToken =
+                edu.pk.qurduplex.identityService.models.RefreshToken.builder()
+                        .token(REFRESH_TOKEN_ID)
+                        .userId(USER_ID)
+                        .build();
+
+        when(refreshTokenService.verifyAndGetToken(REFRESH_TOKEN_ID)).thenReturn(validRefreshToken);
+        when(authRepository.findById(USER_ID)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> authService.refreshAccessToken(REFRESH_TOKEN_ID))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserNotFoundException.class)
+                .hasMessageContaining("User associated with token not found");
+
+        verifyNoInteractions(jwtService);
+    }
+
+    @Test
+    @DisplayName("Should successfully log out single device")
+    void logout_Success() {
+        UUID REFRESH_TOKEN_ID = Instancio.create(UUID.class);
+
+        authService.logout(REFRESH_TOKEN_ID);
+
+        verify(refreshTokenService).deleteRefreshToken(REFRESH_TOKEN_ID);
+    }
+
+    @Test
+    @DisplayName("Should successfully log out from all devices")
+    void logoutFromAllDevices_Success() {
+        UUID USER_ID = Instancio.create(UUID.class);
+        String JWT_TOKEN = Instancio.create(String.class);
+        String AUTH_HEADER = "Bearer " + JWT_TOKEN;
+
+        when(jwtService.extractUserId(JWT_TOKEN)).thenReturn(USER_ID.toString());
+
+        authService.logoutFromAllDevices(AUTH_HEADER);
+
+        verify(jwtService).extractUserId(JWT_TOKEN);
+        verify(refreshTokenService).deleteRefreshTokenByUserId(USER_ID);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialException when header is invalid during logout from all devices")
+    void logoutFromAllDevices_InvalidHeader_ThrowsException() {
+        String INVALID_HEADER = "Basic some-token"; // Zły format, nie zaczyna się od Bearer
+
+        assertThatThrownBy(() -> authService.logoutFromAllDevices(INVALID_HEADER))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException.class)
+                .hasMessageContaining("Invalid Authorization header format");
+
+        verifyNoInteractions(jwtService);
+        verifyNoInteractions(refreshTokenService);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialException when JWT parsing fails during logout from all devices")
+    void logoutFromAllDevices_JwtParsingFails_ThrowsException() {
+        String JWT_TOKEN = Instancio.create(String.class);
+        String AUTH_HEADER = "Bearer " + JWT_TOKEN;
+
+        when(jwtService.extractUserId(JWT_TOKEN)).thenThrow(new RuntimeException("Expired token"));
+
+        assertThatThrownBy(() -> authService.logoutFromAllDevices(AUTH_HEADER))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException.class)
+                .hasMessageContaining("Invalid or expired JWT token");
+
+        verify(refreshTokenService, never()).deleteRefreshTokenByUserId(any());
     }
 }

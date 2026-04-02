@@ -3,6 +3,7 @@ package edu.pk.qurduplex.identityService.services;
 import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.exceptions.*;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
+import edu.pk.qurduplex.identityService.models.RefreshToken;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class AuthService {
     private final VerificationCodeService verificationCodeService;
     private final JwtService jwtService;
     private final ResetPasswordCodeService resetPasswordCodeService;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public RegisterResponseDTO register(String email, String password) {
@@ -63,11 +66,58 @@ public class AuthService {
 
         log.info("User with email: {} logged in successfully", email);
 
-        JwtTokenDTO token = jwtService.generateToken(credential.getId(), credential.getRoles());
+        JwtTokenDTO jwtToken = jwtService.generateToken(credential.getId(), credential.getRoles());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(credential.getId());
 
         log.info("Generated JWT token for user with email: {}", email);
 
-        return new LoginResponseDTO(token.token(), token.expiresAt());
+        return LoginResponseDTO.builder()
+                .refreshToken(refreshToken.getToken().toString())
+                .jwtToken(jwtToken.token())
+                .build();
+    }
+
+    @Transactional
+    public TokenDTO refreshAccessToken(UUID refreshTokenId) {
+        RefreshToken validRefreshToken = refreshTokenService.verifyAndGetToken(refreshTokenId);
+
+        AuthCredential user = authRepository.findById(validRefreshToken.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
+
+        JwtTokenDTO newAccessToken = jwtService.generateToken(user.getId(), user.getRoles());
+
+        log.info("Successfully refreshed access token for user id: {}", user.getId());
+
+        return TokenDTO.builder()
+                .jwtToken(newAccessToken.token())
+                .build();
+    }
+
+    public void logout(UUID refreshToken) {
+        log.info("Received logout request for refresh token: {}", refreshToken);
+        refreshTokenService.deleteRefreshToken(refreshToken);
+        log.info("Successfully logged out device with refresh token: {}", refreshToken);
+    }
+
+    @Transactional
+    public void logoutFromAllDevices(String authHeader) {
+        if (!authHeader.startsWith("Bearer ")) {
+            log.warn("Unauthorized attempt to logout from all devices (invalid header format)");
+            throw new InvalidCredentialException("Invalid Authorization header format");
+        }
+
+        try {
+            String jwtToken = authHeader.substring(7);
+            String userIdStr = jwtService.extractUserId(jwtToken);
+            UUID userId = UUID.fromString(userIdStr);
+
+            refreshTokenService.deleteRefreshTokenByUserId(userId);
+
+            log.info("Successfully logged out from all devices for user ID: {}", userId);
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token for logout-all: {}", e.getMessage());
+            throw new InvalidCredentialException("Invalid or expired JWT token");
+        }
     }
 
     public GenerateVerificationCodeResponseDTO requestVerificationCode(String email) {
@@ -137,4 +187,6 @@ public class AuthService {
 
         return new ResetPasswordResponseDTO(credential.getEmail(), true);
     }
+
+
 }

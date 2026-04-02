@@ -2,18 +2,20 @@ package edu.pk.qurduplex.identityService.controllers;
 
 import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.services.AuthService;
+import edu.pk.qurduplex.identityService.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
-@Controller
+@RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
@@ -35,6 +37,34 @@ public class AuthController {
         LoginResponseDTO response = authService.login(request.getEmail(), request.getPassword());
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<TokenDTO> refreshToken(
+            @RequestBody @Valid RefreshTokenRequestDTO request
+    ) {
+        log.info("Received refresh token request for token: {}", request.getRefreshToken());
+        TokenDTO response = authService.refreshAccessToken(request.getRefreshToken());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @RequestBody @Valid RefreshTokenRequestDTO request){
+        log.info("Received logout request for token: {}", request.getRefreshToken());
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout/all")
+    public ResponseEntity<Void> logoutFromAllDevices(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        log.info("Received logout all devices request");
+        authService.logoutFromAllDevices(authHeader);
+        return ResponseEntity.ok().build();
+    }
+
+
 
     @PostMapping("verification-code/request")
     public ResponseEntity<GenerateVerificationCodeResponseDTO> requestVerificationCode(
@@ -76,6 +106,8 @@ public class AuthController {
                 request.getPassword());
         return ResponseEntity.ok(response);
     }
+
+
 
 
 
