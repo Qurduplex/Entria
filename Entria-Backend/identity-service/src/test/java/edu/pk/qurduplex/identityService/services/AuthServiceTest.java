@@ -5,7 +5,6 @@ import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,7 +83,7 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should request verification code successfully")
+    @DisplayName("Should request verification code successfully when account is not verified")
     void requestVerificationCode_Success() {
         String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         UUID TEST_ID = Instancio.create(UUID.class);
@@ -93,6 +92,7 @@ class AuthServiceTest {
         AuthCredential credential = AuthCredential.builder()
                 .id(TEST_ID)
                 .email(TEST_EMAIL)
+                .isActive(false)
                 .build();
 
         when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
@@ -105,6 +105,25 @@ class AuthServiceTest {
 
         verify(authRepository).findByEmail(TEST_EMAIL);
         verify(verificationCodeService).generateVerificationCode(TEST_ID);
+    }
+
+    @Test
+    @DisplayName("Should throw UserAlreadyVerifiedException when requesting code for already verified account")
+    void requestVerificationCode_AlreadyVerified_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+
+        AuthCredential credential = AuthCredential.builder()
+                .email(TEST_EMAIL)
+                .isActive(true)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+
+        assertThatThrownBy(() -> authService.requestVerificationCode(TEST_EMAIL))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserAlreadyVerifiedException.class)
+                .hasMessageContaining("Account is already verified");
+
+        verifyNoInteractions(verificationCodeService);
     }
 
     @Test

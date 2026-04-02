@@ -54,6 +54,10 @@ public class AuthService {
         AuthCredential credential = authRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
 
+        if (credential.isActive()) {
+            throw new UserAlreadyVerifiedException("Account is already verified");
+        }
+
         String verificationCode = verificationCodeService.generateVerificationCode(credential.getId());
         log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
         //todo: send verification email
