@@ -1,6 +1,8 @@
 spring:
   application:
     name: identity-service-test
+  main:
+    allow-bean-definition-overriding: true
 
   datasource:
     url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;
@@ -28,3 +30,9 @@ application:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
       expiration: 1m
       refresh-expiration: 1h
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

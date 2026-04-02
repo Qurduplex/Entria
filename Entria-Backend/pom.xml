@@ -22,6 +22,7 @@
         <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
         <bouncycastle.version>1.81</bouncycastle.version>
         <lang3.version>3.18.0</lang3.version>
+        <springdoc.version>2.8.9</springdoc.version>
     </properties>
 
     <modules>
