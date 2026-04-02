@@ -39,7 +39,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should successfully register a new user")
     void register_Success() {
-        String TEST_EMAIL = Instancio.create(String.class);
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
         String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
         String VERIFICATION_CODE = Instancio.create(String.class);
@@ -68,7 +68,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should throw UserAlreadyExistsException when email is taken")
     void register_EmailAlreadyExists_ThrowsException() {
-        String TEST_EMAIL = Instancio.create(String.class);
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
