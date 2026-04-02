@@ -40,6 +40,9 @@ class AuthServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private ResetPasswordCodeService resetPasswordCodeService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -307,5 +310,136 @@ class AuthServiceTest {
                 .hasMessageContaining("Invalid email or password");
 
         verifyNoInteractions(jwtService);
+    }
+
+
+    @Test
+    @DisplayName("Should request reset password code successfully")
+    void requestResetPasswordCode_Success() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        UUID TEST_ID = Instancio.create(UUID.class);
+        String RESET_CODE = Instancio.create(String.class);
+
+        AuthCredential credential = AuthCredential.builder()
+                .id(TEST_ID)
+                .email(TEST_EMAIL)
+                .isActive(true)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+        when(resetPasswordCodeService.generateResetPasswordCode(TEST_ID)).thenReturn(RESET_CODE);
+
+        var response = authService.requestResetPasswordCode(TEST_EMAIL);
+
+        assertThat(response.getEmail()).isEqualTo(TEST_EMAIL);
+        assertThat(response.isSuccess()).isTrue();
+
+        verify(authRepository).findByEmail(TEST_EMAIL);
+        verify(resetPasswordCodeService).generateResetPasswordCode(TEST_ID);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when requesting reset code for non-existent user")
+    void requestResetPasswordCode_UserNotFound_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> authService.requestResetPasswordCode(TEST_EMAIL))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserNotFoundException.class)
+                .hasMessageContaining("not found");
+
+        verifyNoInteractions(resetPasswordCodeService);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotVerifiedException when requesting reset code for unverified account")
+    void requestResetPasswordCode_UserNotVerified_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+
+        AuthCredential credential = AuthCredential.builder()
+                .email(TEST_EMAIL)
+                .isActive(false)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+
+        assertThatThrownBy(() -> authService.requestResetPasswordCode(TEST_EMAIL))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserNotVerifiedException.class)
+                .hasMessageContaining("is not verified");
+
+        verifyNoInteractions(resetPasswordCodeService);
+    }
+
+    @Test
+    @DisplayName("Should successfully reset password")
+    void resetPassword_Success() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_CODE = Instancio.create(String.class);
+        String NEW_PASSWORD = Instancio.create(String.class);
+        String ENCODED_NEW_PASSWORD = "hashed_new_" + NEW_PASSWORD;
+        UUID TEST_ID = Instancio.create(UUID.class);
+
+        AuthCredential credential = AuthCredential.builder()
+                .id(TEST_ID)
+                .email(TEST_EMAIL)
+                .isActive(true)
+                .passwordHash("old_hash")
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+        doNothing().when(resetPasswordCodeService).verifyResetPasswordCode(TEST_ID, TEST_CODE);
+        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_NEW_PASSWORD);
+
+        var response = authService.resetPassword(TEST_EMAIL, TEST_CODE, NEW_PASSWORD);
+
+        assertThat(response.getEmail()).isEqualTo(TEST_EMAIL);
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(credential.getPasswordHash()).isEqualTo(ENCODED_NEW_PASSWORD); // Weryfikujemy, czy zmieniono hash
+
+        verify(resetPasswordCodeService).verifyResetPasswordCode(TEST_ID, TEST_CODE);
+        verify(passwordEncoder).encode(NEW_PASSWORD);
+        verify(authRepository).save(credential);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when resetting password for non-existent user")
+    void resetPassword_UserNotFound_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_CODE = Instancio.create(String.class);
+        String NEW_PASSWORD = Instancio.create(String.class);
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> authService.resetPassword(TEST_EMAIL, TEST_CODE, NEW_PASSWORD))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserNotFoundException.class)
+                .hasMessageContaining("not found");
+
+        verifyNoInteractions(resetPasswordCodeService);
+        verifyNoInteractions(passwordEncoder);
+        verify(authRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotVerifiedException when resetting password for unverified account")
+    void resetPassword_UserNotVerified_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_CODE = Instancio.create(String.class);
+        String NEW_PASSWORD = Instancio.create(String.class);
+
+        AuthCredential credential = AuthCredential.builder()
+                .email(TEST_EMAIL)
+                .isActive(false)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+
+        assertThatThrownBy(() -> authService.resetPassword(TEST_EMAIL, TEST_CODE, NEW_PASSWORD))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.UserNotVerifiedException.class)
+                .hasMessageContaining("is not verified");
+
+        verifyNoInteractions(resetPasswordCodeService);
+        verifyNoInteractions(passwordEncoder);
+        verify(authRepository, never()).save(any());
     }
 }

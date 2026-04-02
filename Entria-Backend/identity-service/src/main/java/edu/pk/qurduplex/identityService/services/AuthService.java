@@ -118,4 +118,23 @@ public class AuthService {
 
         return new GenerateResetPasswordCodeResponseDTO(credential.getEmail(), true);
     }
+
+    @Transactional
+    public ResetPasswordResponseDTO resetPassword(String email, String resetPasswordCode, String password) {
+        AuthCredential credential = authRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+
+        if (!credential.isActive()) {
+            throw new UserNotVerifiedException("Account with email " + email + " is not verified");
+        }
+
+        resetPasswordCodeService.verifyResetPasswordCode(credential.getId(), resetPasswordCode);
+
+        credential.setPasswordHash(passwordEncoder.encode(password));
+        authRepository.save(credential);
+
+        log.info("Password for account with email: {} has been reset successfully", email);
+
+        return new ResetPasswordResponseDTO(credential.getEmail(), true);
+    }
 }
