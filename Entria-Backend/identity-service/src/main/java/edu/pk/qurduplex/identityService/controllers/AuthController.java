@@ -27,6 +27,15 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(
+            @RequestBody @Valid LoginRequestDTO request
+    ) {
+        log.info("Received login request for email: {}", request.getEmail());
+        LoginResponseDTO response = authService.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("verification-code/request")
     public ResponseEntity<GenerateVerificationCodeResponseDTO> requestVerificationCode(
             @RequestBody @Valid GenerateVerificationCodeRequestDTO request) {
@@ -45,6 +54,10 @@ public class AuthController {
         AccountVerificationResponseDTO response = authService.verifyAccount(request.getEmail(), request.getVerificationCode());
         return ResponseEntity.ok(response);
     }
+
+
+
+
 
 
 

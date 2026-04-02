@@ -16,6 +16,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class JwtService {
     private final JwtProperties jwtProperties;
     private final TimeFormatter timeFormatter;
 
-    public JwtTokenDTO generateToken(UUID id, UserRole role) {
+    public JwtTokenDTO generateToken(UUID id, Set<UserRole> roles) {
 
         Instant now = timeFormatter.now();
         Instant expiration = now.plus(jwtProperties.getExpiration());
@@ -39,7 +40,7 @@ public class JwtService {
                 .subject(id.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .claim("role", role.name())
+                .claim("roles", roles)
                 .signWith(getSignInKey())
                 .compact();
 

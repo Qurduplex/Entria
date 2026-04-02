@@ -1,12 +1,7 @@
 package edu.pk.qurduplex.identityService.services;
 
-import edu.pk.qurduplex.identityService.dto.AccountVerificationResponseDTO;
-import edu.pk.qurduplex.identityService.dto.GenerateVerificationCodeResponseDTO;
-import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
-import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
-import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
-import edu.pk.qurduplex.identityService.exceptions.UserAlreadyVerifiedException;
-import edu.pk.qurduplex.identityService.exceptions.UserNotFoundException;
+import edu.pk.qurduplex.identityService.dto.*;
+import edu.pk.qurduplex.identityService.exceptions.*;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
@@ -14,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -24,7 +20,9 @@ public class AuthService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationCodeService verificationCodeService;
+    private final JwtService jwtService;
 
+    @Transactional
     public RegisterResponseDTO register(String email, String password) {
         if (authRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException("Email already in use");
@@ -65,6 +63,7 @@ public class AuthService {
         return new GenerateVerificationCodeResponseDTO(credential.getEmail(), true);
     }
 
+    @Transactional
     public AccountVerificationResponseDTO verifyAccount(String email, String verificationCode) {
         AuthCredential credential = authRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
@@ -81,5 +80,26 @@ public class AuthService {
         log.info("Account with email: {} has been verified successfully", email);
 
         return new AccountVerificationResponseDTO(credential.getEmail(), true);
+    }
+
+    public LoginResponseDTO login(String email, String password) {
+        AuthCredential credential = authRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialException("User with email " + email + " not found"));
+
+        if (!passwordEncoder.matches(password, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("Invalid email or password");
+        }
+
+        if (!credential.isActive()) {
+            throw new InvalidCredentialException("Account with email " + email + " is not verified");
+        }
+
+        log.info("User with email: {} logged in successfully", email);
+
+        JwtTokenDTO token = jwtService.generateToken(credential.getId(), credential.getRoles());
+
+        log.info("Generated JWT token for user with email: {}", email);
+
+        return new LoginResponseDTO(token.token(), token.expiresAt());
     }
 }

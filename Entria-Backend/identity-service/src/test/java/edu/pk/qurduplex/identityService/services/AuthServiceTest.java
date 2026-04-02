@@ -1,8 +1,10 @@
 package edu.pk.qurduplex.identityService.services;
 
+import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
 import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
 import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
+import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +36,9 @@ class AuthServiceTest {
 
     @Mock
     private VerificationCodeService verificationCodeService;
+
+    @Mock
+    private JwtService jwtService;
 
     @InjectMocks
     private AuthService authService;
@@ -201,5 +207,105 @@ class AuthServiceTest {
 
         verifyNoInteractions(verificationCodeService);
         verify(authRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should successfully log in and return JWT token")
+    void login_Success() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_PASSWORD = Instancio.create(String.class);
+        String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
+        UUID TEST_ID = Instancio.create(UUID.class);
+        String GENERATED_TOKEN = Instancio.create(String.class);
+        String EXPIRATION_TIME = Instancio.create(String.class);
+        Set<UserRole> ROLES = Set.of(UserRole.USER);
+
+        AuthCredential credential = AuthCredential.builder()
+                .id(TEST_ID)
+                .email(TEST_EMAIL)
+                .passwordHash(ENCODED_PASSWORD)
+                .isActive(true)
+                .roles(ROLES)
+                .build();
+
+        edu.pk.qurduplex.identityService.dto.JwtTokenDTO jwtTokenDTO =
+                new edu.pk.qurduplex.identityService.dto.JwtTokenDTO(GENERATED_TOKEN, EXPIRATION_TIME);
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+        when(passwordEncoder.matches(TEST_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+        when(jwtService.generateToken(TEST_ID, ROLES)).thenReturn(jwtTokenDTO);
+
+        LoginResponseDTO response = authService.login(TEST_EMAIL, TEST_PASSWORD);
+
+        assertThat(response.getToken()).isEqualTo(GENERATED_TOKEN);
+        assertThat(response.getExpiresAt()).isEqualTo(EXPIRATION_TIME);
+
+        verify(authRepository).findByEmail(TEST_EMAIL);
+        verify(passwordEncoder).matches(TEST_PASSWORD, ENCODED_PASSWORD);
+        verify(jwtService).generateToken(TEST_ID, ROLES);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialException when user is not found")
+    void login_UserNotFound_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_PASSWORD = Instancio.create(String.class);
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> authService.login(TEST_EMAIL, TEST_PASSWORD))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException.class)
+                .hasMessageContaining("User with email " + TEST_EMAIL + " not found");
+
+        verifyNoInteractions(passwordEncoder);
+        verifyNoInteractions(jwtService);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialException when account is not verified")
+    void login_AccountNotVerified_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_PASSWORD = Instancio.create(String.class);
+        String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
+
+        AuthCredential credential = AuthCredential.builder()
+                .email(TEST_EMAIL)
+                .passwordHash(ENCODED_PASSWORD)
+                .isActive(false)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+
+        when(passwordEncoder.matches(TEST_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.login(TEST_EMAIL, TEST_PASSWORD))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException.class)
+                .hasMessageContaining("Account with email " + TEST_EMAIL + " is not verified");
+
+        verify(passwordEncoder).matches(TEST_PASSWORD, ENCODED_PASSWORD); // Weryfikujemy, że sprawdzono hasło
+        verifyNoInteractions(jwtService);
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidCredentialException when password does not match")
+    void login_InvalidPassword_ThrowsException() {
+        String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
+        String TEST_PASSWORD = Instancio.create(String.class);
+        String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
+
+        AuthCredential credential = AuthCredential.builder()
+                .email(TEST_EMAIL)
+                .passwordHash(ENCODED_PASSWORD)
+                .isActive(true)
+                .build();
+
+        when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
+        when(passwordEncoder.matches(TEST_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(TEST_EMAIL, TEST_PASSWORD))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException.class)
+                .hasMessageContaining("Invalid email or password");
+
+        verifyNoInteractions(jwtService);
     }
 }
