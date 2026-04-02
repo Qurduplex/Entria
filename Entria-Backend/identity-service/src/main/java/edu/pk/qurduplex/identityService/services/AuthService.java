@@ -1,8 +1,12 @@
 package edu.pk.qurduplex.identityService.services;
 
+import edu.pk.qurduplex.identityService.dto.AccountVerificationResponseDTO;
+import edu.pk.qurduplex.identityService.dto.GenerateVerificationCodeResponseDTO;
 import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
 import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
 import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
+import edu.pk.qurduplex.identityService.exceptions.UserAlreadyVerifiedException;
+import edu.pk.qurduplex.identityService.exceptions.UserNotFoundException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
@@ -10,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Set;
 
@@ -45,5 +48,34 @@ public class AuthService {
         //todo: send verification email
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
+    }
+
+    public GenerateVerificationCodeResponseDTO requestVerificationCode(String email) {
+        AuthCredential credential = authRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+
+        String verificationCode = verificationCodeService.generateVerificationCode(credential.getId());
+        log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
+        //todo: send verification email
+
+        return new GenerateVerificationCodeResponseDTO(credential.getEmail(), true);
+    }
+
+    public AccountVerificationResponseDTO verifyAccount(String email, String verificationCode) {
+        AuthCredential credential = authRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+
+        if (credential.isActive()) {
+            throw new UserAlreadyVerifiedException("Account is already verified");
+        }
+
+        verificationCodeService.verifyVerificationCode(credential.getId(), verificationCode);
+
+        credential.setActive(true);
+        authRepository.save(credential);
+
+        log.info("Account with email: {} has been verified successfully", email);
+
+        return new AccountVerificationResponseDTO(credential.getEmail(), true);
     }
 }

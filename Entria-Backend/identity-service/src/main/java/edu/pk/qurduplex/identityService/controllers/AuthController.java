@@ -1,7 +1,6 @@
 package edu.pk.qurduplex.identityService.controllers;
 
-import edu.pk.qurduplex.identityService.dto.RegisterRequestDTO;
-import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
+import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,26 @@ public class AuthController {
         RegisterResponseDTO response = authService.register(request.getEmail(), request.getPassword());
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("verification-code/request")
+    public ResponseEntity<GenerateVerificationCodeResponseDTO> requestVerificationCode(
+            @RequestBody @Valid GenerateVerificationCodeRequestDTO request) {
+
+        log.info("Received request for verification code for email: {}", request.getEmail());
+        GenerateVerificationCodeResponseDTO response = authService.requestVerificationCode(request.getEmail());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("verification-code/verify")
+    public ResponseEntity<AccountVerificationResponseDTO> verifyCode(
+            @RequestBody @Valid AccountVerificationRequestDTO request
+    ) {
+        log.info("Received account verification request for email: {}", request.getEmail());
+        AccountVerificationResponseDTO response = authService.verifyAccount(request.getEmail(), request.getVerificationCode());
+        return ResponseEntity.ok(response);
+    }
+
 
 
 }

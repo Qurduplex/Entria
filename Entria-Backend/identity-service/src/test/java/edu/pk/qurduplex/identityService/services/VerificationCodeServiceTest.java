@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -91,5 +92,60 @@ class VerificationCodeServiceTest {
         verify(codeGenerator).generateCode(6);
         verify(verificationCodeProperties).getExpirationInSeconds();
         verify(verificationCodeRepository).save(any(VerificationCode.class));
+    }
+
+    @Test
+    @DisplayName("Should successfully verify and delete the code when it matches")
+    void verifyVerificationCode_Success() {
+        UUID TEST_ID = Instancio.create(UUID.class);
+        String VALID_CODE = Instancio.create(String.class);
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .id(TEST_ID)
+                .code(VALID_CODE)
+                .build();
+
+        when(verificationCodeRepository.findById(TEST_ID)).thenReturn(java.util.Optional.of(verificationCode));
+
+        verificationCodeService.verifyVerificationCode(TEST_ID, VALID_CODE);
+
+        verify(verificationCodeRepository).findById(TEST_ID);
+        verify(verificationCodeRepository).delete(verificationCode);
+    }
+
+    @Test
+    @DisplayName("Should throw VerificationCodeNotFoundException when code does not exist in repository")
+    void verifyVerificationCode_NotFound_ThrowsException() {
+        UUID TEST_ID = Instancio.create(UUID.class);
+        String PROVIDED_CODE = Instancio.create(String.class);
+
+        when(verificationCodeRepository.findById(TEST_ID)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> verificationCodeService.verifyVerificationCode(TEST_ID, PROVIDED_CODE))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.VerificationCodeNotFoundException.class)
+                .hasMessageContaining("Verification code not found");
+
+        verify(verificationCodeRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidVerificationCodeException when provided code does not match")
+    void verifyVerificationCode_InvalidCode_ThrowsException() {
+        UUID TEST_ID = Instancio.create(UUID.class);
+        String DB_CODE = Instancio.create(String.class);
+        String WRONG_CODE = Instancio.create(String.class);
+
+        VerificationCode verificationCode = VerificationCode.builder()
+                .id(TEST_ID)
+                .code(DB_CODE)
+                .build();
+
+        when(verificationCodeRepository.findById(TEST_ID)).thenReturn(java.util.Optional.of(verificationCode));
+
+        assertThatThrownBy(() -> verificationCodeService.verifyVerificationCode(TEST_ID, WRONG_CODE))
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidVerificationCodeException.class)
+                .hasMessageContaining("Invalid verification code");
+
+        verify(verificationCodeRepository, never()).delete(any());
     }
 }

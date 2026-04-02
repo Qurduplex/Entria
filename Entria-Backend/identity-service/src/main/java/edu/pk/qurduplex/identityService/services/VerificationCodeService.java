@@ -1,6 +1,8 @@
 package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.config.VerificationCodeProperties;
+import edu.pk.qurduplex.identityService.exceptions.InvalidVerificationCodeException;
+import edu.pk.qurduplex.identityService.exceptions.VerificationCodeNotFoundException;
 import edu.pk.qurduplex.identityService.models.VerificationCode;
 import edu.pk.qurduplex.identityService.repositories.VerificationCodeRepository;
 import edu.pk.qurduplex.identityService.util.CodeGenerator;
@@ -38,5 +40,19 @@ public class VerificationCodeService {
         log.info("Saved verification code: {}", saved.toString());
 
         return saved.getCode();
+    }
+
+    public void verifyVerificationCode(UUID id, String verificationCode) {
+        VerificationCode code = verificationCodeRepository.findById(id)
+                .orElseThrow(() -> new VerificationCodeNotFoundException(
+                        "Verification code not found, Check if email is correct or if verification code has expired"));
+
+        if (!code.getCode().equals(verificationCode)) {
+            log.warn("Invalid verification code provided for id: {}", id);
+            throw new InvalidVerificationCodeException("Invalid verification code");
+        }
+
+        log.info("Verification code verified successfully for id: {}", id);
+        verificationCodeRepository.delete(code);
     }
 }
