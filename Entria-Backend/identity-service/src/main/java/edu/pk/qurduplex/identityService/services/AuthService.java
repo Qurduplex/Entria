@@ -74,6 +74,7 @@ public class AuthService {
         return LoginResponseDTO.builder()
                 .refreshToken(refreshToken.getToken().toString())
                 .jwtToken(jwtToken.token())
+                .expiresAt(jwtToken.expiresAt())
                 .build();
     }
 
@@ -90,6 +91,7 @@ public class AuthService {
 
         return TokenDTO.builder()
                 .jwtToken(newAccessToken.token())
+                .expiresAt(newAccessToken.expiresAt())
                 .build();
     }
 

@@ -1,7 +1,9 @@
 package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.config.ResetPasswordCodeProperties;
+import edu.pk.qurduplex.identityService.exceptions.InvalidResetPasswordCodeException;
 import edu.pk.qurduplex.identityService.exceptions.InvalidVerificationCodeException;
+import edu.pk.qurduplex.identityService.exceptions.ResetPasswordCodeNotFoundException;
 import edu.pk.qurduplex.identityService.exceptions.VerificationCodeNotFoundException;
 import edu.pk.qurduplex.identityService.models.ResetPasswordCode;
 import edu.pk.qurduplex.identityService.repositories.ResetPasswordCodeRepository;
@@ -44,12 +46,12 @@ public class ResetPasswordCodeService {
 
     public void verifyResetPasswordCode(UUID id, String resetPasswordCode) {
         ResetPasswordCode code = resetPasswordCodeRepository.findById(id)
-                .orElseThrow(() -> new VerificationCodeNotFoundException(
+                .orElseThrow(() -> new ResetPasswordCodeNotFoundException(
                         "Reset-password code not found, Check if email is correct or if reset-password code has expired"));
 
         if (!code.getCode().equals(resetPasswordCode)) {
             log.warn("Invalid reset-password code provided for id: {}", id);
-            throw new InvalidVerificationCodeException("Invalid reset-password code");
+            throw new InvalidResetPasswordCodeException("Invalid reset-password code");
         }
 
         log.info("Reset-password code verified successfully for id: {}", id);

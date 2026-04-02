@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,9 +52,19 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public UserRole extractUserRole(String token) {
-        String roleName = extractAllClaims(token).get("role", String.class);
-        return UserRole.valueOf(roleName);
+    public Set<UserRole> extractUserRoles(String token) {
+        Claims claims = extractAllClaims(token);
+
+        Object rolesObject = claims.get("roles");
+
+        if (!(rolesObject instanceof java.util.List<?> rolesList)) {
+            return java.util.Collections.emptySet();
+        }
+
+        return rolesList.stream()
+                .filter(String.class::isInstance)
+                .map(obj -> UserRole.valueOf((String) obj))
+                .collect(java.util.stream.Collectors.toSet());
     }
 
     private Claims extractAllClaims(String token) {

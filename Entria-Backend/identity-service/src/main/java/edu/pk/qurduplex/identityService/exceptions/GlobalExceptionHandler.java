@@ -86,9 +86,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorMap(ex.getMessage())); // 404 Not Found
     }
 
+
     @ExceptionHandler(InvalidVerificationCodeException.class)
     public ResponseEntity<Map<String, String>> handleInvalidVerificationCodeException(InvalidVerificationCodeException ex) {
         log.warn("Invalid verification code provided: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMap(ex.getMessage())); // 400 Bad Request
+    }
+
+    // --- Reset Password Code Errors ---
+
+    @ExceptionHandler(ResetPasswordCodeNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResetPasswordCodeNotFoundException(ResetPasswordCodeNotFoundException ex) {
+        log.warn("Reset password code not found or expired: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorMap(ex.getMessage())); // 404 Not Found
+    }
+
+    @ExceptionHandler(InvalidResetPasswordCodeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidResetPasswordCodeException(InvalidResetPasswordCodeException ex) {
+        log.warn("Invalid reset-password code provided: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorMap(ex.getMessage())); // 400 Bad Request
     }
 

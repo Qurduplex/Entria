@@ -128,7 +128,7 @@ class ResetPasswordCodeServiceTest {
         when(resetPasswordCodeRepository.findById(TEST_ID)).thenReturn(java.util.Optional.empty());
 
         assertThatThrownBy(() -> resetPasswordCodeService.verifyResetPasswordCode(TEST_ID, PROVIDED_CODE))
-                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.VerificationCodeNotFoundException.class)
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.ResetPasswordCodeNotFoundException.class)
                 .hasMessageContaining("Reset-password code not found");
 
         verify(resetPasswordCodeRepository, never()).delete(any());
@@ -149,7 +149,7 @@ class ResetPasswordCodeServiceTest {
         when(resetPasswordCodeRepository.findById(TEST_ID)).thenReturn(java.util.Optional.of(resetCode));
 
         assertThatThrownBy(() -> resetPasswordCodeService.verifyResetPasswordCode(TEST_ID, WRONG_CODE))
-                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidVerificationCodeException.class)
+                .isInstanceOf(edu.pk.qurduplex.identityService.exceptions.InvalidResetPasswordCodeException.class)
                 .hasMessageContaining("Invalid reset-password code");
 
         verify(resetPasswordCodeRepository, never()).delete(any());
