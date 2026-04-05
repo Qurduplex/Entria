@@ -47,6 +47,13 @@ public class GlobalExceptionHandler {
                 .body(createErrorMap(ex.getMessage()));
     }
 
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleJwtAuthenticationException(JwtAuthenticationException ex) {
+        log.warn("JWT Authentication failed: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(createErrorMap(ex.getMessage()));
+    }
+
     // --- Authentication & Identity Errors ---
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {

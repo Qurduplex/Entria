@@ -3,6 +3,7 @@ package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.config.JwtProperties;
 import edu.pk.qurduplex.identityService.dto.JwtTokenDTO;
+import edu.pk.qurduplex.identityService.exceptions.JwtAuthenticationException;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -41,7 +42,7 @@ public class JwtService {
                 .subject(id.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .claim("role", role)
+                .claim("role", role.name())
                 .signWith(getSignInKey())
                 .compact();
 
@@ -56,7 +57,17 @@ public class JwtService {
         Claims claims = extractAllClaims(token);
         String roleName = claims.get("role", String.class);
 
-        return roleName != null ? UserRole.valueOf(roleName) : null;
+        if (roleName == null) {
+            log.warn("Token missing 'role' claim");
+            throw new JwtAuthenticationException("Missing role in token");
+        }
+
+        try {
+            return UserRole.valueOf(roleName);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid role in token: {}", roleName);
+            throw new JwtAuthenticationException("Invalid role: " + roleName);
+        }
     }
 
     private Claims extractAllClaims(String token) {
