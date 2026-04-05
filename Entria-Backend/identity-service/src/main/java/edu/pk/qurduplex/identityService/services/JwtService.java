@@ -3,6 +3,7 @@ package edu.pk.qurduplex.identityService.services;
 
 import edu.pk.qurduplex.identityService.config.JwtProperties;
 import edu.pk.qurduplex.identityService.dto.JwtTokenDTO;
+import edu.pk.qurduplex.identityService.exceptions.JwtAuthenticationException;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -28,7 +29,7 @@ public class JwtService {
     private final JwtProperties jwtProperties;
     private final Clock clock;
 
-    public JwtTokenDTO generateToken(UUID id, Set<UserRole> roles) {
+    public JwtTokenDTO generateToken(UUID id, UserRole role) {
 
         Instant now = Instant.now(clock);
         Instant expiration = now.plus(jwtProperties.getExpiration());
@@ -41,7 +42,7 @@ public class JwtService {
                 .subject(id.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .claim("roles", roles)
+                .claim("role", role.name())
                 .signWith(getSignInKey())
                 .compact();
 
@@ -52,19 +53,21 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public Set<UserRole> extractUserRoles(String token) {
+    public UserRole extractUserRole(String token) {
         Claims claims = extractAllClaims(token);
+        String roleName = claims.get("role", String.class);
 
-        Object rolesObject = claims.get("roles");
-
-        if (!(rolesObject instanceof java.util.List<?> rolesList)) {
-            return java.util.Collections.emptySet();
+        if (roleName == null) {
+            log.warn("Token missing 'role' claim");
+            throw new JwtAuthenticationException("Missing role in token");
         }
 
-        return rolesList.stream()
-                .filter(String.class::isInstance)
-                .map(obj -> UserRole.valueOf((String) obj))
-                .collect(java.util.stream.Collectors.toSet());
+        try {
+            return UserRole.valueOf(roleName);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid role in token: {}", roleName);
+            throw new JwtAuthenticationException("Invalid role: " + roleName);
+        }
     }
 
     private Claims extractAllClaims(String token) {

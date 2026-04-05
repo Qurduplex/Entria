@@ -37,7 +37,7 @@ public class AuthController {
             @Valid @RequestBody RegisterRequestDTO request
     ) {
         log.info("Received registration request for email: {}", request.getEmail());
-        RegisterResponseDTO response = authService.register(request.getEmail(), request.getPassword());
+        RegisterResponseDTO response = authService.register(request.getEmail(), request.getPassword(), request.getUserRole());
         return ResponseEntity.ok(response);
     }
 

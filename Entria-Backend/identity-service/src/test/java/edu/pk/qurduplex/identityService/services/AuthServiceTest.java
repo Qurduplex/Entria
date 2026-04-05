@@ -57,6 +57,7 @@ class AuthServiceTest {
         String TEST_PASSWORD = Instancio.create(String.class);
         String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
         String VERIFICATION_CODE = Instancio.create(String.class);
+        UserRole TEST_ROLE = Instancio.create(UserRole.class);
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
         when(passwordEncoder.encode(TEST_PASSWORD)).thenReturn(ENCODED_PASSWORD);
@@ -69,7 +70,7 @@ class AuthServiceTest {
 
         when(authRepository.save(any(AuthCredential.class))).thenReturn(savedCredential);
 
-        RegisterResponseDTO response = authService.register(TEST_EMAIL, TEST_PASSWORD);
+        RegisterResponseDTO response = authService.register(TEST_EMAIL, TEST_PASSWORD, TEST_ROLE);
 
         assertThat(response.getEmail()).isEqualTo(TEST_EMAIL);
         assertThat(response.isSuccess()).isTrue();
@@ -84,10 +85,11 @@ class AuthServiceTest {
     void register_EmailAlreadyExists_ThrowsException() {
         String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
+        UserRole TEST_ROLE = Instancio.create(UserRole.class);
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.register(TEST_EMAIL, TEST_PASSWORD))
+        assertThatThrownBy(() -> authService.register(TEST_EMAIL, TEST_PASSWORD, TEST_ROLE))
                 .isInstanceOf(UserAlreadyExistsException.class)
                 .hasMessage("Email already in use");
 
@@ -225,14 +227,14 @@ class AuthServiceTest {
         UUID TEST_ID = Instancio.create(UUID.class);
         String GENERATED_JWT = Instancio.create(String.class);
         UUID GENERATED_REFRESH_TOKEN = Instancio.create(UUID.class);
-        Set<UserRole> ROLES = Set.of(UserRole.USER);
+        UserRole ROLE = Instancio.create(UserRole.class);
 
         AuthCredential credential = AuthCredential.builder()
                 .id(TEST_ID)
                 .email(TEST_EMAIL)
                 .passwordHash(ENCODED_PASSWORD)
                 .isActive(true)
-                .roles(ROLES)
+                .role(ROLE)
                 .build();
 
         edu.pk.qurduplex.identityService.dto.JwtTokenDTO jwtTokenDTO =
@@ -245,7 +247,7 @@ class AuthServiceTest {
 
         when(authRepository.findByEmail(TEST_EMAIL)).thenReturn(java.util.Optional.of(credential));
         when(passwordEncoder.matches(TEST_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
-        when(jwtService.generateToken(TEST_ID, ROLES)).thenReturn(jwtTokenDTO);
+        when(jwtService.generateToken(TEST_ID, ROLE)).thenReturn(jwtTokenDTO);
         when(refreshTokenService.createRefreshToken(TEST_ID)).thenReturn(refreshToken);
 
         LoginResponseDTO response = authService.login(TEST_EMAIL, TEST_PASSWORD);
@@ -255,7 +257,7 @@ class AuthServiceTest {
 
         verify(authRepository).findByEmail(TEST_EMAIL);
         verify(passwordEncoder).matches(TEST_PASSWORD, ENCODED_PASSWORD);
-        verify(jwtService).generateToken(TEST_ID, ROLES);
+        verify(jwtService).generateToken(TEST_ID, ROLE);
         verify(refreshTokenService).createRefreshToken(TEST_ID);
     }
 
@@ -462,7 +464,7 @@ class AuthServiceTest {
         UUID REFRESH_TOKEN_ID = Instancio.create(UUID.class);
         UUID USER_ID = Instancio.create(UUID.class);
         String NEW_JWT = Instancio.create(String.class);
-        Set<UserRole> ROLES = Set.of(UserRole.USER);
+        UserRole TEST_ROLE = Instancio.create(UserRole.class);
 
         edu.pk.qurduplex.identityService.models.RefreshToken validRefreshToken =
                 edu.pk.qurduplex.identityService.models.RefreshToken.builder()
@@ -472,7 +474,7 @@ class AuthServiceTest {
 
         AuthCredential user = AuthCredential.builder()
                 .id(USER_ID)
-                .roles(ROLES)
+                .role(TEST_ROLE)
                 .build();
 
         edu.pk.qurduplex.identityService.dto.JwtTokenDTO newJwtDTO =
@@ -480,7 +482,7 @@ class AuthServiceTest {
 
         when(refreshTokenService.verifyAndGetToken(REFRESH_TOKEN_ID)).thenReturn(validRefreshToken);
         when(authRepository.findById(USER_ID)).thenReturn(java.util.Optional.of(user));
-        when(jwtService.generateToken(USER_ID, ROLES)).thenReturn(newJwtDTO);
+        when(jwtService.generateToken(USER_ID, TEST_ROLE)).thenReturn(newJwtDTO);
 
         TokenDTO response = authService.refreshAccessToken(REFRESH_TOKEN_ID);
 
@@ -488,7 +490,7 @@ class AuthServiceTest {
 
         verify(refreshTokenService).verifyAndGetToken(REFRESH_TOKEN_ID);
         verify(authRepository).findById(USER_ID);
-        verify(jwtService).generateToken(USER_ID, ROLES);
+        verify(jwtService).generateToken(USER_ID, TEST_ROLE);
     }
 
     @Test
