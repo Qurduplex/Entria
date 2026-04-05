@@ -21,9 +21,7 @@ public class AuthCredential {
 
     private String email;
     private String passwordHash;
-    private boolean isActive;
+    private UserRole role;
 
-    @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<UserRole> roles;
+    private boolean isActive;
 }

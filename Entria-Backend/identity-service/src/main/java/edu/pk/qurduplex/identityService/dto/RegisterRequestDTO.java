@@ -1,5 +1,7 @@
 package edu.pk.qurduplex.identityService.dto;
 
+import edu.pk.qurduplex.identityService.models.UserRole;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +23,7 @@ public class RegisterRequestDTO {
     @NotBlank(message = "password is required")
     @Size(min = 8, message = "password at least 8 characters long")
     private String password;
+
+    @NotNull(message = "user role is required")
+    private UserRole UserRole;
 }

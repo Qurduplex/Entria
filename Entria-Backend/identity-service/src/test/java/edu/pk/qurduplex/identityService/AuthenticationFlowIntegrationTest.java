@@ -2,14 +2,12 @@ package edu.pk.qurduplex.identityService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.pk.qurduplex.identityService.dto.*;
-import edu.pk.qurduplex.identityService.models.AuthCredential;
-import edu.pk.qurduplex.identityService.models.RefreshToken;
-import edu.pk.qurduplex.identityService.models.ResetPasswordCode;
-import edu.pk.qurduplex.identityService.models.VerificationCode;
+import edu.pk.qurduplex.identityService.models.*;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import edu.pk.qurduplex.identityService.repositories.RefreshTokenRepository;
 import edu.pk.qurduplex.identityService.repositories.ResetPasswordCodeRepository;
 import edu.pk.qurduplex.identityService.repositories.VerificationCodeRepository;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,9 +89,10 @@ class AuthenticationFlowIntegrationTest {
         final String TEST_EMAIL = "integration.test@example.com";
         final String TEST_PASSWORD = "SuperSecretPassword123!";
         final String NEW_PASSWORD = "EvenMoreSecretPassword456!";
+        final UserRole USER_ROLE = Instancio.create(UserRole.class);
 
         // 1. USER REGISTRATION
-        RegisterRequestDTO registerRequest = new RegisterRequestDTO(TEST_EMAIL, TEST_PASSWORD);
+        RegisterRequestDTO registerRequest = new RegisterRequestDTO(TEST_EMAIL, TEST_PASSWORD, USER_ROLE);
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))

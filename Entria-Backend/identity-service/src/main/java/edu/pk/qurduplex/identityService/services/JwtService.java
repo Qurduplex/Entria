@@ -28,7 +28,7 @@ public class JwtService {
     private final JwtProperties jwtProperties;
     private final Clock clock;
 
-    public JwtTokenDTO generateToken(UUID id, Set<UserRole> roles) {
+    public JwtTokenDTO generateToken(UUID id, UserRole role) {
 
         Instant now = Instant.now(clock);
         Instant expiration = now.plus(jwtProperties.getExpiration());
@@ -41,7 +41,7 @@ public class JwtService {
                 .subject(id.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .claim("roles", roles)
+                .claim("role", role)
                 .signWith(getSignInKey())
                 .compact();
 
@@ -52,19 +52,11 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public Set<UserRole> extractUserRoles(String token) {
+    public UserRole extractUserRole(String token) {
         Claims claims = extractAllClaims(token);
+        String roleName = claims.get("role", String.class);
 
-        Object rolesObject = claims.get("roles");
-
-        if (!(rolesObject instanceof java.util.List<?> rolesList)) {
-            return java.util.Collections.emptySet();
-        }
-
-        return rolesList.stream()
-                .filter(String.class::isInstance)
-                .map(obj -> UserRole.valueOf((String) obj))
-                .collect(java.util.stream.Collectors.toSet());
+        return roleName != null ? UserRole.valueOf(roleName) : null;
     }
 
     private Claims extractAllClaims(String token) {

@@ -6,6 +6,7 @@ import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.RefreshToken;
 import edu.pk.qurduplex.identityService.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public RegisterResponseDTO register(String email, String password) {
+    public RegisterResponseDTO register(String email, String password, UserRole userRole) {
         if (authRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException("Email already in use");
         }
@@ -37,7 +38,7 @@ public class AuthService {
                 .email(email)
                 .passwordHash(hashedPassword)
                 .isActive(false)
-                .roles(Set.of(UserRole.USER))
+                .role(userRole)
                 .build();
 
         log.info("Saving new user with email: {}", email);
@@ -66,7 +67,7 @@ public class AuthService {
 
         log.info("User with email: {} logged in successfully", email);
 
-        JwtTokenDTO jwtToken = jwtService.generateToken(credential.getId(), credential.getRoles());
+        JwtTokenDTO jwtToken = jwtService.generateToken(credential.getId(), credential.getRole());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(credential.getId());
 
         log.info("Generated JWT token for user with email: {}", email);
@@ -85,7 +86,7 @@ public class AuthService {
         AuthCredential user = authRepository.findById(validRefreshToken.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
 
-        JwtTokenDTO newAccessToken = jwtService.generateToken(user.getId(), user.getRoles());
+        JwtTokenDTO newAccessToken = jwtService.generateToken(user.getId(), user.getRole());
 
         log.info("Successfully refreshed access token for user id: {}", user.getId());
 
