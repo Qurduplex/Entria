@@ -21,6 +21,8 @@ public class AuthCredential {
 
     private String email;
     private String passwordHash;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
     private boolean isActive;
