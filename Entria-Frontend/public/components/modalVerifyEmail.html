@@ -1,0 +1,55 @@
+<div id="verifyModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-10 backdrop-blur-sm">
+    <div class="w-full max-w-[1000px] rounded-[32px] bg-[#161619] px-[62px] py-[56px] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+        <div class="mx-auto flex max-w-[640px] flex-col items-center text-center">
+
+            <div class="flex h-[50px] w-[44px] items-center justify-center">
+                <svg width="50" height="44" viewBox="0 0 50 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0.5" y="0.5" width="49" height="43" rx="21.5" fill="#1E1E21"/>
+                    <rect x="0.5" y="0.5" width="49" height="43" rx="21.5" stroke="#A89DFF"/>
+                    <path d="M37 12H13C12.7348 12 12.4804 12.1054 12.2929 12.2929C12.1054 12.4804 12 12.7348 12 13V30C12 30.5304 12.2107 31.0391 12.5858 31.4142C12.9609 31.7893 13.4696 32 14 32H36C36.5304 32 37.0391 31.7893 37.4142 31.4142C37.7893 31.0391 38 30.5304 38 30V13C38 12.7348 37.8946 12.4804 37.7071 12.2929C37.5196 12.1054 37.2652 12 37 12ZM34.4287 14L25 22.6437L15.5712 14H34.4287ZM36 30H14V15.2738L24.3237 24.7375C24.5082 24.9069 24.7496 25.0008 25 25.0008C25.2504 25.0008 25.4918 24.9069 25.6763 24.7375L36 15.2738V30Z" fill="#A89DFF"/>
+                </svg>
+            </div>
+
+            <h1 id="verifyTitle" class="mt-4 text-[56px] font-[Fraunces] font-semibold leading-none text-white">
+                Potwierdź email
+            </h1>
+
+            <p id="verifySubtitle" class="mt-4 text-[20px] text-white/70">
+                Wysłaliśmy 6-cyfrowy kod na
+            </p>
+
+            <p id="verifyEmail" class="mt-2 text-[20px] font-semibold text-white">
+                jan@domena.pl
+            </p>
+
+            <form id="verifyForm" class="mt-10 w-full">
+                <div class="grid grid-cols-6 gap-4">
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                    <input type="text" maxlength="1" inputmode="numeric"
+                        class="verify-code-input h-[74px] w-full rounded-[14px] bg-white text-center text-[28px] font-medium text-[#1E1E1E] uppercase outline-none" />
+                </div>
+
+                <button
+                    type="submit"
+                    class="mt-8 h-[56px] w-full rounded-[14px] bg-white text-[18px] font-medium text-[#1E1E1E] transition hover:bg-white/90"
+                >
+                    Potwierdź
+                </button>
+
+                <p class="mt-8 text-center text-white/40">
+                    Nie dostałeś?
+                    <a id="resendCodeLink" href="#" class="text-[#9C8CFF] hover:underline">Wyślij ponownie</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,64 @@
+<div id="chooseTypeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
+    <div class="relative w-full max-w-[1180px] max-h-[90vh] overflow-y-auto rounded-[32px] bg-[#0E0E12] px-8 py-10 shadow-[0_0_80px_rgba(0,0,0,0.45)] md:px-12 md:py-12">
+
+        <button id="closeChooseTypeModal" class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/70 transition hover:bg-white/5 hover:text-white">
+            ✕
+        </button>
+
+        <div class="max-w-[760px] pr-12">
+            <h2 class="text-4xl font-[Fraunces] leading-tight tracking-[-0.03em] text-white md:text-6xl">
+                Jak chcesz zacząć?
+            </h2>
+
+            <p class="mt-4 text-lg font-['DM_Sans'] text-white/60 md:text-2xl">
+                Wybierz rodzaj konta do założenia lub logowania.
+            </p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div id="openRegisterUser" class="cursor-pointer min-h-[260px] rounded-[24px] border border-[#7C6FFF] bg-[#17172B] p-7 text-left transition hover:bg-[#1B1B33]">
+                <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-[#A89DFF]/18">
+                    <svg class="h-6 w-6" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.8866 18.783C18.4236 16.1528 16.169 14.2668 13.5379 13.3727C14.8394 12.567 15.8506 11.3393 16.4161 9.87816C16.9817 8.41701 17.0704 6.80319 16.6686 5.28454C16.2668 3.76589 15.3968 2.42637 14.1921 1.4717C12.9874 0.517034 11.5146 0 10 0C8.48537 0 7.01262 0.517034 5.80792 1.4717C4.60321 2.42637 3.73316 3.76589 3.33138 5.28454C2.9296 6.80319 3.0183 8.41701 3.58387 9.87816C4.14944 11.3393 5.1606 12.567 6.46207 13.3727C3.83095 14.2658 1.5764 16.1518 0.113387 18.783C0.0597359 18.874 0.0241494 18.9752 0.00872733 19.0807C-0.00669474 19.1862 -0.00164002 19.2939 0.0235932 19.3973C0.0488265 19.5008 0.0937273 19.5979 0.155646 19.683C0.217565 19.7681 0.295248 19.8395 0.384111 19.8929C0.472975 19.9462 0.571219 19.9806 0.673047 19.9938C0.774875 20.0071 0.878224 19.999 0.976997 19.97C1.07577 19.9411 1.16797 19.8918 1.24815 19.8252C1.32832 19.7586 1.39486 19.676 1.44383 19.5822C3.25363 16.3296 6.45246 14.3876 10 14.3876C13.5475 14.3876 16.7464 16.3296 18.5562 19.5822C18.6051 19.676 18.6717 19.7586 18.7519 19.8252C18.832 19.8918 18.9242 19.9411 19.023 19.97C19.1218 19.999 19.2251 20.0071 19.327 19.9938C19.4288 19.9806 19.527 19.9462 19.6159 19.8929C19.7048 19.8395 19.7824 19.7681 19.8444 19.683C19.9063 19.5979 19.9512 19.5008 19.9764 19.3973C20.0016 19.2939 20.0067 19.1862 19.9913 19.0807C19.9758 18.9752 19.9403 18.874 19.8866 18.783ZM4.62058 7.19518C4.62058 6.08876 4.93607 5.00719 5.52717 4.08724C6.11827 3.16729 6.95842 2.45028 7.94138 2.02687C8.92434 1.60346 10.006 1.49268 11.0495 1.70853C12.093 1.92438 13.0515 2.45717 13.8038 3.23953C14.5562 4.02188 15.0685 5.01866 15.2761 6.10382C15.4836 7.18897 15.3771 8.31377 14.9699 9.33596C14.5628 10.3582 13.8733 11.2318 12.9886 11.8465C12.104 12.4612 11.0639 12.7893 10 12.7893C8.57376 12.7877 7.20637 12.1978 6.19786 11.1491C5.18935 10.1003 4.6221 8.67835 4.62058 7.19518Z" fill="#7C6FFF"/>
+                    </svg>
+                </div>
+
+                <h3 class="text-2xl font-['DM_Sans'] font-semibold text-white">
+                    Użytkownik
+                </h3>
+
+                <p class="mt-4 max-w-[320px] text-xl font-['DM_Sans'] leading-9 text-white/85">
+                    Konto osobiste, jeden login wszędzie
+                </p>
+            </div>
+
+            <div id="openRegisterDeveloper" class="cursor-pointer min-h-[260px] rounded-[24px] border border-white/50 bg-[#17171C] p-7 text-left transition hover:bg-[#1B1B22]">
+                <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-[#A89DFF]/18">
+                    <svg class="h-6 w-6" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.5 6.75H13.5V4.5C13.5 3.30653 13.0259 2.16193 12.182 1.31802C11.3381 0.474106 10.1935 0 9 0C7.80653 0 6.66193 0.474106 5.81802 1.31802C4.97411 2.16193 4.5 3.30653 4.5 4.5V6.75H1.5C1.10218 6.75 0.720644 6.90804 0.43934 7.18934C0.158035 7.47064 0 7.85218 0 8.25V18.75C0 19.1478 0.158035 19.5294 0.43934 19.8107C0.720644 20.092 1.10218 20.25 1.5 20.25H16.5C16.8978 20.25 17.2794 20.092 17.5607 19.8107C17.842 19.5294 18 19.1478 18 18.75V8.25C18 7.85218 17.842 7.47064 17.5607 7.18934C17.2794 6.90804 16.8978 6.75 16.5 6.75ZM6 4.5C6 3.70435 6.31607 2.94129 6.87868 2.37868C7.44129 1.81607 8.20435 1.5 9 1.5C9.79565 1.5 10.5587 1.81607 11.1213 2.37868C11.6839 2.94129 12 3.70435 12 4.5V6.75H6V4.5ZM16.5 18.75H1.5V8.25H16.5V18.75Z" fill="#7C6FFF"/>
+                    </svg>
+                </div>
+
+                <h3 class="text-2xl font-['DM_Sans'] font-semibold text-white">
+                    Developer
+                </h3>
+
+                <p class="mt-4 max-w-[320px] text-xl font-['DM_Sans'] leading-9 text-white/85">
+                    Panel zarządzania i integracje OAuth2
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-14 flex items-center gap-6">
+            <div class="h-px flex-1 bg-white/15"></div>
+            <span class="text-2xl font-['DM_Sans'] text-white/50">lub</span>
+            <div class="h-px flex-1 bg-white/15"></div>
+        </div>
+
+        <div class="mt-12 flex justify-center">
+            <button id="openLoginPageModal" class="rounded-[20px] bg-white px-8 py-4 text-xl font-['DM_Sans'] font-medium text-[#161619] transition hover:bg-white/90">
+                Mam już konto - zaloguj mnie
+            </button>
+        </div>
+    </div>
+</div>

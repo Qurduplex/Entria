@@ -7,10 +7,16 @@
     <link href="../output.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+    </style>
+
 </head>
 <body class="bg-[#161619] text-[#FAFAFA] min-h-screen">
 
-    <div class="relative min-h-screen overflow-hidden">
+    <div class="relative min-h-screen">
         <div class="pointer-events-none absolute inset-0">
             <div class="absolute left-[-120px] top-[80px] h-[260px] w-[260px] rounded-full bg-[#A89DFF]/10 blur-[130px]"></div>
             <div class="absolute right-[-100px] top-[120px] h-[320px] w-[320px] rounded-full bg-[#8D7BFF]/10 blur-[160px]"></div>
@@ -89,11 +95,11 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="text-[15px] font-['DM_Sans'] font-semibold text-[#161619]">
+                                <h3 class="text-base font-['DM_Sans'] font-semibold text-[#161619]">
                                     Jednolita tożsamość
                                 </h3>
 
-                                <p class="mt-3 max-w-[320px] text-[14px] font-['DM_Sans'] leading-6 text-black/60">
+                                <p class="mt-3 max-w-[320px] text-sm font-['DM_Sans'] leading-6 text-black/60">
                                     Użytkownicy tworzą jedno konto Entria i logują się do dowolnej zintegrowanej aplikacji.
                                 </p>
                             </div>
@@ -105,11 +111,11 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="text-[15px] font-['DM_Sans'] font-semibold text-[#161619]">
+                                <h3 class="text-base font-['DM_Sans'] font-semibold text-[#161619]">
                                     OAuth2 & OpenID Connect
                                 </h3>
 
-                                <p class="mt-3 max-w-[320px] text-[14px] font-['DM_Sans'] leading-6 text-black/60">
+                                <p class="mt-3 max-w-[320px] text-sm font-['DM_Sans'] leading-6 text-black/60">
                                     Standardowe protokoły, gotowe SDK, integracja w kilka linii kodu.
                                 </p>
                             </div>
@@ -121,7 +127,7 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="text-[15px] font-['DM_Sans'] font-semibold text-[#161619]">
+                                <h3 class="text-base font-['DM_Sans'] font-semibold text-[#161619]">
                                     Granularne uprawnienia
                                 </h3>
 
@@ -137,11 +143,11 @@
                                     </svg>
                                 </div>
 
-                                <h3 class="text-[15px] font-['DM_Sans'] font-semibold text-[#161619]">
+                                <h3 class="text-base font-['DM_Sans'] font-semibold text-[#161619]">
                                     Jednolity panel
                                 </h3>
 
-                                <p class="mt-3 max-w-[320px] text-[14px] font-['DM_Sans'] leading-6 text-black/60">
+                                <p class="mt-3 max-w-[320px] text-sm font-['DM_Sans'] leading-6 text-black/60">
                                     Przeglądaj i zarządzaj aplikacjami, do których masz powiązane konto — w jednym miejscu.
                                 </p>
                             </div>
@@ -166,27 +172,9 @@
                 </div>
             </section>
         </main>
-
-        <footer id="footer-container" class="relative"></footer>
     </div>
-
-   <script>
-        fetch('../components/navbarMain.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar-container').innerHTML = data;
-            })
-            .catch(error => console.error('Błąd:', error));
-    </script>
-
-    <script>
-        fetch('../components/footerMain.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            })
-            .catch(error => console.error('Błąd:', error));
-    </script>
-
+    <footer id="footer-container" class="relative"></footer>
+    <div id="modal-container"></div>
+   <script src="../scripts/auth.js"></script>
 </body>
 </html>

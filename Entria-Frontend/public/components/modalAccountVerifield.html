@@ -1,0 +1,47 @@
+<div id="verifiedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-10 backdrop-blur-sm">
+    <div class="relative w-full max-w-[1000px] rounded-[32px] bg-[#161619] px-[62px] py-[56px] shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+        
+        <button
+            id="closeVerifiedModal"
+            class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/70 transition hover:bg-white/5 hover:text-white"
+        >
+            ✕
+        </button>
+
+        <div class="mx-auto flex max-w-[720px] flex-col items-center text-center">
+
+            <div class="flex h-[52px] w-[52px] items-center justify-center">
+                <svg width="43" height="43" viewBox="0 0 43 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0.15" y="0.15" width="42.4508" height="42.45" rx="21.225" fill="#3E4842"/>
+                    <rect x="0.15" y="0.15" width="42.4508" height="42.45" rx="21.225" stroke="#B4FFBB" stroke-width="0.3"/>
+                    <path d="M30.531 15.9056L18.531 27.9056C18.4614 27.9753 18.3787 28.0306 18.2876 28.0683C18.1966 28.1061 18.099 28.1255 18.0004 28.1255C17.9019 28.1255 17.8043 28.1061 17.7132 28.0683C17.6222 28.0306 17.5394 27.9753 17.4698 27.9056L12.2198 22.6556C12.0791 22.5148 12 22.324 12 22.1249C12 21.9259 12.0791 21.735 12.2198 21.5943C12.3605 21.4536 12.5514 21.3745 12.7504 21.3745C12.9494 21.3745 13.1403 21.4536 13.281 21.5943L18.0004 26.3146L29.4698 14.8443C29.6105 14.7036 29.8014 14.6245 30.0004 14.6245C30.1994 14.6245 30.3903 14.7036 30.531 14.8443C30.6718 14.985 30.7508 15.1759 30.7508 15.3749C30.7508 15.574 30.6718 15.7648 30.531 15.9056Z" fill="#61C664"/>
+                </svg>
+            </div>
+
+            <h1 id="successTitle" class="mt-8 text-[56px] font-[Fraunces] font-semibold leading-none text-white">
+                Konto aktywne
+            </h1>
+
+            <p id="successSubtitle" class="mt-5 max-w-[680px] text-[20px] leading-[1.45] text-white/70">
+                Rejestracja zakończona. Możesz teraz uzupełnić dodatkowe dane w zakładce Profil.
+            </p>
+
+            <button
+                id="successButton"
+                type="button"
+                class="mt-10 h-[56px] w-full rounded-[14px] bg-white text-[18px] font-medium text-[#1E1E1E] transition hover:bg-white/90"
+            >
+                Przejdź do panelu →
+            </button>
+
+            <a
+                id="successLink"
+                href="#"
+                class="mt-8 text-[16px] text-[#9C8CFF] transition hover:underline"
+            >
+                Uzupełnij profil teraz
+            </a>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Company</title>
+    <link href="../output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-[#161619] font-['DM_Sans'] text-[#FAFAFA]">
+
+    <header id="navbar-container" class="relative"></header>
+
+    <div class="flex flex-1 items-center justify-center px-4">
+        
+        <div class="w-full max-w-[1000px] px-12 py-12">
+
+            <h1 class="text-[56px] text-white font-[Fraunces] font-semibold leading-none">
+                Załóż konto Developerkie
+            </h1>
+
+            <p class="mt-4 text-[20px] font-['DM_Sans'] text-white/70">
+                Dane organizacji.
+            </p>
+
+            <div class="mt-10">
+                <p class="text-lg tracking-[0.1em] text-white/40">PODSTAWOWE</p>
+
+                <form id="registerForm" class="mt-10 space-y-6">
+                    <input type="text" name="name" placeholder="NAZWA ORGANIZACJI"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <input type="email" name="email" placeholder="EMAIL"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <input type="text" name="phone" placeholder="TELEFON"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <input type="password" name="password" placeholder="HASŁO"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <input type="password" name="password_confirmation" placeholder="POTWIERDŹ HASŁO"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input type="checkbox" class="peer sr-only">
+
+                        <div class="h-7 w-7 flex items-center justify-center rounded-[12px] bg-white/90 transition-all peer-checked:[&>svg]:block">
+                            <svg class="hidden w-4 h-4 text-[#9C8CFF]"
+                                fill="none" stroke="currentColor" stroke-width="3"
+                                viewBox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+
+                        <span class="text-[15px] text-white/70">
+                            Akceptuję
+                            <a href="#" class="text-[#9C8CFF] hover:underline">regulamin</a>
+                            oraz
+                            <a href="#" class="text-[#9C8CFF] hover:underline">politykę prywatności</a>
+                        </span>
+                    </label>
+
+                    <button class="w-full h-[56px] rounded-[14px] bg-white text-[18px] font-medium text-[#1E1E1E] hover:bg-white/90 transition">
+                        Załóż konto
+                    </button>
+
+                    <p class="text-center text-white/40">
+                        Masz już konto?
+                        <a href="#" class="text-[#9C8CFF] hover:underline">Zaloguj się</a>
+                    </p>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <footer id="footer-container" class="relative"></footer>
+    <div id="modal-container"></div>
+    <div id="verify-modal-container"></div>
+    <div id="verified-modal-container"></div>
+    <script src="../scripts/auth.js"></script>
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+
+        const data = {
+            name: form.name.value,
+            email: form.email.value,
+            phone: form.phone.value,
+            password: form.password.value,
+            password_confirmation: form.password_confirmation.value
+        };
+
+        try {
+            // const response = await fetch("/api/auth/register", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json"
+            //     },
+            //     body: JSON.stringify(data)
+            // });
+
+            // if (response.ok) {
+            //     openVerifiedModal("developer");
+            // } else {
+            //     alert("Błąd rejestracji");
+            // }
+            openVerifyModal("developer",form.email.value);
+            //openVerifiedModal("developer"); // testowo
+        } catch (err) {
+            console.error(err);
+            alert("Brak połączenia z serwerem");
+        }
+    });
+    </script>
+</body>
+</html>
