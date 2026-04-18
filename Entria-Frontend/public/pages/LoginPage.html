@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LogIn</title>
+    <link href="../output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-[#161619] font-['DM_Sans'] text-[#FAFAFA]">
+
+    <header id="navbar-container" class="relative"></header>
+
+    <div class="flex flex-1 items-center justify-center px-4">
+
+        <div class="w-full max-w-[1000px] px-12 py-12">
+            
+            <h1 class="text-[56px] font-[Fraunces] font-semibold leading-none text-white">
+                Zaloguj się
+            </h1>
+
+            <p class="mt-4 text-[20px] text-white/70">
+                Witaj z powrotem.
+            </p>
+            <div class="mt-10">
+                <form class="mt-10 space-y-6">
+                    <input
+                        type="email"
+                        placeholder="EMAIL"
+                        class="h-[56px] w-full bg-white px-4 text-[14px] text-[#8B8B8B] outline-none placeholder:text-[#8B8B8B]"
+                    />
+
+                    <input
+                        type="password"
+                        placeholder="HASŁO"
+                        class="h-[56px] w-full bg-white px-4 text-[14px] text-[#8B8B8B] outline-none placeholder:text-[#8B8B8B]"
+                    />
+                    
+                    <div class="flex items-center justify-between gap-4">
+                        <label class="flex cursor-pointer items-center gap-3">
+                            <input type="checkbox" class="peer sr-only">
+
+                            <div class="flex h-7 w-7 items-center justify-center rounded-[12px] bg-white/90 transition-all peer-checked:[&>svg]:block">
+                                <svg
+                                    class="hidden h-4 w-4 text-[#9C8CFF]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+
+                            <span class="text-[14px] text-white/70">
+                                Zapamiętaj mnie
+                            </span>
+                        </label>
+
+                       <button type="button" id="openForgotPasswordModal" class="text-[14px] text-[#9C8CFF] hover:underline">
+                            Nie pamiętasz hasła?
+                        </button>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="h-[56px] w-full rounded-[14px] bg-white text-[18px] font-medium text-[#1E1E1E] transition hover:bg-white/90"
+                    >
+                        Zaloguj się
+                    </button>
+
+                    <p class="text-center text-white/40">
+                        Nie masz konta?
+                        <a href="#" class="text-[#9C8CFF] hover:underline">Załóż je</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer-container" class="relative"></footer>
+    <div id="modal-container"></div>
+    <div id="forgot-password-modal-container"></div>
+    <div id="reset-password-modal-container"></div>
+    <script src="../scripts/auth.js"></script>
+</body>
+</html>
