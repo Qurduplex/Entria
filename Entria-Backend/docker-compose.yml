@@ -1,93 +1,125 @@
-version: '3.8'
+  version: '3.8'
 
-services:
-  identity-service:
-    build: ./identity-service
-    container_name: identity-service
-    deploy:
-      resources:
-        limits:
-          memory: 2048M
+  services:
+    gateway:
+      build: ./gateway
+      container_name: gateway
+      ports:
+        - "${GATEWAY_PORT:-8080}:8080"
+      networks:
+        - entria-network
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: 8080
 
-    ports:
-      - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
-    networks:
-      - entria-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    environment:
-      SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:${EUREKA_PORT:-8761}/eureka/
+
+    identity-service:
+      build: ./identity-service
+      container_name: identity-service
+      deploy:
+        resources:
+          limits:
+            memory: 2048M
+
+      ports:
+        - "${IDENTITY_SERVICE_PORT}:${IDENTITY_SERVICE_INTERNAL_PORT}"
+      networks:
+        - entria-network
+      depends_on:
+        postgres:
+          condition: service_healthy
+        redis:
+          condition: service_started
+        eureka-server:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
+
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+        APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+        APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
+        APPLICATION_SECURITY_REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
+
+        DB_HOST: postgres
+        DB_PORT: ${POSTGRES_DB_PORT}
+        DB_NAME: ${POSTGRES_IDENTITY_DB_NAME}
+        DB_USER: ${POSTGRES_DB_USER}
+        DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+        APPLICATION_VERIFICATION_CODE_EXPIRATION_IN_SECONDS: ${VERIFICATION_EXPIRATION}
+        APPLICATION_VERIFICATION_CODE_LENGTH: ${VERIFICATION_LENGTH}
+
+        APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
+        APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
 
 
-      APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
-      APPLICATION_SECURITY_REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
+    eureka-server:
+      build: ./eureka-server
+      container_name: eureka-server
+      ports:
+        - "${EUREKA_PORT:-8761}:8761"
+      networks:
+        - entria-network
+      healthcheck:
+        test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      environment:
+        SERVER_PORT: 8761
 
-      DB_HOST: postgres
-      DB_PORT: ${POSTGRES_DB_PORT}
-      DB_NAME: ${POSTGRES_IDENTITY_DB_NAME}
-      DB_USER: ${POSTGRES_DB_USER}
-      DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    postgres:
+      image: postgres:15-alpine
+      container_name: postgres
+      ports:
+        - "${POSTGRES_DB_PORT}:5432"
+      environment:
+        POSTGRES_USER: ${POSTGRES_DB_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+        - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+      networks:
+        - entria-network
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER}" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # No volume is on purpose, because Redis is used only for caching and does not require data persistence.
+    redis:
+      image: redis:7-alpine
+      container_name: redis
+      ports:
+        - "${REDIS_PORT}:6379"
+      networks:
+        - entria-network
+      command: redis-server --requirepass ${REDIS_PASSWORD}
 
-      APPLICATION_VERIFICATION_CODE_EXPIRATION_IN_SECONDS: ${VERIFICATION_EXPIRATION}
-      APPLICATION_VERIFICATION_CODE_LENGTH: ${VERIFICATION_LENGTH}
+    redis-commander:
+      image: rediscommander/redis-commander:latest
+      container_name: redis-commander
+      environment:
+        - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD}
+      ports:
+        - "${REDIS_COMMANDER_PORT}:8081"
+      networks:
+        - entria-network
+      depends_on:
+        - redis
 
-      APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
-      APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
-
-
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: postgres
-    ports:
-      - "${POSTGRES_DB_PORT}:5432"
-    environment:
-      POSTGRES_USER: ${POSTGRES_DB_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - entria-network
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_DB_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # No volume is on purpose, because Redis is used only for caching and does not require data persistence.
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "${REDIS_PORT}:6379"
-    networks:
-      - entria-network
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: redis-commander
-    environment:
-      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD}
-    ports:
-      - "${REDIS_COMMANDER_PORT}:8081"
-    networks:
-      - entria-network
-    depends_on:
-      - redis
-
-networks:
-  entria-network:
-    driver: bridge
-volumes:
-  postgres_data:
-    driver: local
+  networks:
+    entria-network:
+      driver: bridge
+  volumes:
+    postgres_data:
+      driver: local

@@ -1,4 +1,4 @@
-package edu.pk.qurduplex.identityService;
+package edu.pk.qurduplex.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,9 +6,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class IdentityServiceApplication {
+public class ApiGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(IdentityServiceApplication.class, args);
+		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
 }
