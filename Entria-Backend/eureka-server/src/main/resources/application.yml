@@ -7,7 +7,6 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-    enabled: false
 
 management:
   endpoints:
