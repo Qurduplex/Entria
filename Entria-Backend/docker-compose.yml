@@ -43,6 +43,18 @@ services:
       APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
 
 
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "${EUREKA_PORT:-8761}:8761"
+    networks:
+      - entria-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: postgres:15-alpine
