@@ -12,7 +12,7 @@
         eureka-server:
           condition: service_healthy
       environment:
-        SERVER_PORT: ${GATEWAY_PORT:-8080}
+        SERVER_PORT: 8080
 
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:${EUREKA_PORT:-8761}/eureka/
 
@@ -38,7 +38,7 @@
       environment:
         SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
 
-        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:${EUREKA_PORT:-8761}/eureka/
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
 
         APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
         APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
@@ -74,7 +74,7 @@
         timeout: 5s
         retries: 5
       environment:
-        SERVER_PORT: ${EUREKA_PORT:-8761}
+        SERVER_PORT: 8761
 
     postgres:
       image: postgres:15-alpine
