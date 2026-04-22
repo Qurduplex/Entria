@@ -19,7 +19,6 @@ public class LoginRequestDTO {
     private String email;
 
     @NotBlank(message = "password is required")
-    @NotBlank(message = "password is required")
     @Size(min = 8, max = 32, message = "password must be between 8 and 32 characters long")
     @Pattern(
             regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
