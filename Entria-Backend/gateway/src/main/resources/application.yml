@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: identity-service-route
+              uri: lb://identity-service
+              predicates:
+                - Path=/api/auth/**, /docs/identity/v3/api-docs
+              filters:
+                - RewritePath=/docs/identity/(?<segment>.*), /$\{segment}
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Identity Service
+        url: /docs/identity/v3/api-docs
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}

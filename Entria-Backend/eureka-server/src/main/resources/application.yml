@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8761}
+
+eureka:
+  instance:
+    hostname: eureka-server
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
