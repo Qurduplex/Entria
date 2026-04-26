@@ -1,5 +1,6 @@
 package edu.pk.qurduplex.identityService.services;
 
+import edu.pk.qurduplex.identityService.client.RabbitMQClient;
 import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.exceptions.*;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
@@ -26,9 +27,10 @@ public class AuthService {
     private final JwtService jwtService;
     private final ResetPasswordCodeService resetPasswordCodeService;
     private final RefreshTokenService refreshTokenService;
+    private final RabbitMQClient rabbitMQClient;
 
     @Transactional
-    public RegisterResponseDTO register(String email, String password, UserRole userRole) {
+    public RegisterResponseDTO register(String email, String firstName, String lastName, String password, UserRole userRole) {
         if (authRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException("Email already in use");
         }
@@ -48,7 +50,8 @@ public class AuthService {
         String verificationCode = verificationCodeService.generateVerificationCode(savedCredential.getId());
         log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
 
-        //todo: send verification email
+        rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
+        rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
     }
@@ -133,7 +136,8 @@ public class AuthService {
 
         String verificationCode = verificationCodeService.generateVerificationCode(credential.getId());
         log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
-        //todo: send verification email
+
+        rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
 
         return new GenerateVerificationCodeResponseDTO(credential.getEmail(), true);
     }
@@ -167,7 +171,8 @@ public class AuthService {
 
         String resetPasswordCode = resetPasswordCodeService.generateResetPasswordCode(credential.getId());
         log.info("Generated reset-password code for user with email: {}: {}", email, resetPasswordCode);
-        //todo: send verification email
+
+        rabbitMQClient.sendResetPasswordCodeMessage(email, resetPasswordCode);
 
         return new GenerateResetPasswordCodeResponseDTO(credential.getEmail(), true);
     }
@@ -190,6 +195,4 @@ public class AuthService {
 
         return new ResetPasswordResponseDTO(credential.getEmail(), true);
     }
-
-
 }

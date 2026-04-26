@@ -1,6 +1,7 @@
 package edu.pk.qurduplex.identityService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.pk.qurduplex.identityService.client.RabbitMQClient;
 import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.models.*;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
@@ -62,6 +63,9 @@ class AuthenticationFlowIntegrationTest {
     @MockitoBean
     private RefreshTokenRepository refreshTokenRepo;
 
+    @MockitoBean
+    private RabbitMQClient rabbitMQClient;
+
     private Map<UUID, VerificationCode> verificationCodeStore;
     private Map<UUID, ResetPasswordCode> resetPasswordCodeStore;
     private Map<UUID, RefreshToken> refreshTokenStore;
@@ -87,12 +91,22 @@ class AuthenticationFlowIntegrationTest {
     @DisplayName("User Journey: Register -> Verify -> Login -> Refresh Token -> Reset Password -> Logout")
     void fullAuthenticationLifecycle() throws Exception {
         final String TEST_EMAIL = "integration.test@example.com";
+        final String TEST_FIRST_NAME = "Testfirstname";
+        final String TEST_LAST_NAME = "Testlastname";
         final String TEST_PASSWORD = "SuperSecretPassword123!";
         final String NEW_PASSWORD = "EvenMoreSecretPassword456!";
         final UserRole USER_ROLE = Instancio.create(UserRole.class);
 
         // 1. USER REGISTRATION
-        RegisterRequestDTO registerRequest = new RegisterRequestDTO(TEST_EMAIL, TEST_PASSWORD, USER_ROLE);
+        RegisterRequestDTO registerRequest = RegisterRequestDTO.builder()
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
+                .firstName(TEST_FIRST_NAME)
+                .lastName(TEST_LAST_NAME)
+                .userRole(USER_ROLE)
+                .termsAccepted(true)
+                .build();
+
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))

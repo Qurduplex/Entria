@@ -1,5 +1,6 @@
 package edu.pk.qurduplex.identityService.services;
 
+import edu.pk.qurduplex.identityService.client.RabbitMQClient;
 import edu.pk.qurduplex.identityService.dto.LoginResponseDTO;
 import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
 import edu.pk.qurduplex.identityService.dto.TokenDTO;
@@ -47,6 +48,9 @@ class AuthServiceTest {
     @Mock
     private RefreshTokenService refreshTokenService;
 
+    @Mock
+    private RabbitMQClient rabbitMQClient;
+
     @InjectMocks
     private AuthService authService;
 
@@ -55,22 +59,26 @@ class AuthServiceTest {
     void register_Success() {
         String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
+        String TEST_FIRST_NAME = Instancio.create(String.class);
+        String TEST_LAST_NAME = Instancio.create(String.class);
         String ENCODED_PASSWORD = "hashed_" + TEST_PASSWORD;
         String VERIFICATION_CODE = Instancio.create(String.class);
         UserRole TEST_ROLE = Instancio.create(UserRole.class);
+        UUID SAVED_ID = UUID.randomUUID();
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
         when(passwordEncoder.encode(TEST_PASSWORD)).thenReturn(ENCODED_PASSWORD);
         when(verificationCodeService.generateVerificationCode(any())).thenReturn(VERIFICATION_CODE);
 
         AuthCredential savedCredential = AuthCredential.builder()
+                .id(SAVED_ID)
                 .email(TEST_EMAIL)
                 .passwordHash(ENCODED_PASSWORD)
                 .build();
 
         when(authRepository.save(any(AuthCredential.class))).thenReturn(savedCredential);
 
-        RegisterResponseDTO response = authService.register(TEST_EMAIL, TEST_PASSWORD, TEST_ROLE);
+        RegisterResponseDTO response = authService.register(TEST_EMAIL, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_PASSWORD, TEST_ROLE);
 
         assertThat(response.getEmail()).isEqualTo(TEST_EMAIL);
         assertThat(response.isSuccess()).isTrue();
@@ -78,6 +86,9 @@ class AuthServiceTest {
         verify(authRepository).existsByEmail(TEST_EMAIL);
         verify(passwordEncoder).encode(TEST_PASSWORD);
         verify(authRepository).save(any(AuthCredential.class));
+
+        verify(rabbitMQClient).sendCreateProfileMessage(SAVED_ID, TEST_FIRST_NAME, TEST_LAST_NAME);
+        verify(rabbitMQClient).sendVerificationCodeMessage(TEST_EMAIL, VERIFICATION_CODE);
     }
 
     @Test
@@ -85,16 +96,19 @@ class AuthServiceTest {
     void register_EmailAlreadyExists_ThrowsException() {
         String TEST_EMAIL = Instancio.create(String.class) + "@example.com";
         String TEST_PASSWORD = Instancio.create(String.class);
+        String TEST_FIRST_NAME = Instancio.create(String.class);
+        String TEST_LAST_NAME = Instancio.create(String.class);
         UserRole TEST_ROLE = Instancio.create(UserRole.class);
 
         when(authRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.register(TEST_EMAIL, TEST_PASSWORD, TEST_ROLE))
+        assertThatThrownBy(() -> authService.register(TEST_EMAIL, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_PASSWORD, TEST_ROLE))
                 .isInstanceOf(UserAlreadyExistsException.class)
                 .hasMessage("Email already in use");
 
         verify(authRepository, never()).save(any());
         verifyNoInteractions(passwordEncoder);
+        verifyNoInteractions(rabbitMQClient);
     }
 
     @Test
