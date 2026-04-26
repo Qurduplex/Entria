@@ -5,6 +5,12 @@ spring:
   application:
     name: identity-service
 
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -16,6 +22,7 @@ spring:
     username: ${DB_USER:user}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -33,6 +40,11 @@ application:
   reset-password-code:
     expiration-in-seconds: ${APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS:300}
     code-length: ${APPLICATION_RESET_PASSWORD_CODE_LENGTH:6}
+  rabbitmq:
+    exchange-name: user-exchange
+    verification-code-routing-key: verification-code-event
+    reset-password-code-routing-key: reset-password-code-event
+    user-registered-routing-key: user-registered-password-code-event
 
 eureka:
   client:
