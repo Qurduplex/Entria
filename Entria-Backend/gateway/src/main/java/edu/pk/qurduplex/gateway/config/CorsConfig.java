@@ -16,9 +16,11 @@ public class CorsConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
         corsConfig.setAllowedOrigins(List.of(
-                "http://localhost:3000", // React
-                "http://localhost:5173", // Vite
-                "http://localhost:8080"  // Swagger/UI
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:8080",
+                "http://127.0.0.1:5500",
+                "http://localhost:5500"
         ));
 
         corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
