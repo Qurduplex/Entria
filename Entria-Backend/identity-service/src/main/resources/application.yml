@@ -44,7 +44,7 @@ application:
     exchange-name: user-exchange
     verification-code-routing-key: verification-code-event
     reset-password-code-routing-key: reset-password-code-event
-    user-registered-routing-key: user-registered-password-code-event
+    user-registered-routing-key: user-registered-event
 
 eureka:
   client:
