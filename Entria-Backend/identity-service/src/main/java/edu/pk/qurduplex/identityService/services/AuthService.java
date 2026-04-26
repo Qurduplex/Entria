@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Set;
 import java.util.UUID;
@@ -50,8 +52,14 @@ public class AuthService {
         String verificationCode = verificationCodeService.generateVerificationCode(savedCredential.getId());
         log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
 
-        rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
-        rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                log.info("Transaction committed successfully. Publishing messages to RabbitMQ for user: {}", email);
+                rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
+                rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
+            }
+        });
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
     }
