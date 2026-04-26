@@ -36,8 +36,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>edu.pk.jawolh.erecepta</groupId>
-                <artifactId>common-dto</artifactId>
+                <groupId>edu.pk.qurduplex.entria</groupId>
+                <artifactId>common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
