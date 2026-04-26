@@ -87,41 +87,44 @@
     <div id="verify-modal-container"></div>
     <div id="verified-modal-container"></div>
     <script src="../scripts/auth.js"></script>
-    <script>
+    <script type="module">
+        import { api } from "../scripts/apiClient.js";
+
         document.getElementById("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
+            e.preventDefault();
 
-        const form = e.target;
+            const form = e.target;
 
-        const data = {
-            name: form.name.value,
-            email: form.email.value,
-            phone: form.phone.value,
-            password: form.password.value,
-            password_confirmation: form.password_confirmation.value
-        };
+            const profileDraft = {
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                phone: form.phone.value.trim(),
+            };
 
-        try {
-            // const response = await fetch("/api/auth/register", {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json"
-            //     },
-            //     body: JSON.stringify(data)
-            // });
+            const registerData = {
+                email: form.email.value.trim(),
+                password: form.password.value,
+                userRole: "DEVELOPER",
+            };
 
-            // if (response.ok) {
-            //     openVerifiedModal("developer");
-            // } else {
-            //     alert("Błąd rejestracji");
-            // }
-            openVerifyModal("developer",form.email.value);
-            //openVerifiedModal("developer"); // testowo
-        } catch (err) {
-            console.error(err);
-            alert("Brak połączenia z serwerem");
-        }
-    });
+            try {
+                const response = await api.register(registerData);
+
+                sessionStorage.setItem("developerProfileDraft", JSON.stringify(profileDraft));
+
+                await api.requestVerificationCode({
+                    email: registerData.email
+                });
+
+                console.log("Rejestracja OK:", response);
+
+                openVerifyModal("developer", registerData.email);
+            } catch (err) {
+                console.error("Błąd rejestracji:", err);
+
+                alert(err.data?.message || "Nie udało się utworzyć konta.");
+            }
+        });
     </script>
 </body>
 </html>
