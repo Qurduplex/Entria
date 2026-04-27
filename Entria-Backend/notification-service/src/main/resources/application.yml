@@ -1,0 +1,41 @@
+server:
+  port: ${SERVER_PORT:12002}
+
+spring:
+  application:
+    name: notification-service
+
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+
+
+application:
+  email:
+    sender-address: ${spring.mail.username}
+
+  rabbitmq:
+    exchange-name: user-exchange
+
+    verification-code-event-routing-key: verification-code-event
+    reset-password-code-event-routing-key: reset-password-code-event
+
+    verification-code-event-topic: verification-code-queue
+    reset-password-code-event-topic: reset-password-code-queue

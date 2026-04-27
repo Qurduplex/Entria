@@ -31,6 +31,7 @@
         <module>eureka-server</module>
         <module>common</module>
         <module>identity-service</module>
+        <module>notification-service</module>
     </modules>
 
     <dependencyManagement>
