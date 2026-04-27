@@ -29,13 +29,10 @@ public class RabbitMQConfig {
     }
 
 
-
-
     @Bean
     public TopicExchange  exchange() {
         return new TopicExchange (rabbitMqProperties.getExchangeName());
     }
-
 
 
     @Bean
