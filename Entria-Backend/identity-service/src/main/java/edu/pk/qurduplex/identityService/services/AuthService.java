@@ -52,14 +52,20 @@ public class AuthService {
         String verificationCode = verificationCodeService.generateVerificationCode(savedCredential.getId());
         log.info("Generated verification code for user with email: {}: {}", email, verificationCode);
 
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                log.info("Transaction committed successfully. Publishing messages to RabbitMQ for user: {}", email);
-                rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
-                rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
-            }
-        });
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    log.info("Transaction committed successfully. Publishing messages to RabbitMQ for user: {}", email);
+                    rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
+                    rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
+                }
+            });
+        } else {
+            log.warn("Transaction synchronization is not active. Publishing RabbitMQ messages immediately for user: {}", email);
+            rabbitMQClient.sendCreateProfileMessage(savedCredential.getId(), firstName, lastName);
+            rabbitMQClient.sendVerificationCodeMessage(email, verificationCode);
+        }
 
         return new RegisterResponseDTO(savedCredential.getEmail(), true);
     }

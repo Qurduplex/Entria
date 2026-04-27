@@ -67,7 +67,26 @@
         APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
         APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
 
+    notification-service:
+      build: ./notification-service
+      container_name: notification-service
+      networks:
+        - entria-network
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${NOTIFICATION_SERVICE_INTERNAL_PORT}
 
+        SPRING_MAIL_HOST: ${MAIL_HOST}
+        SPRING_MAIL_PORT: ${MAIL_PORT}
+        SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+        SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+        SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+        SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
 
     eureka-server:

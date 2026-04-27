@@ -9,8 +9,9 @@ import edu.pk.qurduplex.identityService.repositories.RefreshTokenRepository;
 import edu.pk.qurduplex.identityService.repositories.ResetPasswordCodeRepository;
 import edu.pk.qurduplex.identityService.repositories.VerificationCodeRepository;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -258,5 +259,9 @@ class AuthenticationFlowIntegrationTest {
             refreshTokenStore.values().removeIf(token -> token.getUserId().equals(userId));
             return null;
         }).when(refreshTokenRepo).deleteByUserId(any());
+    }
+
+    @AfterEach
+    void tearDown() {
     }
 }

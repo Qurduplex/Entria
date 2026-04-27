@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weryfikacja konta</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .header { color: #333333; font-size: 24px; margin-bottom: 20px; }
+        .code { font-size: 32px; font-weight: bold; color: #0056b3; letter-spacing: 2px; padding: 15px; background: #e9ecef; border-radius: 5px; text-align: center; }
+        .footer { margin-top: 30px; font-size: 12px; color: #777777; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">Witaj w QurDuplex!</div>
+    <p>Dziękujemy za rejestrację. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
+    <div class="code" th:text="${code}">123456</div>
+    <p>Jeśli to nie Ty zakładałeś konto, po prostu zignoruj tę wiadomość.</p>
+    <div class="footer">Pozdrawiamy, <br> Zespół QurDuplex</div>
+</div>
+</body>
+</html>
