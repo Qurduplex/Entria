@@ -75,7 +75,9 @@
 
                     <p class="text-center text-white/40">
                         Masz już konto?
-                        <a href="#" class="text-[#9C8CFF] hover:underline">Zaloguj się</a>
+                        <a href="#" id="openLoginPage" class="text-[#9C8CFF] hover:underline">
+                            Zaloguj się
+                        </a>
                     </p>
                 </form>
             </div>
@@ -86,45 +88,6 @@
     <div id="modal-container"></div>
     <div id="verify-modal-container"></div>
     <div id="verified-modal-container"></div>
-    <script src="../scripts/auth.js"></script>
-    <script type="module">
-        import { api } from "../scripts/apiClient.js";
-
-        document.getElementById("registerForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const form = e.target;
-
-            const profileDraft = {
-                name: form.name.value.trim(),
-                email: form.email.value.trim(),
-                phone: form.phone.value.trim(),
-            };
-
-            const registerData = {
-                email: form.email.value.trim(),
-                password: form.password.value,
-                userRole: "DEVELOPER",
-            };
-
-            try {
-                const response = await api.register(registerData);
-
-                sessionStorage.setItem("developerProfileDraft", JSON.stringify(profileDraft));
-
-                await api.requestVerificationCode({
-                    email: registerData.email
-                });
-
-                console.log("Rejestracja OK:", response);
-
-                openVerifyModal("developer", registerData.email);
-            } catch (err) {
-                console.error("Błąd rejestracji:", err);
-
-                alert(err.data?.message || "Nie udało się utworzyć konta.");
-            }
-        });
-    </script>
+    <script type="module" src="../scripts/auth.js"></script>
 </body>
 </html>

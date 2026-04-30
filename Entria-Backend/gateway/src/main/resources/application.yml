@@ -12,7 +12,9 @@ spring:
             - id: identity-api-route
               uri: lb://identity-service
               predicates:
-                - Path=/api/auth/{*segment}
+                - Path=/api/auth/**
+              filters:
+                - RewritePath=/api/auth/(?<segment>.*), /api/$\{segment}
             - id: identity-docs-route
               uri: lb://identity-service
               predicates:

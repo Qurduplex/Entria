@@ -93,7 +93,7 @@ class AuthenticationFlowIntegrationTest {
 
         // 1. USER REGISTRATION
         RegisterRequestDTO registerRequest = new RegisterRequestDTO(TEST_EMAIL, TEST_PASSWORD, USER_ROLE);
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk())
@@ -104,7 +104,7 @@ class AuthenticationFlowIntegrationTest {
 
         // 2. LOGIN TRY (SHOULD FAIL - ACCOUNT NOT VERIFIED)
         LoginRequestDTO loginRequest = new LoginRequestDTO(TEST_EMAIL, TEST_PASSWORD);
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized()) // Throws 401 because account is not active
@@ -116,7 +116,7 @@ class AuthenticationFlowIntegrationTest {
         assertThat(vCode).isNotNull();
 
         AccountVerificationRequestDTO verifyRequest = new AccountVerificationRequestDTO(TEST_EMAIL, vCode.getCode());
-        mockMvc.perform(post("/api/auth/verification-code/verify")
+        mockMvc.perform(post("/api/verification-code/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyRequest)))
                 .andExpect(status().isOk())
@@ -127,7 +127,7 @@ class AuthenticationFlowIntegrationTest {
         assertThat(user.isActive()).isTrue();
 
         // 4. LOGIN COMPLETED SUCCESSFULLY
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+        MvcResult loginResult = mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -146,7 +146,7 @@ class AuthenticationFlowIntegrationTest {
         testTime = testTime.plusSeconds(10); // Adding a small delay to ensure the new token will have a different timestamp
 
         RefreshTokenRequestDTO refreshRequest = new RefreshTokenRequestDTO(refreshToken);
-        MvcResult refreshResult = mockMvc.perform(post("/api/auth/refresh-token")
+        MvcResult refreshResult = mockMvc.perform(post("/api/refresh-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(refreshRequest)))
                 .andExpect(status().isOk())
@@ -159,7 +159,7 @@ class AuthenticationFlowIntegrationTest {
         String newJwtToken = tokenDTO.getJwtToken();
 
         // 6. LOGOUT FROM ALL DEVICES
-        mockMvc.perform(post("/api/auth/logout/all")
+        mockMvc.perform(post("/api/logout/all")
                         .header("Authorization", "Bearer " + newJwtToken))
                 .andExpect(status().isOk());
 
@@ -167,7 +167,7 @@ class AuthenticationFlowIntegrationTest {
 
         // 7. REQUEST RESET PASSWORD CODE
         GenerateResetPasswordCodeRequestDTO resetRequest = new GenerateResetPasswordCodeRequestDTO(TEST_EMAIL);
-        mockMvc.perform(post("/api/auth/reset-password-code/request")
+        mockMvc.perform(post("/api/reset-password-code/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(resetRequest)))
                 .andExpect(status().isOk());
@@ -177,14 +177,14 @@ class AuthenticationFlowIntegrationTest {
         assertThat(rCode).isNotNull();
 
         ResetPasswordRequestDTO doResetRequest = new ResetPasswordRequestDTO(TEST_EMAIL, rCode.getCode(), NEW_PASSWORD);
-        mockMvc.perform(post("/api/auth/reset-password-code/reset")
+        mockMvc.perform(post("/api/reset-password-code/reset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(doResetRequest)))
                 .andExpect(status().isOk());
 
         // 9. LOGIN WITH NEW PASSWORD
         LoginRequestDTO newLoginRequest = new LoginRequestDTO(TEST_EMAIL, NEW_PASSWORD);
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newLoginRequest)))
                 .andExpect(status().isOk());

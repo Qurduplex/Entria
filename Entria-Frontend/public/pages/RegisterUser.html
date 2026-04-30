@@ -17,6 +17,7 @@
 <body class="min-h-screen flex flex-col bg-[#161619] font-['DM_Sans'] text-[#FAFAFA]">
 
     <header id="navbar-container" class="relative"></header>
+    <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3"></div>
 
     <div class="flex flex-1 items-center justify-center px-4">
         
@@ -48,7 +49,7 @@
                         class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
 
                     <label class="flex items-center gap-4 cursor-pointer">
-                        <input type="checkbox" class="peer hidden">
+                        <input type="checkbox" name="checkReg" class="peer hidden">
 
                         <div class="h-7 w-7 rounded-[12px] bg-white/90 flex items-center justify-center transition-all peer-checked:[&>svg]:block">
                             <svg class="hidden w-4 h-4 text-violet-500 peer-checked:block" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
@@ -72,7 +73,9 @@
 
                     <p class="text-center text-white/40">
                         Masz już konto?
-                        <a href="#" class="text-[#9C8CFF] hover:underline">Zaloguj się</a>
+                        <a href="#" id="openLoginPage" class="text-[#9C8CFF] hover:underline">
+                            Zaloguj się
+                        </a>
                     </p>
                 </form>
             </div>
@@ -83,40 +86,6 @@
     <div id="modal-container"></div>
     <div id="verify-modal-container"></div>
     <div id="verified-modal-container"></div>
-    <script src="../scripts/auth.js"></script>
-    <script type="module">
-        import { api } from "../scripts/apiClient.js";
-
-        document.getElementById("registerForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const form = e.target;
-
-            const profileDraft = {
-                firstName: form.first_name.value.trim(),
-                lastName: form.last_name.value.trim(),
-                email: form.email.value.trim(),
-            };
-
-            const registerData = {
-                email: form.email.value.trim(),
-                password: form.password.value,
-                userRole: "USER",
-            };
-
-            try {
-                console.log("1. Wysyłam register:", registerData);
-                const response = await api.register(registerData);
-                console.log("2. Register OK:", response);
-
-                sessionStorage.setItem("profileDraft", JSON.stringify(profileDraft));
-
-            } catch (err) {
-                console.error("Błąd rejestracji:", err);
-
-                alert(err.data?.message || "Nie udało się utworzyć konta.");
-            }
-        });
-    </script>
+    <script type="module" src="../scripts/auth.js"></script>
 </body>
 </html>

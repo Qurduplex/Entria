@@ -79,3 +79,5 @@ export const api = {
             body: JSON.stringify(payload),
         }),
 };
+
+ window.api = api;
