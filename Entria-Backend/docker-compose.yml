@@ -35,6 +35,8 @@
           condition: service_started
         eureka-server:
           condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
       environment:
         SERVER_PORT: ${IDENTITY_SERVICE_INTERNAL_PORT}
 
@@ -54,11 +56,37 @@
         REDIS_PORT: 6379
         REDIS_PASSWORD: ${REDIS_PASSWORD}
 
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+        SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+        SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
         APPLICATION_VERIFICATION_CODE_EXPIRATION_IN_SECONDS: ${VERIFICATION_EXPIRATION}
         APPLICATION_VERIFICATION_CODE_LENGTH: ${VERIFICATION_LENGTH}
 
         APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
         APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
+
+    notification-service:
+      build: ./notification-service
+      container_name: notification-service
+      networks:
+        - entria-network
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${NOTIFICATION_SERVICE_INTERNAL_PORT}
+
+        SPRING_MAIL_HOST: ${MAIL_HOST}
+        SPRING_MAIL_PORT: ${MAIL_PORT}
+        SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+        SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+        SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+        SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
 
 
     eureka-server:
@@ -117,9 +145,30 @@
       depends_on:
         - redis
 
+    rabbitmq:
+      image: rabbitmq:3-management-alpine
+      container_name: rabbitmq
+      ports:
+        - "${RABBITMQ_NODE_PORT}:5672"
+        - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+      volumes:
+        - rabbitmq_data:/var/lib/rabbitmq
+      networks:
+        - entria-network
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      healthcheck:
+        test: rabbitmq-diagnostics -q ping
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
   networks:
     entria-network:
       driver: bridge
   volumes:
     postgres_data:
+      driver: local
+    rabbitmq_data:
       driver: local

@@ -27,13 +27,20 @@
     </properties>
 
     <modules>
-        <module>identity-service</module>
         <module>gateway</module>
         <module>eureka-server</module>
+        <module>common</module>
+        <module>identity-service</module>
+        <module>notification-service</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>edu.pk.qurduplex.entria</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
