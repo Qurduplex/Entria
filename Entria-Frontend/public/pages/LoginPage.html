@@ -30,16 +30,20 @@
                 Witaj z powrotem.
             </p>
             <div class="mt-10">
-                <form class="mt-10 space-y-6">
+                <form id="LoginForm" class="mt-10 space-y-6">
                     <input
+                        id="LoginEmail"
                         type="email"
                         placeholder="EMAIL"
+                        autocomplete="off"
                         class="h-[56px] w-full bg-white px-4 text-[14px] text-[#8B8B8B] outline-none placeholder:text-[#8B8B8B]"
                     />
 
                     <input
+                        id="LoginPassword"
                         type="password"
                         placeholder="HASŁO"
+                        autocomplete="off"
                         class="h-[56px] w-full bg-white px-4 text-[14px] text-[#8B8B8B] outline-none placeholder:text-[#8B8B8B]"
                     />
                     
@@ -78,7 +82,9 @@
 
                     <p class="text-center text-white/40">
                         Nie masz konta?
-                        <a href="#" class="text-[#9C8CFF] hover:underline">Załóż je</a>
+                        <a href="#" class="openChooseTypeModal text-[#9C8CFF] hover:underline">
+                            Załóż je
+                        </a>
                     </p>
                 </form>
             </div>
@@ -89,6 +95,7 @@
     <div id="modal-container"></div>
     <div id="forgot-password-modal-container"></div>
     <div id="reset-password-modal-container"></div>
-    <script src="../scripts/auth.js"></script>
+    
+    <script type="module" src="../scripts/auth.js"></script>
 </body>
 </html>

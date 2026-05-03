@@ -75,7 +75,9 @@
 
                     <p class="text-center text-white/40">
                         Masz już konto?
-                        <a href="#" class="text-[#9C8CFF] hover:underline">Zaloguj się</a>
+                        <a href="#" id="openLoginPage" class="text-[#9C8CFF] hover:underline">
+                            Zaloguj się
+                        </a>
                     </p>
                 </form>
             </div>
@@ -86,42 +88,6 @@
     <div id="modal-container"></div>
     <div id="verify-modal-container"></div>
     <div id="verified-modal-container"></div>
-    <script src="../scripts/auth.js"></script>
-    <script>
-        document.getElementById("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const form = e.target;
-
-        const data = {
-            name: form.name.value,
-            email: form.email.value,
-            phone: form.phone.value,
-            password: form.password.value,
-            password_confirmation: form.password_confirmation.value
-        };
-
-        try {
-            // const response = await fetch("/api/auth/register", {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json"
-            //     },
-            //     body: JSON.stringify(data)
-            // });
-
-            // if (response.ok) {
-            //     openVerifiedModal("developer");
-            // } else {
-            //     alert("Błąd rejestracji");
-            // }
-            openVerifyModal("developer",form.email.value);
-            //openVerifiedModal("developer"); // testowo
-        } catch (err) {
-            console.error(err);
-            alert("Brak połączenia z serwerem");
-        }
-    });
-    </script>
+    <script type="module" src="../scripts/auth.js"></script>
 </body>
 </html>
