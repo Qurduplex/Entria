@@ -67,6 +67,40 @@
         APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
         APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
 
+    app-registry-service:
+      build: ./app-registry-service
+      container_name: app-registry-service
+      deploy:
+        resources:
+          limits:
+            cpus: '1.5'
+            memory: 512M
+          reservations:
+            cpus: '0.25'
+            memory: 256M
+      ports:
+        - "${APP_REGISTRY_SERVICE_PORT}:${APP_REGISTRY_SERVICE_INTERNAL_PORT}"
+      networks:
+        - entria-network
+      depends_on:
+        postgres:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${APP_REGISTRY_SERVICE_INTERNAL_PORT}
+
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+        DB_HOST: postgres
+        DB_PORT: ${POSTGRES_DB_PORT}
+        DB_NAME: ${POSTGRES_APP_REGISTRY_DB_NAME}
+        DB_USER: ${POSTGRES_DB_USER}
+        DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+
     notification-service:
       build: ./notification-service
       container_name: notification-service
