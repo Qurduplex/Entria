@@ -1,3 +1,8 @@
+import { initDeveloperDashboard } from "./developer/dashboard.js";
+import { initDeveloperProfile } from "./developer/profile.js";
+import { initDeveloperApps } from "./developer/application.js";
+import { initApplicationDetails } from "./developer/application-detail.js";
+
 const sidebarConfigs = {
   user: {
     footer: {
@@ -86,7 +91,7 @@ const sidebarConfigs = {
       avatarColor: "#2D9A63",
     },
     nav: [
-      { type: "section", label: "FIRMA" },
+      { type: "section", label: "Developer" },
       {
         id: "dashboard",
         label: "Dashboard",
@@ -111,6 +116,15 @@ const sidebarConfigs = {
         description: "Zarządzaj aplikacjami OAuth2 zarejestrowanymi w Entria",
       },
       {
+        id: "apps-detail",
+        hidden: true,
+        icon: null,
+        fragment: "fragments/apps-detail.html",
+        breadcrumb: "Firma / Aplikacje / Szczegóły",
+        title: "Szczegóły o aplikacji ",
+        description: "Szczegóły o aplikacji OAuth2 zarejestrowanymi w Entria",
+      },
+      {
         id: "profile",
         label: "Profil",
         icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -131,10 +145,12 @@ let _currentMode = "user";
 async function navigate(item) {
   // Update active state
   const config = sidebarConfigs[_currentMode];
+
   config.nav.forEach((n) => {
-    if (n.type !== "section") n.active = n.id === item.id;
+    if (n.type !== "section") {
+      n.active = n.id === item.id;
+    }
   });
-  renderSidebar();
 
   document.getElementById("topbar-breadcrumb").textContent =
     item.breadcrumb ?? "";
@@ -150,9 +166,57 @@ async function navigate(item) {
     const res = await fetch(item.fragment);
     if (!res.ok) throw new Error("Fragment not found");
     main.innerHTML = await res.text();
+
+    if (item.id === "dashboard" && _currentMode === "developer") {
+      await initDeveloperDashboard();
+    }
+
+    if (item.id === "profile" && _currentMode === "developer") {
+      await initDeveloperProfile();
+    }
+
+    if (item.id === "apps" && _currentMode === "developer") {
+      await initDeveloperApps();
+    }
+
+    if (item.id === "apps-detail" && _currentMode === "developer") {
+      await  initApplicationDetails();
+    }
+    
   } catch {
     main.innerHTML = `<p class="text-white/40 text-sm">Nie można załadować strony.</p>`;
   }
+
+  const pageLogo =
+    document.getElementById("page-logo");
+
+    if (item.id === "apps-detail") {
+
+        const app = JSON.parse(
+            sessionStorage.getItem("selectedApplication")
+        );
+
+        if (app && pageLogo) {
+
+            pageLogo.classList.remove("hidden");
+            pageLogo.classList.add("flex");
+
+            pageLogo.textContent =
+                app.logo.initials;
+
+            pageLogo.style.backgroundColor =
+                app.logo.color;
+
+            document.getElementById("page-title").textContent =
+                app.name;
+        }
+
+    } else if (pageLogo) {
+
+        pageLogo.classList.add("hidden");
+        pageLogo.classList.remove("flex");
+
+    }
 }
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────
@@ -163,6 +227,7 @@ function renderSidebar() {
   if (!nav || !footer) return;
 
   nav.innerHTML = config.nav
+    .filter((item) => !item.hidden)
     .map((item) => {
       if (item.type === "section") {
         return `<div class="px-2 pt-6 pb-2 text-[14px] font-regular tracking-[0.12em] text-[#8D8D8D]">${item.label}</div>`;
@@ -226,6 +291,15 @@ export function setActive(id) {
 
 export function getCurrentMode() {
   return _currentMode;
+}
+
+export async function navigateToDeveloperPage(id) {
+  const config = sidebarConfigs[_currentMode];
+  const item = config.nav.find((n) => n.id === id);
+
+  if (item) {
+    await navigate(item);
+  }
 }
 
 // ─── MOBILE ──────────────────────────────────────────────────────────────────
