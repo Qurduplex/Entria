@@ -4,7 +4,7 @@ package edu.pk.qurduplex.identityService.services;
 import edu.pk.qurduplex.identityService.config.JwtProperties;
 import edu.pk.qurduplex.identityService.dto.JwtTokenDTO;
 import edu.pk.qurduplex.identityService.exceptions.JwtAuthenticationException;
-import edu.pk.qurduplex.identityService.models.UserRole;
+import edu.pk.qurduplex.common.models.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -17,8 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j

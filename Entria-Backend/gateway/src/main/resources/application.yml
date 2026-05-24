@@ -22,6 +22,14 @@ spring:
               filters:
                 - RewritePath=/docs/identity/(?<segment>.*), /$\{segment}
 
+            - id: app-registry-api-route
+              uri: lb://app-registry-service
+              predicates:
+                - Path=/api/apps/**
+              filters:
+                - AuthenticationFilter
+                - RewritePath=/api/apps/(?<segment>.*), /api/v1/apps/$\{segment}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

@@ -1,6 +1,6 @@
 package edu.pk.qurduplex.identityService.dto;
 
-import edu.pk.qurduplex.identityService.models.UserRole;
+import edu.pk.qurduplex.common.models.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

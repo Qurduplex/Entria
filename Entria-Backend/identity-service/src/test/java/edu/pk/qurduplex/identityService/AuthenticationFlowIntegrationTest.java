@@ -1,6 +1,7 @@
 package edu.pk.qurduplex.identityService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.pk.qurduplex.common.models.UserRole;
 import edu.pk.qurduplex.identityService.client.RabbitMQClient;
 import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.models.*;
@@ -21,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;

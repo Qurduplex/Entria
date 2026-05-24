@@ -6,7 +6,7 @@ import edu.pk.qurduplex.identityService.dto.RegisterResponseDTO;
 import edu.pk.qurduplex.identityService.dto.TokenDTO;
 import edu.pk.qurduplex.identityService.exceptions.UserAlreadyExistsException;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
-import edu.pk.qurduplex.identityService.models.UserRole;
+import edu.pk.qurduplex.common.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
