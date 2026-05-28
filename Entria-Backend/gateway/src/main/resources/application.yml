@@ -28,7 +28,7 @@ spring:
                 - Path=/api/apps/**
               filters:
                 - AuthenticationFilter
-                - RewritePath=/api/apps/(?<segment>.*), /api/v1/apps/$\{segment}
+                - RewritePath=/api/apps/(?<segment>.*), /api/$\{segment}
 
 springdoc:
   swagger-ui:
