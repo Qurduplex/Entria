@@ -23,6 +23,11 @@ spring:
       ddl-auto: update
 
 application:
+  security:
+    jwt:
+      secret-key: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
+      expiration: ${APPLICATION_SECURITY_JWT_EXPIRATION:5m}
+      refresh-expiration: ${APPLICATION_SECURITY_REFRESH_EXPIRATION:1d}
   rabbitmq:
     exchange-name: user-exchange
     user-registered-event-routing-key: user-registered-event

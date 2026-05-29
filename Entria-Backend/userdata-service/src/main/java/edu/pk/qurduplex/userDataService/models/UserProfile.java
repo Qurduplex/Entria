@@ -24,6 +24,7 @@ public class UserProfile {
     @Id
     private UUID userId;
 
+    // Wymagane podczas rejestracji
     @Column(nullable = false)
     private String firstName;
 
@@ -31,8 +32,11 @@ public class UserProfile {
     private String lastName;
 
     private String email;
+
+    // Opcjonalne / dodatkowe infomracje uzytkownika
     private String phoneNumber;
-    private String address;
-    private String city;
+    private String pesel;
+    private String sex;
     private LocalDate birthDate;
+    private String profilePictureUrl;
 }
