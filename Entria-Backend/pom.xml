@@ -32,6 +32,7 @@
         <module>common</module>
         <module>identity-service</module>
         <module>notification-service</module>
+        <module>userdata-service</module>
     </modules>
 
     <dependencyManagement>

@@ -67,6 +67,45 @@
         APPLICATION_RESET_PASSWORD_CODE_EXPIRATION_IN_SECONDS: ${RESET_PASSWORD_EXPIRATION}
         APPLICATION_RESET_PASSWORD_CODE_LENGTH: ${RESET_PASSWORD_LENGTH}
 
+
+    userdata-service:
+      build: ./userdata-service
+      container_name: userdata-service
+      deploy:
+        resources:
+          limits:
+            memory: 2048M
+      ports:
+        - "${USERDATA_SERVICE_PORT}:${USERDATA_SERVICE_INTERNAL_PORT}"
+      networks:
+        - entria-network
+      depends_on:
+        postgres:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${USERDATA_SERVICE_INTERNAL_PORT}
+
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+        DB_HOST: postgres
+        DB_PORT: ${POSTGRES_DB_PORT}
+        DB_NAME: ${POSTGRES_USERDATA_DB_NAME}
+        DB_USER: ${POSTGRES_DB_USER}
+        DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+        APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+        APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
+        APPLICATION_SECURITY_REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
+ 
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+        SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+        SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
     notification-service:
       build: ./notification-service
       container_name: notification-service
