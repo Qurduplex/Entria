@@ -108,6 +108,8 @@
         MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
         MINIO_PUBLIC_BUCKET: entria-public-files
 
+        FRONTEND_AUTHORIZE_URL: ${FRONTEND_AUTHORIZE_URL}
+
 
     notification-service:
       build: ./notification-service

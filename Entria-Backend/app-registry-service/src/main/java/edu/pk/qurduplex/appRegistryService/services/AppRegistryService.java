@@ -1,10 +1,13 @@
 package edu.pk.qurduplex.appRegistryService.services;
 
+import edu.pk.qurduplex.appRegistryService.config.OauthProperties;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
+import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
 import edu.pk.qurduplex.appRegistryService.models.DeveloperApplication;
 import edu.pk.qurduplex.appRegistryService.repositories.DeveloperApplicationRepository;
 import edu.pk.qurduplex.common.models.OAuthPermission;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,8 @@ public class AppRegistryService {
 
     private final DeveloperApplicationRepository applicationRepository;
     private final FileStorageService fileStorageService;
+    private final PasswordEncoder passwordEncoder;
+    private final OauthProperties oauthProperties;
 
     @Transactional
     public RegisterApplicationResponse registerApplication(
@@ -28,6 +33,12 @@ public class AppRegistryService {
             MultipartFile tosPdf,
             Map<OAuthPermission, Boolean> permissions,
             String redirectUri){
+
+        if (applicationRepository.existsByNameIgnoreCase(name)) {
+            throw new ApplicationNameTakenException(
+                    String.format("Application with name '%s' already exists. Please choose a different name.", name)
+            );
+        }
 
         String logoUrl = null;
         if (logo != null && !logo.isEmpty()) {
@@ -41,9 +52,7 @@ public class AppRegistryService {
 
         String clientId = UUID.randomUUID().toString();
         String plainClientSecret = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
-
-        // todo: hash the client secret before storing it in the database
-        String hashedSecret = plainClientSecret;
+        String hashedSecret = passwordEncoder.encode(plainClientSecret);
 
         DeveloperApplication application = DeveloperApplication.builder()
                 .developerId(developerId)
@@ -59,11 +68,16 @@ public class AppRegistryService {
 
         DeveloperApplication savedApplication = applicationRepository.save(application);
 
+        String authUrl = String.format("%s?client_id=%s&redirect_uri=%s",
+                oauthProperties.getAuthorizeUrl(),
+                savedApplication.getClientId(),
+                savedApplication.getRedirectUri());
+
         return RegisterApplicationResponse.builder()
                 .clientId(savedApplication.getClientId())
                 .clientSecret(plainClientSecret)
                 .name(savedApplication.getName())
-                .redirectUri(savedApplication.getRedirectUri())
+                .redirectUri(authUrl)
                 .logoUrl(savedApplication.getLogoUrl())
                 .build();
     }

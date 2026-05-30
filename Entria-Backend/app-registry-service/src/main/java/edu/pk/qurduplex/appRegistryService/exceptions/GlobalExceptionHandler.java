@@ -54,6 +54,24 @@ public class GlobalExceptionHandler {
                 .body(createErrorMap(ex.getMessage()));
     }
 
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ResponseEntity<Map<String, String>> handleForbiddenAccessException(ForbiddenAccessException ex) {
+
+        log.warn("Access denied (403): {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(createErrorMap(ex.getMessage()));
+    }
+
+    @ExceptionHandler(ApplicationNameTakenException.class)
+    public ResponseEntity<Map<String, String>> handleApplicationNameTakenException(ApplicationNameTakenException ex) {
+
+        log.warn("Registration conflict (409): {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(createErrorMap(ex.getMessage()));
+    }
+
     // --- Helper Method ---
 
     private Map<String, String> createErrorMap(String message) {

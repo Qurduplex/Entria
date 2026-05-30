@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface DeveloperApplicationRepository extends JpaRepository<DeveloperApplication, UUID> {
+    boolean existsByNameIgnoreCase(String name);
 }

@@ -36,3 +36,5 @@ application:
     access-key: ${MINIO_ACCESS_KEY:admin}
     secret-key: ${MINIO_SECRET_KEY:password}
     public-bucket: ${MINIO_PUBLIC_BUCKET:entria-public-files}
+  oauth2:
+    authorize-url: ${FRONTEND_AUTHORIZE_URL:http://localhost:3000/authorize}

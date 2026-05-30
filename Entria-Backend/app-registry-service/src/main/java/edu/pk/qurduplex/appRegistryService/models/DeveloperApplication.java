@@ -52,5 +52,8 @@ public class DeveloperApplication {
 
     private UUID developerId;
 
+    @Builder.Default
+    private boolean active = true;
+
     private LocalDateTime createdAt;
 }
