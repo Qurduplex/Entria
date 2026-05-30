@@ -31,8 +31,6 @@ public class UserProfile {
     @Column(nullable = false)
     private String lastName;
 
-    private String email;
-
     // Opcjonalne / dodatkowe infomracje uzytkownika
     private String phoneNumber;
     private String pesel;

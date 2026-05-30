@@ -15,8 +15,6 @@ public class UpdateUserProfileRequestDTO {
     private String firstName;
     @Size(max=50)
     private String lastName;
-    @Email(message = "email should be valid")
-    private String email;
     @Pattern(regexp = "^\\d{9}$", message = "phone number must be 9 digits long")
     private String phoneNumber;
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "birth date must be in format YYYY-MM-DD")

@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import edu.pk.qurduplex.userDataService.models.UserProfile;
 import edu.pk.qurduplex.userDataService.services.JwtService;
+import edu.pk.qurduplex.userDataService.mappers.UserProfileMapper;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,19 +27,6 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
     private final JwtService jwtService;
 
-    private UserProfileResponseDTO toResponseDto(UserProfile userProfile) {
-        return UserProfileResponseDTO.builder()
-                .userId(userProfile.getUserId())
-                .firstName(userProfile.getFirstName())
-                .lastName(userProfile.getLastName())
-                .email(userProfile.getEmail())
-                .phoneNumber(userProfile.getPhoneNumber())
-                .pesel(userProfile.getPesel())
-                .sex(userProfile.getSex())
-                .birthDate(userProfile.getBirthDate() != null ? userProfile.getBirthDate().toString() : null)
-                .profilePictureUrl(userProfile.getProfilePictureUrl())
-                .build();
-    }
     
     //Zdobywanie informacji o profilu uzytkownika
     @Operation(
@@ -61,7 +48,7 @@ public class UserProfileController {
         }
         String token = authHeader.substring(7);
         String userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok(toResponseDto(userProfileService.getUserProfile(UUID.fromString(userId))));
+        return ResponseEntity.ok(UserProfileMapper.toResponseDTO(userProfileService.getUserProfile(UUID.fromString(userId))));
     }
 
 
@@ -86,6 +73,6 @@ public class UserProfileController {
         }
         String token = authHeader.substring(7);
         String userId = jwtService.extractUserId(token);
-        return ResponseEntity.ok( toResponseDto(userProfileService.updateUserProfile(UUID.fromString(userId), request)));
+        return ResponseEntity.ok( UserProfileMapper.toResponseDTO(userProfileService.updateUserProfile(UUID.fromString(userId), UserProfileMapper.toUserProfileUpdates(request))));
     }
 }

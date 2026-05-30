@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.time.LocalDate;
 import java.time.DateTimeException;
 import edu.pk.qurduplex.userDataService.exceptions.InvalidProfileDataException;
+import edu.pk.qurduplex.userDataService.models.UserProfileUpdate;
 
 @Service
 @RequiredArgsConstructor
@@ -45,11 +46,10 @@ public class UserProfileService {
         return userProfile;
     }
 
-    public UserProfile updateUserProfile(UUID userId, UpdateUserProfileRequestDTO request) {
+    public UserProfile updateUserProfile(UUID userId, UserProfileUpdate request) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId).orElseThrow(() -> new UserProfileNotFoundException("User profile not found for user id: " + userId));
         if(request.getFirstName() != null)  userProfile.setFirstName(request.getFirstName());
         if(request.getLastName() != null) userProfile.setLastName(request.getLastName());
-        if(request.getEmail() != null) userProfile.setEmail(request.getEmail());
         if(request.getPhoneNumber() != null) userProfile.setPhoneNumber(request.getPhoneNumber());
         if(request.getPesel() != null) userProfile.setPesel(request.getPesel());
         if(request.getSex() != null) userProfile.setSex(request.getSex());
@@ -60,7 +60,6 @@ public class UserProfileService {
                 throw new InvalidProfileDataException("Invalid birth date format");
             }
         }
-        if(request.getProfilePictureUrl() != null) userProfile.setProfilePictureUrl(request.getProfilePictureUrl());
         return userProfileRepository.save(userProfile);
     }
 }

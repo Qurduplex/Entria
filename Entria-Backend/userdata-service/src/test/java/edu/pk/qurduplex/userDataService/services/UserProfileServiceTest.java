@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import edu.pk.qurduplex.userDataService.exceptions.InvalidProfileDataException;
 import edu.pk.qurduplex.common.messages.user.CreateProfileMessage;
 import static org.mockito.ArgumentMatchers.argThat;
-
+import edu.pk.qurduplex.userDataService.mappers.UserProfileMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class UserProfileServiceTest {
@@ -39,7 +39,6 @@ public class UserProfileServiceTest {
             .userId(userID)
             .firstName("John")
             .lastName("Doe")
-            .email("john.doe@example.com")
             .phoneNumber("1234567890")
             .pesel("1234567890123")
             .sex("M")
@@ -70,7 +69,7 @@ public class UserProfileServiceTest {
             .userId(userID)
             .firstName("John")
             .lastName("Doe")
-            .email("john.doe@example.com")
+
             .phoneNumber("1234567890")
             .pesel("1234567890123")
             .sex("M")
@@ -79,12 +78,11 @@ public class UserProfileServiceTest {
         UpdateUserProfileRequestDTO request = UpdateUserProfileRequestDTO.builder()
             .firstName("John")
             .lastName("Doe")
-            .email("john.doe@example.com")
             .phoneNumber("1234567890")
             .pesel("1234567890123")
             .sex("M")
             .build();
-        userProfileService.updateUserProfile(userID, request);
+        userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request));
         verify(userProfileRepository).save(userProfile);
     }
 
@@ -100,7 +98,7 @@ public class UserProfileServiceTest {
         UpdateUserProfileRequestDTO request = UpdateUserProfileRequestDTO.builder()
             .birthDate("05-05-2000")
             .build();
-        assertThatThrownBy(() -> userProfileService.updateUserProfile(userID, request))
+        assertThatThrownBy(() -> userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request)))
             .isInstanceOf(InvalidProfileDataException.class)
             .hasMessageContaining("Invalid birth date");
         verify(userProfileRepository).findByUserId(userID);
