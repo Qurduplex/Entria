@@ -3,6 +3,8 @@ package edu.pk.qurduplex.appRegistryService.services;
 import edu.pk.qurduplex.appRegistryService.config.OauthProperties;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
+import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNotFoundException;
+import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.models.DeveloperApplication;
 import edu.pk.qurduplex.appRegistryService.repositories.DeveloperApplicationRepository;
 import edu.pk.qurduplex.common.models.OAuthPermission;
@@ -83,4 +85,17 @@ public class AppRegistryService {
     }
 
 
+
+
+    private DeveloperApplication getAndVerifyOwnership(UUID appId, UUID developerId) {
+        DeveloperApplication app = applicationRepository.findById(appId)
+                .orElseThrow(() -> new ApplicationNotFoundException(
+                        String.format("Application with ID '%s' not found.", appId)));
+
+        if (!app.getDeveloperId().equals(developerId)) {
+            throw new ForbiddenAccessException("You do not have permission to modify this application.");
+        }
+
+        return app;
+    }
 }
