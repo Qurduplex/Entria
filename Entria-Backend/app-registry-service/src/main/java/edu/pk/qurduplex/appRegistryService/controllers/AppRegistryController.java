@@ -1,5 +1,7 @@
 package edu.pk.qurduplex.appRegistryService.controllers;
 
+import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
+import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,10 +33,7 @@ public class AppRegistryController {
             @RequestHeader(value = "X-User-Role", required = true) UserRole role,
             @Valid @ModelAttribute RegisterApplicationRequest request
     ) {
-
-        if (role != UserRole.DEVELOPER) {
-            throw new ForbiddenAccessException("Only developers can register new applications.");
-        }
+        verifyDeveloper(role);
 
         RegisterApplicationResponse response = appRegistryService.registerApplication(
                 developerId,
@@ -45,5 +45,60 @@ public class AppRegistryController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/app-list")
+    public ResponseEntity<List<ApplicationSummaryResponse>> getApplications(
+            @RequestHeader(value = "X-User-Id") UUID developerId,
+            @RequestHeader(value = "X-User-Role") UserRole role) {
+        verifyDeveloper(role);
+
+        return ResponseEntity.ok(appRegistryService.getDeveloperApplications(developerId));
+    }
+
+    @GetMapping("/details/{appId}")
+    public ResponseEntity<ApplicationDetails> getApplicationDetails(
+            @RequestHeader(value = "X-User-Id") UUID developerId,
+            @RequestHeader(value = "X-User-Role") UserRole role,
+            @PathVariable UUID appId) {
+
+        verifyDeveloper(role);
+
+        return ResponseEntity.ok(appRegistryService.getApplicationDetails(developerId, appId));
+    }
+
+    @PatchMapping("/deactivate/{appId}")
+    public ResponseEntity<Void> deactivateApplication(
+            @RequestHeader(value = "X-User-Id") UUID developerId,
+            @RequestHeader(value = "X-User-Role") UserRole role,
+            @PathVariable UUID appId) {
+
+        verifyDeveloper(role);
+
+        appRegistryService.deactivateApplication(appId, developerId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{appId}")
+    public ResponseEntity<Void> deleteApplication(
+            @RequestHeader(value = "X-User-Id") UUID developerId,
+            @RequestHeader(value = "X-User-Role") UserRole role,
+            @PathVariable UUID appId) {
+
+        verifyDeveloper(role);
+
+        appRegistryService.deleteApplication(appId, developerId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+
+    private void verifyDeveloper(UserRole role) {
+        if (role != UserRole.DEVELOPER) {
+            throw new ForbiddenAccessException("Only developers can perform this action.");
+        }
     }
 }

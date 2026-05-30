@@ -50,7 +50,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     private String extractUserIdFromToken(String token) {
-        return UUID.randomUUID().toString();
+        return "a1b2c3d4-e5f6-7a8b-9c0d-1234567890ab";
     }
 
     private String extractUserRoleFromToken(String token) {

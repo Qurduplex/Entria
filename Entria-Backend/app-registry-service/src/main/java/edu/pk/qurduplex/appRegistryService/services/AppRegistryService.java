@@ -1,10 +1,13 @@
 package edu.pk.qurduplex.appRegistryService.services;
 
 import edu.pk.qurduplex.appRegistryService.config.OauthProperties;
+import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
+import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNotFoundException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
+import edu.pk.qurduplex.appRegistryService.mappers.AppMapper;
 import edu.pk.qurduplex.appRegistryService.models.DeveloperApplication;
 import edu.pk.qurduplex.appRegistryService.repositories.DeveloperApplicationRepository;
 import edu.pk.qurduplex.common.models.OAuthPermission;
@@ -15,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -84,8 +89,43 @@ public class AppRegistryService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public List<ApplicationSummaryResponse> getDeveloperApplications(UUID developerId) {
+        return applicationRepository.findAllByDeveloperId(developerId).stream()
+                .map(app -> ApplicationSummaryResponse.builder()
+                        .appId(app.getId())
+                        .name(app.getName())
+                        .logoUrl(app.getLogoUrl())
+                        .active(app.isActive())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
+    @Transactional(readOnly = true)
+    public ApplicationDetails getApplicationDetails(UUID developerId, UUID appId) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
 
+        return AppMapper.toApplicationDetails(app);
+    }
+
+    @Transactional
+    public void deactivateApplication(UUID appId, UUID developerId) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+        if (!app.isActive()) {
+            throw new IllegalStateException("Application is already deactivated.");
+        }
+
+        app.setActive(false);
+        applicationRepository.save(app);
+    }
+
+    @Transactional
+    public void deleteApplication(UUID appId, UUID developerId) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+        applicationRepository.delete(app);
+    }
 
     private DeveloperApplication getAndVerifyOwnership(UUID appId, UUID developerId) {
         DeveloperApplication app = applicationRepository.findById(appId)
@@ -93,7 +133,7 @@ public class AppRegistryService {
                         String.format("Application with ID '%s' not found.", appId)));
 
         if (!app.getDeveloperId().equals(developerId)) {
-            throw new ForbiddenAccessException("You do not have permission to modify this application.");
+            throw new ForbiddenAccessException("You do not have permission to access this application.");
         }
 
         return app;
