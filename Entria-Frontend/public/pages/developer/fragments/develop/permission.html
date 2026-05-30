@@ -1,0 +1,179 @@
+<div class="rounded-xl border border-gray-300 bg-white shadow-sm">
+
+  <div class="border-b border-gray-300 px-5 py-4">
+    <h2 class="text-base font-semibold text-gray-900">Uprawnienia</h2>
+    <p class="mt-1 text-sm text-gray-600">
+      Wybierz dane użytkownika, do których aplikacja będzie miała dostęp
+    </p>
+  </div>
+
+  <div class="space-y-4 p-5">
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" checked disabled data-permission="openid" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">openid</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="bg-[#161619] px-3 py-1 text-white">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">
+              Podstawowa tożsamość — unikalny identyfikator użytkownika
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" checked data-permission="email" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">email</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="bg-[#161619] px-3 py-1 text-white">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-500">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">
+              Adres e-mail użytkownika
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" data-permission="first_name" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">first name</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">Imię użytkownika</p>
+          </div>
+        </div>
+      </div>
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" data-permission="last_name" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">last name</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">Nazwisko użytkownika</p>
+          </div>
+        </div>
+      </div>
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" data-permission="avatar" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">avatar</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">Zdjęcie profilowe użytkownika</p>
+          </div>
+        </div>
+      </div>
+
+      <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" data-permission="phone" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+          <div class="flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-gray-900">phone</span>
+
+              <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+                <button type="button" data-permission-option="required" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">wymagane</button>
+                <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+              </div>
+            </div>
+
+            <p class="mt-2 text-xs text-gray-600">Numer telefonu użytkownika</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div data-permission-card class="rounded-xl border border-gray-300 px-4 py-3">
+      <div class="flex items-start gap-3">
+        <input type="checkbox" data-permission="pesel" class="mt-1 h-4 w-4 accent-[#7C6FFF]" />
+
+        <div class="flex-1">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm font-semibold text-gray-900">pesel</span>
+
+            <div class="flex overflow-hidden rounded-full border border-gray-300 text-[11px]">
+              <button type="button" data-permission-option="required" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">wymagane</button>
+              <button type="button" data-permission-option="optional" class="px-3 py-1 text-gray-400 opacity-40 cursor-not-allowed">opcjonalne</button>
+            </div>
+          </div>
+
+          <p class="mt-2 text-xs text-gray-600">
+            Numer PESEL użytkownika. Pamiętaj, że dane wrażliwe wymagają odpowiedniego zabezpieczenia.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+      Zakresy opcjonalne mogą zostać odrzucone przez użytkownika podczas logowania — aplikacja powinna działać bez nich.
+    </div>
+
+  </div>
+
+</div>
+
+<div class="mt-6 flex justify-end gap-4">
+  <button
+    id="cancel-create-application"
+    type="button"
+    class="rounded-xl border border-gray-400 bg-white px-5 py-3 text-sm text-gray-900 transition hover:bg-gray-100"
+  >
+    Anuluj
+  </button>
+
+  <button
+    id="create-application-button"
+    type="button"
+    class="rounded-xl bg-[#161619] px-5 py-3 text-sm text-white transition hover:opacity-90"
+  >
+    Utwórz aplikację
+  </button>
+</div>

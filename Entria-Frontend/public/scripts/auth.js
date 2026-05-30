@@ -145,6 +145,13 @@ function initLoginForm() {
             localStorage.setItem("refreshToken", response.refreshToken);
             showAlert("Zalogowano pomyślnie.", "success");
             startTokenRefresh();
+            if (response.role === "DEVELOPER") {
+                window.location.href =
+                    "./DevelopmentLayout.html";
+            } else {
+                window.location.href =
+                    "./UserLayout.html";
+            }
         } catch (err) {
             console.error("Błąd logowania:", err);
             showAlert(err.data?.message || "Nie udało się zalogować.", "error");
@@ -407,9 +414,25 @@ function closeVerifiedModal() {
 function initVerifiedModal() {
     const closeBtn = document.getElementById("closeVerifiedModal");
     const modal = document.getElementById("verifiedModal");
+    const successButton = document.getElementById("successButton");
     if (closeBtn) {
         closeBtn.addEventListener("click", closeVerifiedModal);
     }
+    
+    if (successButton) {
+        successButton.addEventListener("click", () => {
+
+            if (currentVerifyType === "developer") {
+                window.location.href =
+                    "./DevelopmentLayout.html";
+            } else {
+                window.location.href =
+                    "./UserLayout.html";
+            }
+
+        });
+    }
+
     if (modal) {
         modal.addEventListener("click", (e) => {
             if (e.target.id === "verifiedModal") {

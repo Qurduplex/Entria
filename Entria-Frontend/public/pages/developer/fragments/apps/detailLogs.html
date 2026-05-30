@@ -1,0 +1,28 @@
+<div class="rounded-2xl border border-gray-300 bg-white shadow-sm">
+
+  <div class="flex items-center justify-between border-b border-gray-300 px-6 py-5">
+    <h2 class="text-lg font-semibold text-gray-900">
+      Ostatnie logi logowań
+    </h2>
+
+    <button id="show-all-logs-button" class="rounded-xl bg-gray-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800">
+      Zobacz wszystkie →
+    </button>
+  </div>
+
+  <div class="p-6 pt-4">
+    <table class="w-full text-left text-sm text-gray-900">
+      <thead>
+        <tr class="border-b border-gray-300 text-xs uppercase text-gray-700">
+          <th class="py-3 font-medium text-base">Czas</th>
+          <th class="py-3 font-medium text-base">Użytkownik</th>
+          <th class="py-3 font-medium text-base">IP</th>
+          <th class="py-3 font-medium text-base">Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="application-login-logs"></tbody>
+    </table>
+  </div>
+
+</div>
