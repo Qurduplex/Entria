@@ -28,3 +28,11 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 5
     lease-expiration-duration-in-seconds: 10
+
+application:
+  minio:
+    url: ${MINIO_URL:http://localhost:9000}
+    external-url: ${MINIO_EXTERNAL_URL:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:admin}
+    secret-key: ${MINIO_SECRET_KEY:password}
+    public-bucket: ${MINIO_PUBLIC_BUCKET:entria-public-files}

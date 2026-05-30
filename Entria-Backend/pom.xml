@@ -24,6 +24,7 @@
         <lang3.version>3.18.0</lang3.version>
         <springdoc.version>2.8.9</springdoc.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <minio.version>8.5.7</minio.version>
     </properties>
 
     <modules>

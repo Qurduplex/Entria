@@ -34,6 +34,7 @@ public class DeveloperApplication {
 
     private String logoUrl;
 
+    @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "application_permissions",
