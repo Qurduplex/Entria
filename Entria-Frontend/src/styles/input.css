@@ -1,5 +1,65 @@
 @import "tailwindcss";
 
 @source "../../public/pages/**/*.html";
+@source "../../public/pages/**/**/*.html";
 @source "../../public/components/**/*.html";
 @source "../../public/scripts/**/*.js";
+
+.input-hint {
+  font-size: 12px;
+  color: #EF4444;
+  margin-top: 4px;
+}
+
+.input-field.is-invalid {
+  border: 2px solid #F87171 !important;
+  background-color: rgb(254 242 242 / 0.4) !important;
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-black/[0.08] rounded-2xl overflow-hidden shadow-sm;
+  }
+
+  .card-header {
+    @apply flex items-center gap-3 px-5 py-4 border-b border-black/[0.06];
+  }
+
+  .card-icon {
+    @apply w-9 h-9 rounded-xl bg-[#EEF0FF] text-[#7C5CFC] flex items-center justify-center shrink-0;
+  }
+
+  .card-title {
+    @apply text-[15px] font-semibold text-[#161619] leading-tight;
+  }
+
+  .card-subtitle {
+    @apply text-[13px] text-[#8D8D8D] mt-px;
+  }
+
+  .card-body {
+    @apply flex flex-col gap-3.5 p-5;
+  }
+
+  /*____________________INPUT FIELD__________________*/
+  .input-label {
+    @apply text-[12px] text-[#8D8D8D] mb-1;
+  }
+
+  .input-field {
+    @apply w-full bg-[#E4E0E7] border-2 border-transparent  px-3 py-2.5 text-[14px] text-[#161619] outline-none transition-colors focus:border-[#E4E0E7] focus:bg-white placeholder:text-[#BDBDBD];
+  }
+ 
+
+  /* ─── BUTTONS ───────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-[#161619] text-white text-[13px] font-medium px-4 py-2 rounded-xl cursor-pointer transition-colors hover:bg-[#2a2a30] border-none;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-[#161619] text-[13px] font-medium px-4 py-2 rounded-xl cursor-pointer border border-black/[0.12] transition-colors hover:bg-black/[0.04];
+  }
+}
+
+
+
