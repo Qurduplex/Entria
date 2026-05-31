@@ -1,0 +1,84 @@
+<div class="rounded-xl border border-gray-300 bg-white shadow-sm">
+
+  <div class="border-b border-gray-300 px-5 py-4">
+    <h2 class="text-gray-900 text-base font-semibold">
+      Logo aplikacji
+    </h2>
+  </div>
+
+  <div class="p-5">
+
+    <div id="logo-upload-state">
+      <label
+        for="application-logo"
+        class="flex h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-400 bg-gray-100 text-gray-900"
+      >
+        <p>Przeciągnij plik lub kliknij</p>
+
+        <p class="text-xs text-gray-500">
+          PNG, SVG — max 2MB
+        </p>
+
+        <input
+          id="application-logo"
+          type="file"
+          accept="image/png,image/svg+xml"
+          class="hidden"
+        />
+      </label>
+    </div>
+
+    <div
+      id="logo-preview-state"
+      class="hidden"
+    >
+
+      <div class="flex items-center gap-4">
+
+        <img
+        id="application-logo-preview"
+        class="h-[140px] w-[140px] rounded-xl border border-gray-200 object-contain bg-white"
+        alt="Logo aplikacji"
+        />
+
+        <div class="flex flex-col">
+
+          <p
+            id="application-logo-name"
+            class="text-sm font-semibold text-gray-900"
+          ></p>
+
+          <p
+            id="application-logo-size"
+            class="text-sm text-gray-500"
+          ></p>
+
+          <div class="mt-3 flex gap-3">
+
+            <button
+              id="change-logo-button"
+              type="button"
+              class="rounded-xl border border-[#8B7FFF] px-4 py-2 text-sm text-[#8B7FFF] transition hover:bg-purple-50"
+            >
+              Zmień logo
+            </button>
+
+            <button
+              id="remove-logo-button"
+              type="button"
+              class="rounded-xl border border-[#8B7FFF] px-4 py-2 text-sm text-[#8B7FFF] transition hover:bg-purple-50"
+            >
+              Usuń
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

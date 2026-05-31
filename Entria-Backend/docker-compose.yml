@@ -111,6 +111,45 @@
         FRONTEND_AUTHORIZE_URL: ${FRONTEND_AUTHORIZE_URL}
 
 
+
+    userdata-service:
+      build: ./userdata-service
+      container_name: userdata-service
+      deploy:
+        resources:
+          limits:
+            memory: 2048M
+      ports:
+        - "${USERDATA_SERVICE_PORT}:${USERDATA_SERVICE_INTERNAL_PORT}"
+      networks:
+        - entria-network
+      depends_on:
+        postgres:
+          condition: service_healthy
+        eureka-server:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        SERVER_PORT: ${USERDATA_SERVICE_INTERNAL_PORT}
+
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+        DB_HOST: postgres
+        DB_PORT: ${POSTGRES_DB_PORT}
+        DB_NAME: ${POSTGRES_USERDATA_DB_NAME}
+        DB_USER: ${POSTGRES_DB_USER}
+        DB_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+        APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+        APPLICATION_SECURITY_JWT_EXPIRATION: ${JWT_EXPIRATION}
+        APPLICATION_SECURITY_REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
+
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
+        SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+        SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
     notification-service:
       build: ./notification-service
       container_name: notification-service
@@ -208,43 +247,6 @@
         timeout: 5s
         retries: 5
 
-    minio:
-      image: minio/minio
-      container_name: minio
-      ports:
-        - "9000:9000"
-        - "9001:9001"
-      command: [ "server", "/data", "--console-address", ":9001" ]
-      environment:
-        MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-        MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      networks:
-        - entria-network
-      volumes:
-        - minio_data:/data
-      healthcheck:
-        test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-
-    minio-setup:
-      image: minio/mc
-      container_name: minio-setup
-      depends_on:
-        minio:
-          condition: service_healthy
-      networks:
-        - entria-network
-      entrypoint: >
-        /bin/sh -c "
-        /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-        /usr/bin/mc mb myminio/entria-public-files --ignore-existing;
-        /usr/bin/mc mb myminio/entria-private-files --ignore-existing;
-        /usr/bin/mc anonymous set public myminio/entria-public-files;
-        exit 0;
-        "
-
   networks:
     entria-network:
       driver: bridge
@@ -252,6 +254,4 @@
     postgres_data:
       driver: local
     rabbitmq_data:
-      driver: local
-    minio_data:
       driver: local

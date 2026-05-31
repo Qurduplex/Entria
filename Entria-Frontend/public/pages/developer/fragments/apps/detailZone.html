@@ -1,0 +1,70 @@
+<div class="rounded-2xl border border-gray-300 bg-white shadow-sm">
+
+  <div class="border-b border-gray-300 px-6 py-5">
+    <h2 class="text-lg font-semibold text-gray-900">
+      Zarządzanie
+    </h2>
+  </div>
+
+  <div class="space-y-6 p-6">
+
+    <div class="flex items-center justify-between gap-6 border-b border-gray-300 pb-6">
+      <div>
+        <h3 class="text-base font-semibold text-gray-800">
+          Edytuj aplikację
+        </h3>
+        <p class="mt-2 text-sm text-gray-600">
+          Zmień nazwę, opis, redirect URI, logo lub domenę aplikacji.
+        </p>
+      </div>
+
+        <button
+            id="edit-application-button"
+            class="flex h-[52px] w-[190px] items-center justify-center rounded-xl bg-gray-950 px-5 text-sm font-medium text-white transition hover:bg-gray-800"
+            >
+            Edytuj aplikację
+        </button>
+    </div>
+
+    <div class="flex items-center justify-between gap-6 border-b border-gray-300 pb-6">
+      <div>
+        <h3 class="text-base font-semibold text-gray-800">
+          Wyłącz aplikację
+        </h3>
+        <p class="mt-2 max-w-xl text-sm text-gray-600">
+          Blokuje nowe logowania, ale zachowuje całą konfigurację. Można cofnąć w dowolnym momencie.
+        </p>
+      </div>
+
+      <button
+        id="disable-application-button"
+        class="flex h-[52px] w-[190px] items-center justify-center rounded-xl bg-gray-950 px-5 text-sm font-medium text-white transition hover:bg-gray-800"
+        >
+        Wyłącz aplikację
+        </button>
+    </div>
+
+    <div class="flex items-center justify-between gap-6">
+      <div>
+        <h3 class="text-base font-semibold text-gray-800">
+          Usuń aplikację
+        </h3>
+        <p class="mt-2 max-w-xl text-sm text-gray-600">
+          Client ID i Client Secret przestają działać natychmiast. Aplikacja zostaje w systemie jako usunięta – historia logowań i dane audytowe są zachowane.
+        </p>
+        <p class="mt-2 text-sm font-medium text-red-600">
+          ⚠ Tej operacji nie można cofnąć.
+        </p>
+      </div>
+
+     <button
+        id="delete-application-button"
+        class="flex h-[52px] w-[190px] items-center justify-center rounded-xl bg-red-600 px-5 text-sm font-medium text-white transition hover:bg-red-700"
+        >
+        Usuń aplikację
+        </button>
+    </div>
+
+  </div>
+
+</div>

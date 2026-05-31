@@ -17,14 +17,14 @@ public class RabbitMQConsumer {
 
     @RabbitListener(queues = "#{rabbitMQProperties.getVerificationCodeEventTopic()}")
     public void processVerificationCodeMessage(VerificationCodeMessage message) {
-        log.info("Received verification code message: {}", message);
+        log.info("Received verification code message for email: {}", message.getEmail());
 
         emailService.sendVerificationEmail(message.getEmail(), message.getCode());
     }
 
     @RabbitListener(queues = "#{rabbitMQProperties.getResetPasswordCodeEventTopic()}")
     public void processResetPasswordCodeMessage(ResetPasswordCodeMessage message) {
-        log.info("Received reset password code message: {}", message);
+        log.info("Received reset password code message for email: {}", message.getEmail());
 
         emailService.sendResetPasswordEmail(message.getEmail(), message.getCode());
     }

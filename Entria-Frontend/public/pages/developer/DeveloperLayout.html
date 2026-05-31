@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entria - Konto</title>
+    <link href="../../output.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "DM Sans", sans-serif;
+      }
+
+      @media (max-width: 768px) {
+        #sidebar {
+          position: fixed;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          z-index: 40;
+          transform: translateX(-100%);
+          transition: transform 0.25s ease;
+        }
+        #sidebar.sidebar-open {
+          transform: translateX(0);
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body class="bg-[#0E0E12] text-[#FAFAFA] min-h-screen flex">
+
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"></div>
+    <div id="sidebar-container"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen" style="background: #F6F5F9;">
+
+        <header class="h-[60px] backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20 bg-[#F6F5F9]">
+             <button
+          id="sidebar-toggle-btn"
+          class="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] mr-3"
+        >
+          <span class="w-5 h-[1.5px] bg-[#161619] rounded-full"></span>
+          <span class="w-5 h-[1.5px] bg-[#161619] rounded-full"></span>
+          <span class="w-5 h-[1.5px] bg-[#161619] rounded-full"></span>
+        </button> 
+          <p id="topbar-breadcrumb" class="text-[14px] text-[#8D8D8D] font-['DM_Sans']">Konto / Dashboard</p>
+        </header>
+
+        <div class="flex items-center gap-4 px-8 pb-2">
+
+          <div id="page-logo" class="hidden h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white shrink-0" ></div>
+          <div class="min-w-0">
+              <h1 id="page-title" class="text-[28px] font-[Fraunces] text-[#161619] font-medium" ></h1>
+              <p id="page-description" class="text-[14px] text-[#8D8D8D] " ></p>
+          </div>
+        </div>
+
+        <div class="border-t border-black/[0.08] mx-8"></div>
+
+        <main id="page-content" class="flex-1 overflow-y-auto px-8 py-6"></main>
+
+    </div>
+
+    <script type="module">
+        import { initSidebar, toggleSidebar } from "../../scripts/sideBar.js";
+        await initSidebar("developer");
+        document.getElementById("sidebar-toggle-btn")?.addEventListener("click", toggleSidebar);
+    </script>
+</body>
+</html>

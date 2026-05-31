@@ -30,6 +30,14 @@ spring:
                 - AuthenticationFilter
                 - RewritePath=/api/apps/(?<segment>.*), /api/$\{segment}
 
+            - id: userdata-api-route
+              uri: lb://userdata-service
+              predicates:
+                - Path=/api/user-profile/**
+            - id: userdata-docs-route
+              uri: lb://userdata-service
+              predicates:
+                - Path=/docs/user-profile/{*segment}
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

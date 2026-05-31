@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: userdata-service-test
+  datasource:
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  rabbitmq:
+    host: localhost   
+  cloud:
+    discovery:
+      enabled: false
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+
+eureka:
+  client:
+    enabled: false
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 5m
+  rabbitmq:
+    exchange-name: user-exchange
+    user-registered-event-routing-key: user-registered-event
+    user-registered-event-topic: user-registered-queue
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
