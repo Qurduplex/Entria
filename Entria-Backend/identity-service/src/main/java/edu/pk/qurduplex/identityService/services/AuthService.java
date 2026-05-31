@@ -5,9 +5,8 @@ import edu.pk.qurduplex.identityService.dto.*;
 import edu.pk.qurduplex.identityService.exceptions.*;
 import edu.pk.qurduplex.identityService.models.AuthCredential;
 import edu.pk.qurduplex.identityService.models.RefreshToken;
-import edu.pk.qurduplex.identityService.models.UserRole;
+import edu.pk.qurduplex.common.models.UserRole;
 import edu.pk.qurduplex.identityService.repositories.AuthRepository;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j

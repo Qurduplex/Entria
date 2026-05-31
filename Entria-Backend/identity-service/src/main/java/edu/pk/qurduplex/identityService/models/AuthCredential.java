@@ -1,12 +1,12 @@
 package edu.pk.qurduplex.identityService.models;
 
+import edu.pk.qurduplex.common.models.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Data

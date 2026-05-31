@@ -4,13 +4,13 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-
 @Data
 @Component
-@ConfigurationProperties(prefix = "application.security.jwt")
-public class JwtProperties {
+@ConfigurationProperties(prefix = "application.minio")
+public class MinioProperties {
+    private String url;
+    private String externalUrl;
+    private String accessKey;
     private String secretKey;
-    private Duration expiration;
-    private Duration refreshExpiration;
+    private String publicBucket;
 }

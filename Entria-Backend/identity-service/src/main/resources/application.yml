@@ -1,6 +1,10 @@
 server:
   port: ${SERVER_PORT:12001}
 
+grpc:
+  server:
+    port: 9090
+
 spring:
   application:
     name: identity-service
@@ -53,3 +57,4 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 5
     lease-expiration-duration-in-seconds: 10
+

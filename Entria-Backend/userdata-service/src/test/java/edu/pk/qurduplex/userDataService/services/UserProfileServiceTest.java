@@ -82,7 +82,7 @@ public class UserProfileServiceTest {
             .pesel("1234567890123")
             .sex("M")
             .build();
-        userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request));
+        userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request), request.getProfilePicture());
         verify(userProfileRepository).save(userProfile);
     }
 
@@ -98,7 +98,7 @@ public class UserProfileServiceTest {
         UpdateUserProfileRequestDTO request = UpdateUserProfileRequestDTO.builder()
             .birthDate("05-05-2000")
             .build();
-        assertThatThrownBy(() -> userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request)))
+        assertThatThrownBy(() -> userProfileService.updateUserProfile(userID, UserProfileMapper.toUserProfileUpdates(request), request.getProfilePicture()))
             .isInstanceOf(InvalidProfileDataException.class)
             .hasMessageContaining("Invalid birth date");
         verify(userProfileRepository).findByUserId(userID);
