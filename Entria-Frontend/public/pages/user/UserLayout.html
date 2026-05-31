@@ -45,17 +45,17 @@
       }
     </style>
   </head>
-  <body class="bg-[#0E0E12]  min-h-screen flex">
+  <body class="bg-[#0E0E12] min-h-screen flex">
     <div
       id="sidebar-overlay"
       class="hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
     ></div>
     <div id="sidebar-container"></div>
 
-   <div
-  class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto text-[#161619]"
-  style="background: #f6f5f9"
->
+    <div
+      class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto text-[#161619]"
+      style="background: #f6f5f9"
+    >
       <header
         class="h-[60px] backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20 bg-[#F6F5F9]"
       >
@@ -87,6 +87,11 @@
 
       <main id="page-content" class="flex-1 px-8 py-6"></main>
     </div>
+
+    <div
+      id="toast-container"
+      class="fixed top-6 right-6 z-[9999] flex flex-col gap-3"
+    ></div>
 
     <script type="module">
       import { initSidebar, toggleSidebar } from "../../scripts/sideBar.js";

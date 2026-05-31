@@ -1,0 +1,240 @@
+<div class="flex flex-col gap-5">
+  <!-- ZDJĘCIE PROFILOWE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">
+        <!-- ikona -->
+      </div>
+      <div>
+        <p class="card-title">Zdjęcie profilowe</p>
+        <p class="card-subtitle">Widoczne w aplikacjach połączonych przez Entria</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="flex items-center gap-5">
+        <div id="profile-avatar" class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#A89DFF] to-[#7C6FFF] flex-shrink-0 flex items-center justify-center text-white text-[22px] font-semibold select-none overflow-hidden"></div>
+        <div>
+          <p id="profile-name" class="text-[15px] font-semibold text-[#161619]"></p>
+          <p id="profile-email" class="text-[13px] text-[#8D8D8D] mb-3"></p>
+          <div class="flex gap-2">
+            <button id="profile-upload-btn" class="btn-primary">Wgraj zdjęcie</button>
+            <button id="profile-delete-btn" class="btn-secondary">Usuń</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DANE OSOBOWE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">
+        <!-- ikona -->
+      </div>
+      <div>
+        <p class="card-title">Dane osobowe</p>
+        <p class="card-subtitle">Pola opcjonalne możesz uzupełnić w dowolnym momencie</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="input-label">Imię</p>
+          <input id="input-firstname" class="input-field" type="text" />
+          <p class="input-hint hidden" data-for="input-firstname"></p>
+        </div>
+        <div>
+          <p class="input-label">Nazwisko</p>
+          <input id="input-lastname" class="input-field" type="text" />
+          <p class="input-hint hidden" data-for="input-lastname"></p>
+        </div>
+      </div>
+      <div>
+        <p class="input-label">Adres e-mail</p>
+        <input id="input-email" class="input-field" type="email" />
+        <p class="input-hint hidden" data-for="input-email"></p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="input-label">Numer telefonu</p>
+          <input id="input-phone" class="input-field" type="tel" placeholder="+48 000 000 000" />
+          <p class="input-hint hidden" data-for="input-phone"></p>
+        </div>
+        <div>
+          <p class="input-label">Data urodzenia</p>
+          <input id="input-birthdate" class="input-field" type="date" />
+          <p class="input-hint hidden" data-for="input-birthdate"></p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="input-label">Płeć</p>
+          <select id="input-gender" class="input-field">
+            <option>Wybierz płeć</option>
+            <option>Kobieta</option>
+            <option>Mężczyzna</option>
+            <option>Inna</option>
+          </select>
+        </div>
+        <div>
+          <p class="input-label">PESEL</p>
+          <input id="input-pesel" class="input-field" type="text" />
+          <p class="input-hint hidden" data-for="input-pesel"></p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between pt-1">
+        <p id="unsaved-indicator" class="text-[13px] text-[#E6A320] hidden">Masz niezapisane zmiany</p>
+        <button id="btn-save-profile" class="btn-primary ml-auto">Zapisz zmiany</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZMIANA HASŁA -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">
+        <!-- ikona -->
+      </div>
+      <div>
+        <p class="card-title">Zmiana hasła</p>
+        <p class="card-subtitle">Zalecamy unikalne hasło, którego nie używasz nigdzie indziej</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="relative">
+        <p class="input-label">Aktualne hasło</p>
+        <input id="input-current" class="input-field pr-11" type="password" placeholder="••••••••" />
+        <button id="toggle-current" class="absolute right-3 bottom-3 text-[#8D8D8D] hover:text-[#161619] transition-colors cursor-pointer">
+          <!-- ikona -->
+        </button>
+      </div>
+      <div class="relative">
+        <p class="input-label">Nowe hasło</p>
+        <input id="input-new" class="input-field pr-11" type="password" placeholder="••••••••" />
+        <button id="toggle-new" class="absolute right-3 bottom-3 text-[#8D8D8D] hover:text-[#161619] transition-colors cursor-pointer">
+          <!-- ikona -->
+        </button>
+      </div>
+      <div class="relative">
+        <p class="input-label">Powtórz nowe hasło</p>
+        <input id="input-repeat" class="input-field pr-11" type="password" placeholder="••••••••" />
+        <button id="toggle-repeat" class="absolute right-3 bottom-3 text-[#8D8D8D] hover:text-[#161619] transition-colors cursor-pointer">
+          <!-- ikona -->
+        </button>
+      </div>
+      <div class="flex justify-end pt-1">
+        <button id="btn-change-password" class="btn-primary">Zmień hasło</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STREFA NIEBEZPIECZNA -->
+  <div class="card border-red-200/60">
+    <div class="card-header border-red-100/80">
+      <div class="card-icon bg-red-50 text-red-500">
+        <!-- ikona -->
+      </div>
+      <div>
+        <p class="card-title text-red-600">Strefa niebezpieczna</p>
+        <p class="card-subtitle">Nieodwracalne operacje na koncie</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[14px] font-medium text-[#161619]">Usuń konto</p>
+          <p class="text-[13px] text-[#8D8D8D]">Trwale usuwa konto, wszystkie dane i dostęp do połączonych aplikacji</p>
+        </div>
+        <button class="shrink-0 ml-6 bg-[#161619] text-white text-[13px] font-medium px-5 py-2.5 rounded-xl hover:bg-red-600 transition-colors cursor-pointer">
+          Usuń konto
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <div id="delete-overlay"
+
+    class="hidden fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center"
+
+    onclick="if(event.target===this) this.classList.add('hidden')">
+
+
+
+    <div class="bg-white rounded-2xl p-7 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_40px_rgba(0,0,0,0.18)]"
+
+      onclick="event.stopPropagation()">
+
+
+
+      <!-- Nagłówek -->
+
+      <div class="flex items-center gap-3 mb-4">
+
+        <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+
+          </svg>
+
+        </div>
+
+        <p class="text-[15px] font-semibold text-[#161619]">Usuń konto</p>
+
+      </div>
+
+
+
+      <!-- Treść -->
+
+      <p class="text-[13.5px] text-[#444] leading-relaxed mb-2">
+
+        Czy na pewno chcesz trwale usunąć konto? Tej operacji <span class="font-semibold text-[#161619]">nie można cofnąć</span>.
+
+      </p>
+
+      <ul class="text-[13px] text-[#666] leading-[1.75] mb-6 pl-5 list-disc">
+
+        <li>Stracisz dostęp do wszystkich aplikacji połączonych przez Entria</li>
+
+        <li>Nie będziesz mógł logować się przez Entria do żadnego serwisu</li>
+
+        <li>Wszystkie Twoje dane zostaną trwale usunięte</li>
+
+      </ul>
+
+
+
+      <!-- Przyciski -->
+
+      <div class="flex justify-end gap-2.5">
+
+        <button onclick="document.getElementById('delete-overlay').classList.add('hidden')"
+
+          class="px-[18px] py-[9px] rounded-[10px] border border-[#E0E0E0] bg-white text-[13px] font-medium text-[#444] hover:bg-[#F5F5F5] transition-colors cursor-pointer">
+
+          Anuluj
+
+        </button>
+
+        <button onclick="/* TODO: wywołaj API */"
+
+          class="px-[18px] py-[9px] rounded-[10px] bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-colors cursor-pointer">
+
+          Tak, usuń konto
+
+        </button>
+
+      </div>
+
+
+
+    </div>
+
+  </div>
+
+
+
+
+</div>

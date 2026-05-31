@@ -4,6 +4,10 @@ import { initDeveloperApps } from "./developer/application.js";
 import { initApplicationDetails } from "./developer/application-detail.js";
 import { initApplicationDetailsLogs } from "./developer/application-detail-logs.js";
 import { initApplicationDevelopment } from "./developer/develop.js";
+import { initUserDashboard } from "./user/dashboard.js";
+import { initUserProfile } from "./user/profile.js";
+import { initUserApps } from "./user/apps.js";
+import { initUserHistory } from "./user/history.js";
 
 const sidebarConfigs = {
   user: {
@@ -57,7 +61,8 @@ const sidebarConfigs = {
         fragment: "fragments/access.html",
         breadcrumb: "Dostęp / Zgody i dostęp",
         title: "Zgody i dostęp",
-        description: "Kontruluj jakie dane udostępniasz poszczególnym aplikacjom",
+        description:
+          "Kontruluj jakie dane udostępniasz poszczególnym aplikacjom",
       },
       {
         id: "apps",
@@ -93,12 +98,12 @@ const sidebarConfigs = {
       avatarColor: "#2D9A63",
     },
     nav: [
-      { type: "section", label: "Developer" },
+      { type: "section", label: "DEVELOPER" },
       {
         id: "dashboard",
         label: "Dashboard",
         active: true,
-       icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9.75 3.75H5.25C4.85218 3.75 4.47064 3.90804 4.18934 4.18934C3.90804 4.47064 3.75 4.85218 3.75 5.25V9.75C3.75 10.1478 3.90804 10.5294 4.18934 10.8107C4.47064 11.092 4.85218 11.25 5.25 11.25H9.75C10.1478 11.25 10.5294 11.092 10.8107 10.8107C11.092 10.5294 11.25 10.1478 11.25 9.75V5.25C11.25 4.85218 11.092 4.47064 10.8107 4.18934C10.5294 3.90804 10.1478 3.75 9.75 3.75ZM9.75 9.75H5.25V5.25H9.75V9.75ZM18.75 3.75H14.25C13.8522 3.75 13.4706 3.90804 13.1893 4.18934C12.908 4.47064 12.75 4.85218 12.75 5.25V9.75C12.75 10.1478 12.908 10.5294 13.1893 10.8107C13.4706 11.092 13.8522 11.25 14.25 11.25H18.75C19.1478 11.25 19.5294 11.092 19.8107 10.8107C20.092 10.5294 20.25 10.1478 20.25 9.75V5.25C20.25 4.85218 20.092 4.47064 19.8107 4.18934C19.5294 3.90804 19.1478 3.75 18.75 3.75ZM18.75 9.75H14.25V5.25H18.75V9.75ZM9.75 12.75H5.25C4.85218 12.75 4.47064 12.908 4.18934 13.1893C3.90804 13.4706 3.75 13.8522 3.75 14.25V18.75C3.75 19.1478 3.90804 19.5294 4.18934 19.8107C4.47064 20.092 4.85218 20.25 5.25 20.25H9.75C10.1478 20.25 10.5294 20.092 10.8107 19.8107C11.092 19.5294 11.25 19.1478 11.25 18.75V14.25C11.25 13.8522 11.092 13.4706 10.8107 13.1893C10.5294 12.908 10.1478 12.75 9.75 12.75ZM9.75 18.75H5.25V14.25H9.75V18.75ZM18.75 12.75H14.25C13.8522 12.75 13.4706 12.908 13.1893 13.1893C12.908 13.4706 12.75 13.8522 12.75 14.25V18.75C12.75 19.1478 12.908 19.5294 13.1893 19.8107C13.4706 20.092 13.8522 20.25 14.25 20.25H18.75C19.1478 20.25 19.5294 20.092 19.8107 19.8107C20.092 19.5294 20.25 19.1478 20.25 18.75V14.25C20.25 13.8522 20.092 13.4706 19.8107 13.1893C19.5294 12.908 19.1478 12.75 18.75 12.75ZM18.75 18.75H14.25V14.25H18.75V18.75Z" fill="currentColor"/></svg>`,
         fragment: "fragments/dashboard.html",
         breadcrumb: "Developer / Dashboard",
@@ -142,14 +147,15 @@ const sidebarConfigs = {
         fragment: "fragments/develop.html",
         breadcrumb: "Developer / Aplikacje / Nowa aplikacja",
         title: "Dodaj nową aplikację",
-        description: "Zarejestruj nową aplikację OAuth2. Client ID i Secret zostaną wygenerowane automatycznie",
+        description:
+          "Zarejestruj nową aplikację OAuth2. Client ID i Secret zostaną wygenerowane automatycznie",
       },
       {
         id: "profile",
         label: "Profil",
         icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/></svg>`,
-       fragment: "fragments/profile.html",
+        fragment: "fragments/profile.html",
         breadcrumb: "Developer / Profil",
         title: "Profil",
         description: "Zarządzaj danymi i ustawieniami konta",
@@ -172,6 +178,8 @@ async function navigate(item) {
     }
   });
 
+  renderSidebar();
+
   document.getElementById("topbar-breadcrumb").textContent =
     item.breadcrumb ?? "";
   document.getElementById("page-title").textContent = item.title ?? "";
@@ -185,7 +193,13 @@ async function navigate(item) {
   try {
     const res = await fetch(item.fragment);
     if (!res.ok) throw new Error("Fragment not found");
-    main.innerHTML = await res.text();
+    const html = await res.text();
+
+    const doc = new DOMParser().parseFromString(html, "text/html");
+
+    doc.querySelectorAll("script").forEach((s) => s.remove());
+
+    main.replaceChildren(...doc.body.childNodes);
 
     if (item.id === "dashboard" && _currentMode === "developer") {
       await initDeveloperDashboard();
@@ -200,61 +214,58 @@ async function navigate(item) {
     }
 
     if (item.id === "apps-detail" && _currentMode === "developer") {
-      await  initApplicationDetails();
+      await initApplicationDetails();
+    }
+
+    if (item.id === "dashboard" && _currentMode === "user") {
+      await initUserDashboard();
+    }
+
+    if (item.id === "profile" && _currentMode === "user") {
+      await initUserProfile();
+    }
+    if (item.id === "apps" && _currentMode === "user") {
+      await initUserApps();
+    }
+    if (item.id === "history" && _currentMode === "user") {
+      await initUserHistory();
     }
 
     if (item.id === "apps-detail-logs") {
+      const app = JSON.parse(sessionStorage.getItem("selectedApplication"));
 
-        const app = JSON.parse(
-            sessionStorage.getItem("selectedApplication")
-        );
-
-        if (app) {
-
-            document.getElementById("page-description").textContent =
-                `Wszystkie próby uwierzytelnienia przez ${app.name}`;
-
-        }
+      if (app) {
+        document.getElementById("page-description").textContent =
+          `Wszystkie próby uwierzytelnienia przez ${app.name}`;
+      }
     }
 
     if (item.id === "develop" && _currentMode === "developer") {
-      await  initApplicationDevelopment();
+      await initApplicationDevelopment();
     }
-
   } catch {
     main.innerHTML = `<p class="text-white/40 text-sm">Nie można załadować strony.</p>`;
   }
 
-  const pageLogo =
-    document.getElementById("page-logo");
+  const pageLogo = document.getElementById("page-logo");
 
-    if (item.id === "apps-detail") {
+  if (item.id === "apps-detail") {
+    const app = JSON.parse(sessionStorage.getItem("selectedApplication"));
 
-        const app = JSON.parse(
-            sessionStorage.getItem("selectedApplication")
-        );
+    if (app && pageLogo) {
+      pageLogo.classList.remove("hidden");
+      pageLogo.classList.add("flex");
 
-        if (app && pageLogo) {
+      pageLogo.textContent = app.logo.initials;
 
-            pageLogo.classList.remove("hidden");
-            pageLogo.classList.add("flex");
+      pageLogo.style.backgroundColor = app.logo.color;
 
-            pageLogo.textContent =
-                app.logo.initials;
-
-            pageLogo.style.backgroundColor =
-                app.logo.color;
-
-            document.getElementById("page-title").textContent =
-                app.name;
-        }
-
-    } else if (pageLogo) {
-
-        pageLogo.classList.add("hidden");
-        pageLogo.classList.remove("flex");
-
+      document.getElementById("page-title").textContent = app.name;
     }
+  } else if (pageLogo) {
+    pageLogo.classList.add("hidden");
+    pageLogo.classList.remove("flex");
+  }
 }
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────

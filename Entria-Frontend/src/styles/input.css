@@ -18,11 +18,11 @@
 
 @layer components {
   .card {
-    @apply bg-white border border-black/[0.08] rounded-2xl overflow-hidden shadow-sm;
+    @apply bg-white border border-gray-300 rounded-2xl overflow-hidden shadow-sm;
   }
 
   .card-header {
-    @apply flex items-center gap-3 px-5 py-4 border-b border-black/[0.06];
+    @apply flex items-center gap-3 px-5 py-4 border-b border-gray-300;
   }
 
   .card-icon {
@@ -60,6 +60,4 @@
     @apply bg-transparent text-[#161619] text-[13px] font-medium px-4 py-2 rounded-xl cursor-pointer border border-black/[0.12] transition-colors hover:bg-black/[0.04];
   }
 }
-
-
 
