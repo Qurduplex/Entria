@@ -8,12 +8,13 @@ import edu.pk.qurduplex.userDataService.exceptions.UserProfileNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import edu.pk.qurduplex.userDataService.dto.*;
+
 import java.util.UUID;
 import java.time.LocalDate;
 import java.time.DateTimeException;
 import edu.pk.qurduplex.userDataService.exceptions.InvalidProfileDataException;
 import edu.pk.qurduplex.userDataService.models.UserProfileUpdate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ import edu.pk.qurduplex.userDataService.models.UserProfileUpdate;
 public class UserProfileService {
     
     private final UserProfileRepository userProfileRepository;
+    private final FileStorageService fileStorageService;
 
     public UserProfile createFromRegistrationEvent(CreateProfileMessage message) {
         if (userProfileRepository.existsByUserId(message.getUserId())) {
@@ -46,7 +48,7 @@ public class UserProfileService {
         return userProfile;
     }
 
-    public UserProfile updateUserProfile(UUID userId, UserProfileUpdate request) {
+    public UserProfile updateUserProfile(UUID userId, UserProfileUpdate request, MultipartFile profilePicture) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId).orElseThrow(() -> new UserProfileNotFoundException("User profile not found for user id: " + userId));
         if(request.getFirstName() != null)  userProfile.setFirstName(request.getFirstName());
         if(request.getLastName() != null) userProfile.setLastName(request.getLastName());
@@ -60,6 +62,13 @@ public class UserProfileService {
                 throw new InvalidProfileDataException("Invalid birth date format");
             }
         }
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            log.info("Uploading new profile picture for user {}", userId);
+            String avatarUrl =  fileStorageService.uploadFile(profilePicture, "avatars");
+            userProfile.setProfilePictureUrl(avatarUrl);
+        }
+
         return userProfileRepository.save(userProfile);
     }
 }

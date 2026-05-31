@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -23,5 +24,5 @@ public class UpdateUserProfileRequestDTO {
     private String pesel;
     @Pattern(regexp = "^[MF]$", message = "sex must be M or F")
     private String sex;
-    private String profilePictureUrl;
+    private MultipartFile profilePicture;
 }

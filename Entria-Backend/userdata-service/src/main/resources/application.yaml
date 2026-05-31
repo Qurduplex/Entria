@@ -32,6 +32,12 @@ application:
     exchange-name: user-exchange
     user-registered-event-routing-key: user-registered-event
     user-registered-event-topic: user-registered-queue
+  minio:
+    url: ${MINIO_URL:http://localhost:9000}
+    external-url: ${MINIO_EXTERNAL_URL:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:admin}
+    secret-key: ${MINIO_SECRET_KEY:password}
+    public-bucket: ${MINIO_PUBLIC_BUCKET:entria-public-files}
 
 eureka:
   client:

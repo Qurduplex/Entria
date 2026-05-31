@@ -68,7 +68,10 @@ public class UserProfileController {
         }
 
         return ResponseEntity.ok(UserProfileMapper.toResponseDTO(
-                userProfileService.updateUserProfile(UUID.fromString(userId), UserProfileMapper.toUserProfileUpdates(request))
+                userProfileService.updateUserProfile(
+                        UUID.fromString(userId),
+                        UserProfileMapper.toUserProfileUpdates(request),
+                        request.getProfilePicture()
         ));
     }
 }
