@@ -118,7 +118,11 @@
       deploy:
         resources:
           limits:
-            memory: 2048M
+            cpus: '1.5'
+            memory: 512M
+          reservations:
+            cpus: '0.25'
+            memory: 256M
       ports:
         - "${USERDATA_SERVICE_PORT}:${USERDATA_SERVICE_INTERNAL_PORT}"
       networks:

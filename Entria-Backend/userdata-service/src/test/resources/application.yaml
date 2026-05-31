@@ -31,6 +31,11 @@ application:
     exchange-name: user-exchange
     user-registered-event-routing-key: user-registered-event
     user-registered-event-topic: user-registered-queue
+  minio:
+    url: http://localhost:9000
+    access-key: test-access
+    secret-key: test-secret
+    bucket-name: test-avatars
 
 springdoc:
   api-docs:

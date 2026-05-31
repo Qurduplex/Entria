@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package edu.pk.qurduplex.common.grpc;
+
+option java_multiple_files = true;
+option java_package = "edu.pk.qurduplex.common.grpc";
+
+service AuthService {
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  string userId = 1;
+  string role = 2;
+  bool isValid = 3;
+}

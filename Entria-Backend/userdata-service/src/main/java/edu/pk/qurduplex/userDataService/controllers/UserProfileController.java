@@ -61,7 +61,7 @@ public class UserProfileController {
     @PutMapping("/me")
     public ResponseEntity<UserProfileResponseDTO> updateUserProfile(
             @RequestHeader(value = "X-User-Id", required = true) String userId,
-            @RequestBody @Valid UpdateUserProfileRequestDTO request
+            @ModelAttribute @Valid UpdateUserProfileRequestDTO request
     ) {
         if(userId == null || userId.isEmpty()) {
             throw new JwtAuthenticationException("Missing User ID header");
@@ -72,6 +72,6 @@ public class UserProfileController {
                         UUID.fromString(userId),
                         UserProfileMapper.toUserProfileUpdates(request),
                         request.getProfilePicture()
-        ));
+        )));
     }
 }

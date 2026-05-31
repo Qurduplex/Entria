@@ -1,15 +1,24 @@
 package edu.pk.qurduplex.gateway.config;
 
+import edu.pk.qurduplex.common.grpc.AuthServiceGrpc;
+import edu.pk.qurduplex.common.grpc.ValidateTokenRequest;
+import edu.pk.qurduplex.common.grpc.ValidateTokenResponse;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+
+    @GrpcClient("identity-service")
+    private AuthServiceGrpc.AuthServiceStub authServiceStub;
 
     public AuthenticationFilter() {
         super(Config.class);
@@ -18,42 +27,82 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+            ServerHttpRequest secureRequest = stripInternalHeaders(exchange.getRequest());
+            ServerWebExchange secureExchange = exchange.mutate().request(secureRequest).build();
 
-            ServerHttpRequest.Builder requestBuilder = exchange.getRequest().mutate()
-                    .headers(headers -> {
-                        headers.remove("X-User-Id");
-                        headers.remove("X-User-Role");
-                    });
+            String token = extractBearerToken(secureRequest);
 
-            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                try {
-                    String developerId = extractUserIdFromToken(token);
-                    String developerRole = extractUserRoleFromToken(token);
-
-                    requestBuilder.header("X-User-Id", developerId);
-                    requestBuilder.header("X-User-Role", developerRole);
-                } catch (Exception e) {
-                    // W razie błędu tokenu puszczamy żądanie bez nagłówków
-                    System.out.println("Invalid token, proceeding without credentials");
-                }
+            if (token == null) {
+                return chain.filter(secureExchange);
             }
 
-            ServerHttpRequest modifiedRequest = requestBuilder.build();
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
+            return validateTokenAsync(token)
+                    .flatMap(response -> {
+                        if (response.getIsValid()) {
+                            ServerHttpRequest authorizedRequest = injectValidatedHeaders(secureRequest, response);
+                            return chain.filter(secureExchange.mutate().request(authorizedRequest).build());
+                        } else {
+                            return rejectRequest(secureExchange);
+                        }
+                    })
+                    .onErrorResume(e -> rejectRequest(secureExchange));
         };
     }
 
+    private String extractBearerToken(ServerHttpRequest request) {
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
+    }
+
+    private ServerHttpRequest stripInternalHeaders(ServerHttpRequest request) {
+        return request.mutate()
+                .headers(headers -> {
+                    headers.remove("X-User-Id");
+                    headers.remove("X-User-Role");
+                })
+                .build();
+    }
+
+    private ServerHttpRequest injectValidatedHeaders(ServerHttpRequest request, ValidateTokenResponse response) {
+        return request.mutate()
+                .header("X-User-Id", response.getUserId())
+                .header("X-User-Role", response.getRole())
+                .build();
+    }
+
+    private Mono<Void> rejectRequest(ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        return exchange.getResponse().setComplete();
+    }
+
+    private Mono<ValidateTokenResponse> validateTokenAsync(String token) {
+        return Mono.create(sink -> {
+            ValidateTokenRequest request = ValidateTokenRequest.newBuilder()
+                    .setToken(token)
+                    .build();
+
+            authServiceStub.validateToken(request, new StreamObserver<>() {
+                @Override
+                public void onNext(ValidateTokenResponse value) {
+                    sink.success(value);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    sink.error(t);
+                }
+
+                @Override
+                public void onCompleted() {
+
+                }
+            });
+        });
+    }
+
     public static class Config {
-    }
-
-    private String extractUserIdFromToken(String token) {
-        return "a1b2c3d4-e5f6-7a8b-9c0d-1234567890ab";
-    }
-
-    private String extractUserRoleFromToken(String token) {
-        return "DEVELOPER";
     }
 }

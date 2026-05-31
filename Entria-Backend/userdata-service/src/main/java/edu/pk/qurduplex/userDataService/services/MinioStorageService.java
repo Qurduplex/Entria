@@ -1,7 +1,7 @@
 package edu.pk.qurduplex.userDataService.services;
 
-import edu.pk.qurduplex.appRegistryService.config.MinioProperties;
-import edu.pk.qurduplex.appRegistryService.exceptions.FileStorageException;
+import edu.pk.qurduplex.userDataService.config.MinioProperties;
+import edu.pk.qurduplex.userDataService.exceptions.FileStorageException;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
