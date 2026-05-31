@@ -1,5 +1,6 @@
 import { loadAppsStats } from "./apps/stats.js";
 import { loadAppsTable } from "./apps/table.js";
+import { loadAppsDevelop } from "./apps/toolbar.js";
 
 async function loadComponent(id, path) {
   const element = document.getElementById(id);
@@ -20,7 +21,8 @@ export async function initDeveloperApps() {
     "apps-toolbar",
     "../../pages/developer/fragments/apps/appsToolbar.html"
   );
-
+  loadAppsDevelop();
+  
   await loadComponent(
     "apps-table",
     "../../pages/developer/fragments/apps/appsTable.html"

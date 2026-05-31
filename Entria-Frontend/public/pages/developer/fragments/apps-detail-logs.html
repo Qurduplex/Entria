@@ -1,0 +1,122 @@
+<section class="space-y-6 text-gray-900">
+
+  <div class="flex flex-wrap items-center justify-between gap-4">
+
+    <div class="flex flex-wrap gap-4">
+
+      <input
+        id="logs-search"
+        type="text"
+        placeholder="E-mail lub adres IP"
+        class="h-[44px] w-[300px] rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 outline-none focus:border-purple-500"
+      />
+
+      <select
+        id="logs-status-filter"
+        class="h-[44px] w-[150px] rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-900"
+      >
+        <option value="all">Wszystkie</option>
+        <option value="success">Sukces</option>
+        <option value="error">Błąd</option>
+      </select>
+
+      <select
+        id="logs-date-filter"
+        class="h-[44px] w-[170px] rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-900"
+      >
+        <option value="30">Ostatnie 30 dni</option>
+        <option value="7">Ostatnie 7 dni</option>
+        <option value="1">Dzisiaj</option>
+      </select>
+
+      <select
+        id="logs-sort"
+        class="h-[44px] w-[150px] rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-900"
+      >
+        <option value="newest">Najnowsze</option>
+        <option value="oldest">Najstarsze</option>
+      </select>
+
+    </div>
+
+    <div class="flex gap-4">
+
+      <button
+        id="export-logs-button"
+        class="h-[44px] rounded-xl border border-purple-400 px-5 text-sm font-medium text-purple-600 transition hover:bg-purple-50"
+      >
+        Eksportuj CSV
+      </button>
+
+      <button
+        id="clear-logs-filters-button"
+        class="h-[44px] rounded-xl border border-gray-400 px-5 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
+      >
+        Wyczyść filtry
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="rounded-2xl border border-gray-300 bg-white shadow-sm">
+
+    <div class="flex gap-6 border-b border-gray-300 px-6 py-4 text-sm text-gray-900">
+
+      <p>
+        <span class="text-green-600">●</span>
+        Sukces: <strong id="success-logs-count">0</strong>
+      </p>
+
+      <p>
+        <span class="text-red-600">●</span>
+        Błąd: <strong id="error-logs-count">0</strong>
+      </p>
+
+    </div>
+
+    <div class="overflow-x-auto px-6">
+
+      <table class="w-full text-left text-sm text-gray-900">
+
+        <thead>
+          <tr class="border-b border-gray-300 text-xs uppercase text-gray-700">
+            <th class="py-3 font-medium">Czas</th>
+            <th class="py-3 font-medium">Użytkownik</th>
+            <th class="py-3 font-medium">IP</th>
+            <th class="py-3 font-medium">Lokalizacja</th>
+            <th class="py-3 font-medium">Status</th>
+          </tr>
+        </thead>
+
+        <tbody id="login-logs-table"></tbody>
+
+      </table>
+
+    </div>
+
+    <div class="flex items-center justify-between border-t border-gray-300 px-6 py-5">
+
+      <button
+        id="prev-logs-page"
+        class="rounded-xl border border-gray-400 px-4 py-2 text-sm text-gray-900 transition hover:bg-gray-100"
+      >
+        ← Poprzednia
+      </button>
+
+      <p id="logs-page-info" class="text-sm text-gray-900">
+        Strona 1 z 1
+      </p>
+
+      <button
+        id="next-logs-page"
+        class="rounded-xl border border-gray-400 px-4 py-2 text-sm text-gray-900 transition hover:bg-gray-100"
+      >
+        Następna →
+      </button>
+
+    </div>
+
+  </div>
+
+</section>

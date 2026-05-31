@@ -2,6 +2,8 @@ import { initDeveloperDashboard } from "./developer/dashboard.js";
 import { initDeveloperProfile } from "./developer/profile.js";
 import { initDeveloperApps } from "./developer/application.js";
 import { initApplicationDetails } from "./developer/application-detail.js";
+import { initApplicationDetailsLogs } from "./developer/application-detail-logs.js";
+import { initApplicationDevelopment } from "./developer/develop.js";
 
 const sidebarConfigs = {
   user: {
@@ -99,7 +101,7 @@ const sidebarConfigs = {
        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9.75 3.75H5.25C4.85218 3.75 4.47064 3.90804 4.18934 4.18934C3.90804 4.47064 3.75 4.85218 3.75 5.25V9.75C3.75 10.1478 3.90804 10.5294 4.18934 10.8107C4.47064 11.092 4.85218 11.25 5.25 11.25H9.75C10.1478 11.25 10.5294 11.092 10.8107 10.8107C11.092 10.5294 11.25 10.1478 11.25 9.75V5.25C11.25 4.85218 11.092 4.47064 10.8107 4.18934C10.5294 3.90804 10.1478 3.75 9.75 3.75ZM9.75 9.75H5.25V5.25H9.75V9.75ZM18.75 3.75H14.25C13.8522 3.75 13.4706 3.90804 13.1893 4.18934C12.908 4.47064 12.75 4.85218 12.75 5.25V9.75C12.75 10.1478 12.908 10.5294 13.1893 10.8107C13.4706 11.092 13.8522 11.25 14.25 11.25H18.75C19.1478 11.25 19.5294 11.092 19.8107 10.8107C20.092 10.5294 20.25 10.1478 20.25 9.75V5.25C20.25 4.85218 20.092 4.47064 19.8107 4.18934C19.5294 3.90804 19.1478 3.75 18.75 3.75ZM18.75 9.75H14.25V5.25H18.75V9.75ZM9.75 12.75H5.25C4.85218 12.75 4.47064 12.908 4.18934 13.1893C3.90804 13.4706 3.75 13.8522 3.75 14.25V18.75C3.75 19.1478 3.90804 19.5294 4.18934 19.8107C4.47064 20.092 4.85218 20.25 5.25 20.25H9.75C10.1478 20.25 10.5294 20.092 10.8107 19.8107C11.092 19.5294 11.25 19.1478 11.25 18.75V14.25C11.25 13.8522 11.092 13.4706 10.8107 13.1893C10.5294 12.908 10.1478 12.75 9.75 12.75ZM9.75 18.75H5.25V14.25H9.75V18.75ZM18.75 12.75H14.25C13.8522 12.75 13.4706 12.908 13.1893 13.1893C12.908 13.4706 12.75 13.8522 12.75 14.25V18.75C12.75 19.1478 12.908 19.5294 13.1893 19.8107C13.4706 20.092 13.8522 20.25 14.25 20.25H18.75C19.1478 20.25 19.5294 20.092 19.8107 19.8107C20.092 19.5294 20.25 19.1478 20.25 18.75V14.25C20.25 13.8522 20.092 13.4706 19.8107 13.1893C19.5294 12.908 19.1478 12.75 18.75 12.75ZM18.75 18.75H14.25V14.25H18.75V18.75Z" fill="currentColor"/></svg>`,
         fragment: "fragments/dashboard.html",
-        breadcrumb: "Firma / Dashboard",
+        breadcrumb: "Developer / Dashboard",
         title: "Dashboard",
         description: "Witaj, TechWave - oto podsumowanie twoich aplikacji",
       },
@@ -110,8 +112,8 @@ const sidebarConfigs = {
         <path d="M16.5 0H1.5C1.10218 0 0.720644 0.158035 0.43934 0.43934C0.158035 0.720644 0 1.10218 0 1.5V16.5C0 16.8978 0.158035 17.2794 0.43934 17.5607C0.720644 17.842 1.10218 18 1.5 18H16.5C16.8978 18 17.2794 17.842 17.5607 17.5607C17.842 17.2794 18 16.8978 18 16.5V1.5C18 1.10218 17.842 0.720644 17.5607 0.43934C17.2794 0.158035 16.8978 0 16.5 0ZM16.5 16.5H1.5V1.5H16.5V16.5ZM13.5 9C13.5 9.19891 13.421 9.38968 13.2803 9.53033C13.1397 9.67098 12.9489 9.75 12.75 9.75H9.75V12.75C9.75 12.9489 9.67098 13.1397 9.53033 13.2803C9.38968 13.421 9.19891 13.5 9 13.5C8.80109 13.5 8.61032 13.421 8.46967 13.2803C8.32902 13.1397 8.25 12.9489 8.25 12.75V9.75H5.25C5.05109 9.75 4.86032 9.67098 4.71967 9.53033C4.57902 9.38968 4.5 9.19891 4.5 9C4.5 8.80109 4.57902 8.61032 4.71967 8.46967C4.86032 8.32902 5.05109 8.25 5.25 8.25H8.25V5.25C8.25 5.05109 8.32902 4.86032 8.46967 4.71967C8.61032 4.57902 8.80109 4.5 9 4.5C9.19891 4.5 9.38968 4.57902 9.53033 4.71967C9.67098 4.86032 9.75 5.05109 9.75 5.25V8.25H12.75C12.9489 8.25 13.1397 8.32902 13.2803 8.46967C13.421 8.61032 13.5 8.80109 13.5 9Z" fill="currentColor"/>
         </svg>
         `,
-                fragment: "fragments/apps.html",
-        breadcrumb: "Firma / Aplikacje",
+        fragment: "fragments/apps.html",
+        breadcrumb: "Developer / Aplikacje",
         title: "Aplikacje",
         description: "Zarządzaj aplikacjami OAuth2 zarejestrowanymi w Entria",
       },
@@ -120,9 +122,27 @@ const sidebarConfigs = {
         hidden: true,
         icon: null,
         fragment: "fragments/apps-detail.html",
-        breadcrumb: "Firma / Aplikacje / Szczegóły",
+        breadcrumb: "Developer / Aplikacje / Szczegóły",
         title: "Szczegóły o aplikacji ",
         description: "Szczegóły o aplikacji OAuth2 zarejestrowanymi w Entria",
+      },
+      {
+        id: "apps-detail-logs",
+        hidden: true,
+        icon: null,
+        fragment: "fragments/apps-detail-logs.html",
+        breadcrumb: "Developer / Aplikacje / Szczegóły",
+        title: "Logi logowań aplikacji",
+        description: "Wszystkie próby uwierzytelnienia przez ParkFlow",
+      },
+      {
+        id: "develop",
+        hidden: true,
+        icon: null,
+        fragment: "fragments/develop.html",
+        breadcrumb: "Developer / Aplikacje / Nowa aplikacja",
+        title: "Dodaj nową aplikację",
+        description: "Zarejestruj nową aplikację OAuth2. Client ID i Secret zostaną wygenerowane automatycznie",
       },
       {
         id: "profile",
@@ -130,7 +150,7 @@ const sidebarConfigs = {
         icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/></svg>`,
        fragment: "fragments/profile.html",
-        breadcrumb: "Firma / Profil",
+        breadcrumb: "Developer / Profil",
         title: "Profil",
         description: "Zarządzaj danymi i ustawieniami konta",
       },
@@ -182,7 +202,25 @@ async function navigate(item) {
     if (item.id === "apps-detail" && _currentMode === "developer") {
       await  initApplicationDetails();
     }
-    
+
+    if (item.id === "apps-detail-logs") {
+
+        const app = JSON.parse(
+            sessionStorage.getItem("selectedApplication")
+        );
+
+        if (app) {
+
+            document.getElementById("page-description").textContent =
+                `Wszystkie próby uwierzytelnienia przez ${app.name}`;
+
+        }
+    }
+
+    if (item.id === "develop" && _currentMode === "developer") {
+      await  initApplicationDevelopment();
+    }
+
   } catch {
     main.innerHTML = `<p class="text-white/40 text-sm">Nie można załadować strony.</p>`;
   }
