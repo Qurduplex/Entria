@@ -39,6 +39,8 @@ spring:
               uri: lb://userdata-service
               predicates:
                 - Path=/api/user-profile/**
+              filters:
+                - AuthenticationFilter
             - id: userdata-docs-route
               uri: lb://userdata-service
               predicates:
