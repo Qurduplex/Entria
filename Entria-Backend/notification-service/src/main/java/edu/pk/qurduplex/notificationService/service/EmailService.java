@@ -6,11 +6,15 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -27,7 +31,11 @@ public class EmailService {
 
         String htmlContent = templateEngine.process("verification-email", context);
 
-        sendHtmlEmail(toEmail, "Account Verification Code", htmlContent);
+        Map<String, String> inlineImages = new HashMap<>();
+        inlineImages.put("logoEntria", "static/images/Entria.png");
+        inlineImages.put("iconSend", "static/images/send.png");
+
+        sendHtmlEmail(toEmail, "Account Verification Code", htmlContent, inlineImages);
     }
 
     public void sendResetPasswordEmail(String toEmail, String resetCode) {
@@ -36,10 +44,14 @@ public class EmailService {
 
         String htmlContent = templateEngine.process("reset-password-email", context);
 
-        sendHtmlEmail(toEmail, "Reset Password Code", htmlContent);
+        Map<String, String> inlineImages = new HashMap<>();
+        inlineImages.put("logoEntria", "static/images/Entria.png");
+        inlineImages.put("iconLock", "static/images/lock.png");
+
+        sendHtmlEmail(toEmail, "Reset Password Code", htmlContent, inlineImages);
     }
 
-    private void sendHtmlEmail(String to, String subject, String htmlContent) {
+    private void sendHtmlEmail(String to, String subject, String htmlContent, Map<String, String> inlineImages) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -47,7 +59,14 @@ public class EmailService {
             helper.setFrom(emailProperties.getSenderAddress());
             helper.setTo(to);
             helper.setSubject(subject);
+
             helper.setText(htmlContent, true);
+
+            if (inlineImages != null && !inlineImages.isEmpty()) {
+                for (Map.Entry<String, String> image : inlineImages.entrySet()) {
+                    helper.addInline(image.getKey(), new ClassPathResource(image.getValue()));
+                }
+            }
 
             mailSender.send(message);
             log.info("Email successfully sent to: {}", to);
