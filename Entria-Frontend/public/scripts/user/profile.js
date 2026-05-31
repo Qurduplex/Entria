@@ -285,6 +285,46 @@ export function initUserProfile() {
     if (valid) clearError(id); else setError(id, message);
     return valid;
   }
+
+  // ─── DELETE ACCOUNT POPUP ────────────────────────────────────────────────
+  const deleteAccountBtn = document.getElementById("btn-delete-account");
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", () => {
+      const overlay = document.createElement("div");
+      overlay.className = "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center";
+      overlay.innerHTML = `
+        <div class="bg-white rounded-2xl p-7 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_40px_rgba(0,0,0,0.18)]">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+              </svg>
+            </div>
+            <p class="text-[15px] font-semibold text-[#161619]">Usuń konto</p>
+          </div>
+          <p class="text-[13.5px] text-[#444] leading-relaxed mb-2">
+            Czy na pewno chcesz trwale usunąć konto? Tej operacji <span class="font-semibold text-[#161619]">nie można cofnąć</span>.
+          </p>
+          <ul class="text-[13px] text-[#666] leading-[1.75] mb-6 pl-5 list-disc">
+            <li>Stracisz dostęp do wszystkich aplikacji połączonych przez Entria</li>
+            <li>Nie będziesz mógł logować się przez Entria do żadnego serwisu</li>
+            <li>Wszystkie Twoje dane zostaną trwale usunięte</li>
+          </ul>
+          <div class="flex justify-end gap-2.5">
+            <button id="delete-cancel" class="btn-secondary">Anuluj</button>
+            <button id="delete-confirm" class="px-[18px] py-[9px] rounded-[10px] bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-colors cursor-pointer">Tak, usuń konto</button>
+          </div>
+        </div>`;
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+      overlay.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      overlay.querySelector("#delete-cancel").addEventListener("click", () => overlay.remove());
+      overlay.querySelector("#delete-confirm").addEventListener("click", () => {
+        // TODO: API call
+        overlay.remove();
+      });
+      document.body.appendChild(overlay);
+    });
+  }
 }
 
 // ─── INPUT FILTER ─────────────────────────────────────────────────────────────
@@ -324,14 +364,6 @@ function validateBirthdate(value) {
   return { valid: true };
 }
 
-// ─── DELETE ACCOUNT POPUP ─────────────────────────────────────────────────────
-(function initDeleteAccountPopup() {
-  const deleteBtn = document.querySelector('.card.border-red-200\\/60 button');
-  if (!deleteBtn) return;
-  deleteBtn.addEventListener("click", () => {
-    document.getElementById("delete-overlay")?.classList.remove("hidden");
-  });
-})();
 
 // ─── PESEL VALIDATOR ──────────────────────────────────────────────────────────
 function validatePesel(pesel) {
