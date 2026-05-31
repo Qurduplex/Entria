@@ -93,9 +93,6 @@ public class AppRegistryController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-
     private void verifyDeveloper(UserRole role) {
         if (role != UserRole.DEVELOPER) {
             throw new ForbiddenAccessException("Only developers can perform this action.");
