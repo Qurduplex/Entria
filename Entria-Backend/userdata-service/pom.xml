@@ -15,7 +15,6 @@
     <description>userdata-service</description>
 
     <dependencies>
-        <!-- wspólne wiadomości RabbitMQ (CreateProfileMessage) -->
         <dependency>
             <groupId>edu.pk.qurduplex.entria</groupId>
             <artifactId>common</artifactId>
@@ -88,23 +87,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jsonwebtoken.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jsonwebtoken.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jsonwebtoken.version}</version>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>org.instancio</groupId>
             <artifactId>instancio-core</artifactId>
