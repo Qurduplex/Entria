@@ -44,6 +44,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>edu.pk.qurduplex.entria</groupId>
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
