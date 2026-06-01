@@ -38,6 +38,7 @@
         <module>notification-service</module>
         <module>app-registry-service</module>
         <module>userdata-service</module>
+        <module>oauth-service</module>
     </modules>
 
     <dependencyManagement>
