@@ -7,6 +7,12 @@ import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.services.AppRegistryService;
 import edu.pk.qurduplex.common.models.UserRole;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +33,27 @@ public class AppRegistryController {
 
     private final AppRegistryService appRegistryService;
 
+    @Operation(
+            summary = "Register a new OAuth2 application",
+            description = "Registers a new application for a developer. Requires DEVELOPER role. Accepts multipart/form-data including application logo and Terms of Service PDF."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Application successfully registered",
+                    content = @Content(schema = @Schema(implementation = RegisterApplicationResponse.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid request data or validation failed",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - User is not a developer",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "Conflict - Application name is already taken",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "500",
+                    description = "Internal server error (e.g., file storage failure)",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
     @PostMapping("/register-application")
     public ResponseEntity<RegisterApplicationResponse> registerApplication(
             @RequestHeader(value = "X-User-Id", required = true) UUID developerId,
@@ -47,6 +74,18 @@ public class AppRegistryController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Get developer's applications",
+            description = "Retrieves a summary list of all OAuth2 applications registered by the authenticated developer."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "List of applications retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApplicationSummaryResponse.class)))),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - User is not a developer",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
     @GetMapping("/app-list")
     public ResponseEntity<List<ApplicationSummaryResponse>> getApplications(
             @RequestHeader(value = "X-User-Id") UUID developerId,
@@ -56,6 +95,21 @@ public class AppRegistryController {
         return ResponseEntity.ok(appRegistryService.getDeveloperApplications(developerId));
     }
 
+    @Operation(
+            summary = "Get application details",
+            description = "Retrieves detailed information (including credentials and statistics) about a specific application. The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Application details retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ApplicationDetails.class))),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - User is not a developer or does not own this application",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Application not found",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
     @GetMapping("/details/{appId}")
     public ResponseEntity<ApplicationDetails> getApplicationDetails(
             @RequestHeader(value = "X-User-Id") UUID developerId,
@@ -67,6 +121,20 @@ public class AppRegistryController {
         return ResponseEntity.ok(appRegistryService.getApplicationDetails(developerId, appId));
     }
 
+    @Operation(
+            summary = "Deactivate application",
+            description = "Deactivates a specific application, preventing further OAuth2 authorizations. The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Application deactivated successfully (No content)"),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - User is not a developer or does not own this application",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Application not found",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
     @PatchMapping("/deactivate/{appId}")
     public ResponseEntity<Void> deactivateApplication(
             @RequestHeader(value = "X-User-Id") UUID developerId,
@@ -80,6 +148,20 @@ public class AppRegistryController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Delete application",
+            description = "Permanently deletes a specific application and all associated files (logo, TOS). The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Application deleted successfully (No content)"),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - User is not a developer or does not own this application",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Application not found",
+                    content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
     @DeleteMapping("/delete/{appId}")
     public ResponseEntity<Void> deleteApplication(
             @RequestHeader(value = "X-User-Id") UUID developerId,

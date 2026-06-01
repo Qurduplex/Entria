@@ -34,6 +34,12 @@ spring:
               filters:
                 - AuthenticationFilter
                 - RewritePath=/api/apps/(?<segment>.*), /api/$\{segment}
+            - id: app-registry-docs-route
+              uri: lb://app-registry-service
+              predicates:
+                - Path=/docs/apps/{*segment}
+              filters:
+                - RewritePath=/docs/apps/(?<segment>.*), /$\{segment}
 
             - id: userdata-api-route
               uri: lb://userdata-service
@@ -45,10 +51,18 @@ spring:
               uri: lb://userdata-service
               predicates:
                 - Path=/docs/user-profile/{*segment}
+              filters:
+                - RewritePath=/docs/user-profile/(?<segment>.*), /$\{segment}
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    url: /docs/identity/v3/api-docs
+    urls:
+      - name: Identity Service
+        url: /docs/identity/v3/api-docs
+      - name: User Profile Service
+        url: /docs/user-profile/v3/api-docs
+      - name: App Registry Service
+        url: /docs/apps/v3/api-docs
     disable-swagger-default-url: true
   api-docs:
     enabled: true
