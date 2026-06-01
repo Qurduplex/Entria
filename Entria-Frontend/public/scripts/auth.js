@@ -108,7 +108,7 @@ function initRegisterForm() {
             firstName: form.first_name?.value.trim() || "",
             lastName: form.last_name?.value.trim() || "",
             userRole: currentRegisterType === "developer" ? "DEVELOPER" : "USER",
-            termsAccepted: form.checkReg.value ,
+            termsAccepted: form.checkReg.checked,
         };
         try {
             const response = await api.register(registerData);
@@ -147,10 +147,10 @@ function initLoginForm() {
             startTokenRefresh();
             if (response.role === "DEVELOPER") {
                 window.location.href =
-                    "./DevelopmentLayout.html";
+                    "./developer/DevelopmentLayout.html";
             } else {
                 window.location.href =
-                    "./UserLayout.html";
+                    "./user/UserLayout.html";
             }
         } catch (err) {
             console.error("Błąd logowania:", err);
@@ -424,10 +424,10 @@ function initVerifiedModal() {
 
             if (currentVerifyType === "developer") {
                 window.location.href =
-                    "./DevelopmentLayout.html";
+                    "./developer/DevelopmentLayout.html";
             } else {
                 window.location.href =
-                    "./UserLayout.html";
+                    "./user/UserLayout.html";
             }
 
         });
