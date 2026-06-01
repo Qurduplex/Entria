@@ -14,27 +14,29 @@
             <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:24px; overflow:hidden;">
 
                 <tr>
-                    <td style="background:#000000; padding:32px 28px;">
+                    <td style="background:#000000; padding:32px 16px;">
                         <table width="100%">
                             <tr>
 
                                 <td>
                                     <img
-                                            src="cid:logoEntria"
-                                            alt="Entria"
-                                            width="120"
-                                            style="display:block;"
+                                        src="cid:logoEntria"
+                                        alt="Entria"
+                                        width="65%"
+                                        style="display:block;"
                                     />
                                 </td>
 
                                 <td
-                                        align="right"
-                                        style="
-                        color:#8d8d8d;
-                        font-size:13px;
-                        font-weight:700;
-                        letter-spacing:1px;
-                    "
+                                    align="right"
+                                    width="35%"
+                                    style="
+                                        white-space:nowrap;
+                                        color:#8d8d8d;
+                                        font-size:8px;
+                                        font-weight:700;
+                                        letter-spacing:1px;
+                                    "
                                 >
                                     WERYFIKACJA KONTA
                                 </td>
@@ -48,10 +50,10 @@
                     <td style="padding:28px 28px 24px 28px;">
 
                         <img
-                                src="cid:iconSend"
-                                alt="Wyślij"
-                                width="48"
-                                style="display:block;"
+                            src="cid:iconSend"
+                            alt="Wyślij"
+                            width="48"
+                            style="display:block;"
                         />
 
                         <h1 style="margin:22px 0 14px 0; font-family:Georgia, serif; font-size:26px; font-weight:500; color:#000000;">
@@ -62,36 +64,36 @@
                             Dziękujemy za rejestrację w Entria. Wpisz poniższy kod w naszej aplikacji, aby potwierdzić adres email i aktywować konto.
                         </p>
 
-                        <div style="background:#000000; border-radius:10px; padding:18px 16px; text-align:center;">
-                <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
-                      th:text="${#strings.substring(code, 0, 1)}">
-                .
-                </span>
+                        <div style="background:#000000; border-radius:10px; padding:18px 8px; text-align:center;">
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
+                                th:text="${#strings.substring(code, 0, 1)}">
+                            .
+                            </span>
 
-                            <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
                                   th:text="${#strings.substring(code, 1, 2)}">
-                .
-                </span>
+                            .
+                            </span>
 
-                            <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
                                   th:text="${#strings.substring(code, 2, 3)}">
-                .
-                </span>
+                            .
+                            </span>
 
-                            <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
                                   th:text="${#strings.substring(code, 3, 4)}">
-                .
-                </span>
+                            .
+                            </span>
 
-                            <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
                                   th:text="${#strings.substring(code, 4, 5)}">
-                .
-                </span>
+                            .
+                            </span>
 
-                            <span style="display:inline-block; width:42px; height:52px; line-height:52px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:28px; font-family:Georgia, serif;"
+                            <span style="display:inline-block; width:34px; height:42px; line-height:42px; margin:0 4px; border:1px solid #A89DFF; border-radius:8px; color:#ffffff; font-size:22px; font-family:Georgia, serif;"
                                   th:text="${#strings.substring(code, 5, 6)}">
-                .
-                </span>
+                            .
+                            </span>
 
                             <p style="margin:10px 0 0 0; color:#777777; font-size:12px;">
                                 Kod ważny przez 30 minut
