@@ -16,6 +16,7 @@ public class ApplicationDetails {
     private String name;
     private Map<OAuthPermission, Boolean> permissions;
     private String redirectUri;
+    private String authorizeUrl;
     private String logoUrl;
     private String tosPdfUrl;
     private UUID developerId;

@@ -10,6 +10,7 @@ import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.mappers.AppMapper;
 import edu.pk.qurduplex.appRegistryService.models.DeveloperApplication;
 import edu.pk.qurduplex.appRegistryService.repositories.DeveloperApplicationRepository;
+import edu.pk.qurduplex.appRegistryService.utils.OAuthLinkGenerator;
 import edu.pk.qurduplex.common.models.OAuthPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,7 @@ public class AppRegistryService {
     private final DeveloperApplicationRepository applicationRepository;
     private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
-    private final OauthProperties oauthProperties;
+    private final OAuthLinkGenerator oAuthLinkGenerator;
 
     @Transactional
     public RegisterApplicationResponse registerApplication(
@@ -75,16 +76,14 @@ public class AppRegistryService {
 
         DeveloperApplication savedApplication = applicationRepository.save(application);
 
-        String authUrl = String.format("%s?client_id=%s&redirect_uri=%s",
-                oauthProperties.getAuthorizeUrl(),
-                savedApplication.getClientId(),
-                savedApplication.getRedirectUri());
+        String authUrl = oAuthLinkGenerator.generateAuthorizeUrl(savedApplication);
 
         return RegisterApplicationResponse.builder()
                 .clientId(savedApplication.getClientId())
                 .clientSecret(plainClientSecret)
                 .name(savedApplication.getName())
-                .redirectUri(authUrl)
+                .redirectUri(redirectUri)
+                .authorizeUrl(authUrl)
                 .logoUrl(savedApplication.getLogoUrl())
                 .build();
     }
@@ -105,7 +104,9 @@ public class AppRegistryService {
     public ApplicationDetails getApplicationDetails(UUID developerId, UUID appId) {
         DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
 
-        return AppMapper.toApplicationDetails(app);
+        String authUrl = oAuthLinkGenerator.generateAuthorizeUrl(app);
+
+        return AppMapper.toApplicationDetails(app, authUrl);
     }
 
     @Transactional

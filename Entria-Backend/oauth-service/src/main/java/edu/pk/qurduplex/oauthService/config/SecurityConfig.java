@@ -97,17 +97,19 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("sklep123")
-                .clientSecret(encoder.encode("tajne_haslo"))
+
+        RegisteredClient acmilanClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("20c6f256-c88c-4b43-b99f-87bf92138ab1")
+                .clientSecret(encoder.encode("moje_tymczasowe_haslo"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("https://oauth.pstmn.io/v1/callback")
+                .redirectUri("https://acmilan.com.pl/")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .build();
-        return new InMemoryRegisteredClientRepository(registeredClient);
+
+        return new InMemoryRegisteredClientRepository(acmilanClient);
     }
 
     @Bean
