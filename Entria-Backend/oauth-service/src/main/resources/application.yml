@@ -14,3 +14,5 @@ grpc:
   client:
     identity-service:
       negotiation-type: plaintext
+    app-registry-service:
+      negotiation-type: plaintext

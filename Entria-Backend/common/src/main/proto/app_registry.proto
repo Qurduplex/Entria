@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package edu.pk.qurduplex.common.grpc;
+
+option java_multiple_files = true;
+option java_package = "edu.pk.qurduplex.common.grpc";
+
+service AppRegistryGrpcService {
+  rpc GetApplicationByClientId (AppRequest) returns (AppResponse);
+}
+
+message AppRequest {
+  string clientId = 1;
+}
+
+message AppResponse {
+  string id = 1;
+  string clientId = 2;
+  string clientSecretHash = 3;
+  string redirectUri = 4;
+  repeated string scopes = 5;
+}

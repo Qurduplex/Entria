@@ -13,21 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -81,35 +68,6 @@ public class SecurityConfig {
                 .authenticationProvider(grpcAuthenticationProvider);
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        UserDetails userDetails = User.builder()
-                .username("test_user")
-                .password(encoder.encode("haslo123"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(userDetails);
-    }
-
-    @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
-        RegisteredClient acmilanClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("20c6f256-c88c-4b43-b99f-87bf92138ab1")
-                .clientSecret(encoder.encode("moje_tymczasowe_haslo"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("https://acmilan.com.pl/")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .build();
-
-        return new InMemoryRegisteredClientRepository(acmilanClient);
     }
 
     @Bean
