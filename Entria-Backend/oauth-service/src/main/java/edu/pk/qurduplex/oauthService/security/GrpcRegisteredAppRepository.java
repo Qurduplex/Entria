@@ -7,6 +7,7 @@ import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,11 @@ public class GrpcRegisteredAppRepository implements RegisteredClientRepository {
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                     .redirectUri(response.getRedirectUri())
-                    .scopes(scopes -> scopes.addAll(response.getScopesList()))
+                    .scopes(scopes -> {
+                        scopes.addAll(response.getScopesList());
+                        scopes.add(OidcScopes.OPENID);
+                        scopes.add(OidcScopes.PROFILE);
+                    })
                     .build();
 
         } catch (StatusRuntimeException e) {
