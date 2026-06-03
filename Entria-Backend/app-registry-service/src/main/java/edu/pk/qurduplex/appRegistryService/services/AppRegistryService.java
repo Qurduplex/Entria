@@ -76,7 +76,7 @@ public class AppRegistryService {
 
         DeveloperApplication savedApplication = applicationRepository.save(application);
 
-        String authUrl = oAuthLinkGenerator.generateAuthorizeUrl(savedApplication);
+        String authUrl = oAuthLinkGenerator.generateLink(savedApplication);
 
         return RegisterApplicationResponse.builder()
                 .clientId(savedApplication.getClientId())
@@ -104,7 +104,7 @@ public class AppRegistryService {
     public ApplicationDetails getApplicationDetails(UUID developerId, UUID appId) {
         DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
 
-        String authUrl = oAuthLinkGenerator.generateAuthorizeUrl(app);
+        String authUrl = oAuthLinkGenerator.generateLink(app);
 
         return AppMapper.toApplicationDetails(app, authUrl);
     }

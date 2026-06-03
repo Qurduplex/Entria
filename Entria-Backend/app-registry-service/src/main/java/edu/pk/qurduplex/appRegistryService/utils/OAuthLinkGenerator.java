@@ -15,15 +15,21 @@ public class OAuthLinkGenerator {
 
     private final OauthProperties oauthProperties;
 
-    public String generateAuthorizeUrl(DeveloperApplication app) {
-        if (app.getClientId() == null || app.getRedirectUri() == null) {
-            return null;
+    public String generateLink(DeveloperApplication app) {
+        String appScopes = app.getPermissions().keySet().stream()
+                .map(permission -> permission.name().toLowerCase())
+                .collect(Collectors.joining(" "));
+
+        String finalScopes = "openid";
+        if (!appScopes.isEmpty()) {
+            finalScopes += " " + appScopes;
         }
 
-        return UriComponentsBuilder.fromHttpUrl(oauthProperties.getAuthorizeUrl())
+        return UriComponentsBuilder.fromUriString(oauthProperties.getAuthorizeUrl())
                 .queryParam("client_id", app.getClientId())
                 .queryParam("redirect_uri", app.getRedirectUri())
                 .queryParam("response_type", "code")
+                .queryParam("scope", finalScopes)
                 .toUriString();
     }
 }

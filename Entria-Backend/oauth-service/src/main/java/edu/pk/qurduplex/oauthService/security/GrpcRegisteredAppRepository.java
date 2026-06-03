@@ -36,7 +36,9 @@ public class GrpcRegisteredAppRepository implements RegisteredClientRepository {
                     .scopes(scopes -> {
                         scopes.addAll(response.getScopesList());
                         scopes.add(OidcScopes.OPENID);
-                        scopes.add(OidcScopes.PROFILE);
+                        for (String permission : response.getScopesList()) {
+                            scopes.add(permission.toLowerCase());
+                        }
                     })
                     .build();
 
