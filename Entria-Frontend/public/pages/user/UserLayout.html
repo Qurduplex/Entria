@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Entria - Konto</title>
+    <title>Entria</title>
     <link href="../../output.css" rel="stylesheet" />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
@@ -45,7 +45,7 @@
       }
     </style>
   </head>
-  <body class="bg-[#0E0E12] text-[#FAFAFA] min-h-screen flex">
+  <body class="bg-[#0E0E12] min-h-screen flex">
     <div
       id="sidebar-overlay"
       class="hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
@@ -53,7 +53,7 @@
     <div id="sidebar-container"></div>
 
     <div
-      class="flex-1 flex flex-col min-w-0 min-h-screen"
+      class="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto text-[#161619]"
       style="background: #f6f5f9"
     >
       <header
@@ -85,8 +85,13 @@
 
       <div class="border-t border-black/[0.08] mx-8"></div>
 
-      <main id="page-content" class="flex-1 overflow-y-auto px-8 py-6"></main>
+      <main id="page-content" class="flex-1 px-8 py-6"></main>
     </div>
+
+    <div
+      id="toast-container"
+      class="fixed top-6 right-6 z-[9999] flex flex-col gap-3"
+    ></div>
 
     <script type="module">
       import { initSidebar, toggleSidebar } from "../../scripts/sideBar.js";

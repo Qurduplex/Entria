@@ -1,0 +1,37 @@
+<div class="flex flex-col gap-5">
+
+  <div id="history-card" class="card flex flex-col min-h-0">
+
+    <!-- STATYSTYKI -->
+    <div class="grid grid-cols-3 gap-4 p-5 border-b border-gray-100 shrink-0">
+      <div class="bg-[#F6F5F9] rounded-xl px-5 py-4">
+        <p class="text-[11px] uppercase tracking-wide text-[#8D8D8D] font-medium mb-2">Łącznie logowań</p>
+        <p id="stat-total" class="text-[32px] font-bold leading-none text-[#161619]">—</p>
+        <p class="text-[12px] text-[#8D8D8D] mt-1">ostatnie 30 dni</p>
+      </div>
+      <div class="bg-[#F6F5F9] rounded-xl px-5 py-4">
+        <p class="text-[11px] uppercase tracking-wide text-[#8D8D8D] font-medium mb-2">Nieudane próby</p>
+        <p id="stat-failed" class="text-[32px] font-bold leading-none text-red-500">—</p>
+        <p class="text-[12px] text-[#8D8D8D] mt-1">ostatnie 30 dni</p>
+      </div>
+      <div class="bg-[#F6F5F9] rounded-xl px-5 py-4">
+        <p class="text-[11px] uppercase tracking-wide text-[#8D8D8D] font-medium mb-2">Unikalne urządzenia</p>
+        <p id="stat-devices" class="text-[32px] font-bold leading-none text-[#161619]">—</p>
+        <p class="text-[12px] text-[#8D8D8D] mt-1">rozpoznane</p>
+      </div>
+    </div>
+
+    <!-- LISTA -->
+
+   <div id="history-list" class="overflow-y-auto min-h-0 "></div>
+
+    <!-- ZAŁADUJ WIĘCEJ -->
+    <div id="history-load-more-wrapper" class="hidden justify-center px-5 py-4 border-t border-gray-100 shrink-0">
+      <button id="history-load-more" class="text-[13px] font-medium text-[#7C5CFC] border border-[#7C5CFC] px-5 py-2 rounded-xl hover:bg-[#EEF0FF] transition-colors cursor-pointer">
+        Załaduj więcej
+      </button>
+    </div>
+
+  </div>
+
+</div>
