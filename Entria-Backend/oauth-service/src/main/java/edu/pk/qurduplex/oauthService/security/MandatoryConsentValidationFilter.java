@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,8 +79,9 @@ public class MandatoryConsentValidationFilter extends OncePerRequestFilter {
                     if (!missingMandatory.isEmpty()) {
                         log.warn("Validation FAILED: Missing mandatory scopes: {}", missingMandatory);
                         String state = request.getParameter("state");
-                        response.sendRedirect("/oauth2/consent?client_id=" + clientId + "&state=" + state
-                                + "&error=missing_mandatory&missing=" + String.join(",", missingMandatory));
+                        String errorMsg = String.join(", ", missingMandatory);
+                        response.sendRedirect("/oauth2/error?error=missing_mandatory&state=" + state
+                                + "&message=" + URLEncoder.encode("Missing mandatory scopes: " + errorMsg, StandardCharsets.UTF_8));
                         return;
                     }
 

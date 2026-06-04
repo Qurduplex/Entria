@@ -58,7 +58,7 @@ public class ConsentController {
             @RequestParam String consent_action) {
 
         if ("cancel".equals(consent_action)) {
-            return "redirect:/oauth2/authorize?error=access_denied&state=" + state;
+            return "redirect:/oauth2/error?error=access_denied&state=" + state;
         }
 
         if ("approve".equals(consent_action)) {
@@ -76,7 +76,7 @@ public class ConsentController {
 
             if (!missingMandatory.isEmpty()) {
                 String errorMsg = "Missing obligatory permissions: " + String.join(", ", missingMandatory);
-                return "redirect:/oauth2/consent?client_id=" + clientId + "&state=" + state + "&error=missing_mandatory&message=" +
+                return "redirect:/oauth2/error?error=missing_mandatory&state=" + state + "&message=" +
                         java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
             }
 

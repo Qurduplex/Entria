@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Błąd Autoryzacji</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .error-type {
+            color: #e74c3c;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .error-message {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .error-code {
+            background: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .error-details {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .info-section {
+            background: #ecf0f1;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .info-section p {
+            margin: 5px 0;
+        }
+
+        .state-param {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">❌</div>
+
+    <h1>Autoryzacja Odrzucona</h1>
+
+    <!-- Error Type -->
+    <div th:switch="${error}">
+        <div class="error-type" th:case="'access_denied'">Dostęp Odrzucony</div>
+        <div class="error-type" th:case="'missing_mandatory'">Brakuje Wymaganych Uprawnień</div>
+        <div class="error-type" th:case="*">Błąd Autoryzacji</div>
+    </div>
+
+    <!-- Error Message -->
+    <div th:switch="${error}">
+        <div class="error-message" th:case="'access_denied'">
+            <p>Odmówiłeś zgody na dostęp do aplikacji.</p>
+            <p>Aby użyć aplikacji, musisz zaakceptować wymagane uprawnienia.</p>
+        </div>
+
+        <div class="error-message" th:case="'missing_mandatory'">
+            <p>Nie zaakceptowałeś wszystkich wymaganych uprawnień.</p>
+            <p>Niektóre uprawnienia są obowiązkowe dla prawidłowego działania aplikacji.</p>
+            <th:block th:if="${param.message}">
+                <div class="error-details">
+                    <strong>Szczegóły błędu:</strong><br>
+                    <span th:text="${param.message}"></span>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="error-message" th:case="*">
+            <p>Podczas procesu autoryzacji wystąpił nieoczekiwany błąd.</p>
+            <p>Spróbuj ponownie później.</p>
+            <th:block th:if="${param.message}">
+                <div class="error-code">
+                    <strong>Kod błędu:</strong><br>
+                    <span th:text="${param.message}"></span>
+                </div>
+            </th:block>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="goBack()">
+            ← Wróć do aplikacji
+        </button>
+        <a href="/" class="btn btn-secondary">
+            🏠 Strona główna
+        </a>
+    </div>
+
+    <!-- Debug Info (only if state param exists) -->
+    <div th:if="${param.state}" class="info-section">
+        <p><strong>Identyfikator sesji:</strong></p>
+        <div class="state-param" th:text="${param.state}"></div>
+        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+            Możesz użyć tego identyfikatora do zgłoszenia problemu z zespołem wspierającym.
+        </p>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        // Spróbuj wrócić do aplikacji klienckiej jeśli możliwe
+        if (document.referrer) {
+            window.location.href = document.referrer;
+        } else {
+            window.history.back();
+        }
+    }
+
+    // Log error details to console for debugging
+    console.log('OAuth Error:', {
+        error: new URLSearchParams(window.location.search).get('error'),
+        message: new URLSearchParams(window.location.search).get('message'),
+        state: new URLSearchParams(window.location.search).get('state')
+    });
+</script>
+</body>
+</html>
+
