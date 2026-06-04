@@ -40,6 +40,9 @@ public class GrpcRegisteredAppRepository implements RegisteredClientRepository {
                             scopes.add(permission.toLowerCase());
                         }
                     })
+                    .clientSettings(org.springframework.security.oauth2.server.authorization.settings.ClientSettings.builder()
+                            .requireAuthorizationConsent(true)
+                            .build())
                     .build();
 
         } catch (StatusRuntimeException e) {

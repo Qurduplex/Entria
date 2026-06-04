@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Potwierdzenie Zgody</title>
+</head>
+<body>
+<h2>Zezwól aplikacji na dostęp</h2>
+
+<p>Aplikacja prosi o dostęp do Twojego konta (ID: <span th:text="${principalName}"></span>).</p>
+
+<form method="post" action="/oauth2/authorize">
+    <input type="hidden" name="client_id" th:value="${clientId}">
+    <input type="hidden" name="state" th:value="${state}">
+    <input type="hidden" name="scope" value="openid">
+
+    <ul>
+        <li th:each="scopeItem : ${scopes}">
+            <input type="checkbox"
+                   name="scope"
+                   th:value="${scopeItem}"
+                   checked="checked" />
+            <span th:text="${scopeItem}"></span>
+        </li>
+    </ul>
+
+    <button type="submit" name="consent_action" value="approve">Zezwalam</button>
+    <button type="submit" name="consent_action" value="cancel">Odrzucam</button>
+</form>
+</body>
+</html>

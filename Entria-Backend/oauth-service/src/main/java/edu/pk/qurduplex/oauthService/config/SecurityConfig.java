@@ -43,6 +43,9 @@ public class SecurityConfig {
                 .with(authorizationServerConfigurer, (authorizationServer) ->
                         authorizationServer
                                 .oidc(Customizer.withDefaults())
+                                .authorizationEndpoint(authorizationEndpoint ->
+                                        authorizationEndpoint.consentPage("/oauth2/consent")
+                                )
                 )
                 .authorizeHttpRequests((authorize) ->
                         authorize.anyRequest().authenticated()
