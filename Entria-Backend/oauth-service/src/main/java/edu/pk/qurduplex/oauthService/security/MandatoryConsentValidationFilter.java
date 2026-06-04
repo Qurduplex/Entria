@@ -7,8 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -17,11 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Slf4j
 public class MandatoryConsentValidationFilter extends OncePerRequestFilter {
 
-    @GrpcClient("app-registry-service")
-    private AppRegistryGrpcServiceGrpc.AppRegistryGrpcServiceBlockingStub appStub;
+    private final AppRegistryGrpcServiceGrpc.AppRegistryGrpcServiceBlockingStub appStub;
+
+    public MandatoryConsentValidationFilter(AppRegistryGrpcServiceGrpc.AppRegistryGrpcServiceBlockingStub appStub) {
+        this.appStub = appStub;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,11 +37,17 @@ public class MandatoryConsentValidationFilter extends OncePerRequestFilter {
 
                 List<String> submittedScopes = new ArrayList<>();
                 String[] scopeParams = request.getParameterValues("scope");
+
+                log.info("==== CONSENT DIAGNOSTICS ====");
+                log.info("1. Raw scope parameters from browser: {}", Arrays.toString(scopeParams));
+
                 if (scopeParams != null) {
                     for (String s : scopeParams) {
                         submittedScopes.addAll(Arrays.asList(s.split(" ")));
                     }
                 }
+
+                log.info("2. Processed scopes (submittedScopes): {}", submittedScopes);
 
                 try {
                     AppResponse appResponse = appStub.getApplicationByClientId(
@@ -48,20 +56,41 @@ public class MandatoryConsentValidationFilter extends OncePerRequestFilter {
 
                     Map<String, Boolean> permissionsMap = appResponse.getPermissionsMap();
 
+                    log.info("3. Mandatory scopes from permissions map:");
+                    List<String> missingMandatory = new ArrayList<>();
+
                     for (Map.Entry<String, Boolean> entry : permissionsMap.entrySet()) {
                         String scopeName = entry.getKey();
                         boolean isMandatory = entry.getValue();
 
-                        if (isMandatory && !submittedScopes.contains(scopeName)) {
-                            String state = request.getParameter("state");
-                            response.sendRedirect("/oauth2/consent?client_id=" + clientId + "&state=" + state + "&error=missing_mandatory");
-                            return;
+                        if (isMandatory) {
+                            boolean isPresent = submittedScopes.contains(scopeName);
+                            log.info("   - {}: {} (Mandatory: true, Present: {})", scopeName,
+                                    isPresent ? "✓" : "✗", isPresent);
+
+                            if (!isPresent) {
+                                missingMandatory.add(scopeName);
+                            }
                         }
                     }
+
+                    if (!missingMandatory.isEmpty()) {
+                        log.warn("Validation FAILED: Missing mandatory scopes: {}", missingMandatory);
+                        String state = request.getParameter("state");
+                        response.sendRedirect("/oauth2/consent?client_id=" + clientId + "&state=" + state
+                                + "&error=missing_mandatory&missing=" + String.join(",", missingMandatory));
+                        return;
+                    }
+
+                    log.info("✓ All mandatory scopes are present - validation PASSED");
+
                 } catch (Exception e) {
+                    log.error("gRPC error while validating mandatory scopes", e);
                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "gRPC error while validating mandatory scopes");
                     return;
                 }
+
+                log.info("=============================");
             }
         }
 

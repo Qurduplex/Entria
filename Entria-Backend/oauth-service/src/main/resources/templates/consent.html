@@ -3,24 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Potwierdzenie Zgody</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .mandatory { color: red; font-weight: bold; }
+        .optional { color: blue; }
+        .scope-item { margin: 10px 0; }
+        .info { padding: 10px; background-color: #f0f0f0; border-radius: 5px; margin-bottom: 15px; }
+    </style>
 </head>
 <body>
 <h2>Zezwól aplikacji na dostęp</h2>
 
 <p>Aplikacja prosi o dostęp do Twojego konta (ID: <span th:text="${principalName}"></span>).</p>
 
-<form method="post" action="/oauth2/authorize">
+<div th:if="${param.error}" class="error-box" style="padding: 10px; background-color: #ffcccc; border: 1px solid red; border-radius: 5px; margin-bottom: 15px;">
+    <strong>❌ Błąd:</strong>
+    <span th:if="${param.error == 'missing_mandatory'}" th:text="${param.message != null ? param.message : 'Brakuje wymaganych uprawnień. Zaznacz wszystkie uprawnienia oznaczone *'}"></span>
+</div>
+
+<div class="info">
+    <strong>Uprawnienia oznaczone <span class="mandatory">*</span> są obowiązkowe.</strong>
+</div>
+
+<form method="post" action="/oauth2/consent">
     <input type="hidden" name="client_id" th:value="${clientId}">
     <input type="hidden" name="state" th:value="${state}">
-    <input type="hidden" name="scope" value="openid">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
     <ul>
-        <li th:each="scopeItem : ${scopes}">
-            <input type="checkbox"
-                   name="scope"
-                   th:value="${scopeItem}"
-                   checked="checked" />
-            <span th:text="${scopeItem}"></span>
+        <li th:each="scope, iterStat : ${scopes.entrySet()}" class="scope-item">
+            <th:block th:if="${scope.getValue()}">
+                <input type="checkbox"
+                       name="scope"
+                       th:value="${scope.getKey()}"
+                       checked="checked"
+                       disabled="disabled" />
+                <input type="hidden" name="scope" th:value="${scope.getKey()}" />
+                <span th:text="${scope.getKey()}" class="mandatory"></span>
+                <span class="mandatory">*</span>
+            </th:block>
+            <th:block th:unless="${scope.getValue()}">
+                <input type="checkbox"
+                       name="scope"
+                       th:value="${scope.getKey()}" />
+                <span th:text="${scope.getKey()}" class="optional"></span>
+            </th:block>
         </li>
     </ul>
 

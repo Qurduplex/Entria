@@ -5,7 +5,10 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
 import edu.pk.qurduplex.oauthService.security.GrpcAuthenticationProvider;
+import edu.pk.qurduplex.oauthService.security.MandatoryConsentValidationFilter;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -27,13 +30,19 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @GrpcClient("app-registry-service")
+    private AppRegistryGrpcServiceGrpc.AppRegistryGrpcServiceBlockingStub appStub;
+
     @Bean
     @Order(1)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authorizationServerSecurityFilterChain(
+            HttpSecurity http) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
@@ -47,6 +56,7 @@ public class SecurityConfig {
                                         authorizationEndpoint.consentPage("/oauth2/consent")
                                 )
                 )
+
                 .authorizeHttpRequests((authorize) ->
                         authorize.anyRequest().authenticated()
                 )
@@ -56,7 +66,8 @@ public class SecurityConfig {
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                         )
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/token"));
 
         return http.build();
     }
@@ -65,12 +76,19 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(
             HttpSecurity http,
-            GrpcAuthenticationProvider grpcAuthenticationProvider
+            GrpcAuthenticationProvider grpcAuthenticationProvider,
+            MandatoryConsentValidationFilter mandatoryConsentValidationFilter
     ) throws Exception {
 
-        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+        http.authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers("/oauth2/**").authenticated()
+                .requestMatchers("/login", "/login/**").permitAll()
+                .anyRequest().authenticated()
+        )
                 .formLogin(Customizer.withDefaults())
-                .authenticationProvider(grpcAuthenticationProvider);
+                .authenticationProvider(grpcAuthenticationProvider)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"))
+                .addFilterAfter(mandatoryConsentValidationFilter, BasicAuthenticationFilter.class);
 
         return http.build();
     }
@@ -114,5 +132,8 @@ public class SecurityConfig {
         return AuthorizationServerSettings.builder().build();
     }
 
-
+    @Bean
+    public MandatoryConsentValidationFilter mandatoryConsentValidationFilter() {
+        return new MandatoryConsentValidationFilter(appStub);
+    }
 }
