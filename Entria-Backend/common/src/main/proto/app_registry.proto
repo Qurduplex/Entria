@@ -18,5 +18,5 @@ message AppResponse {
   string clientId = 2;
   string clientSecretHash = 3;
   string redirectUri = 4;
-  repeated string scopes = 5;
+  map<string, bool> permissions = 5;
 }

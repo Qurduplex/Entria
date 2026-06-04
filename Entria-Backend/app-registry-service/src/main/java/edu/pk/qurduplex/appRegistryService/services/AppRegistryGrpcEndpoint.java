@@ -12,7 +12,9 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @GrpcService
 @RequiredArgsConstructor
@@ -28,16 +30,18 @@ public class AppRegistryGrpcEndpoint extends AppRegistryGrpcServiceGrpc.AppRegis
         if (appOpt.isPresent()) {
             DeveloperApplication app = appOpt.get();
 
-            List<String> scopes = app.getPermissions().keySet().stream()
-                    .map(Enum::name)
-                    .toList();
+            Map<String, Boolean> grpcPermissions = app.getPermissions().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey().name().toLowerCase(),
+                            Map.Entry::getValue
+                    ));
 
             AppResponse response = AppResponse.newBuilder()
                     .setId(app.getId().toString())
                     .setClientId(app.getClientId())
                     .setClientSecretHash(app.getClientSecretHash())
                     .setRedirectUri(app.getRedirectUri())
-                    .addAllScopes(scopes)
+                    .putAllPermissions(grpcPermissions)
                     .build();
 
             responseObserver.onNext(response);

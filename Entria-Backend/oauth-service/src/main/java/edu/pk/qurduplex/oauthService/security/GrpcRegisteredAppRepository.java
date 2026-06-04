@@ -34,9 +34,8 @@ public class GrpcRegisteredAppRepository implements RegisteredClientRepository {
                     .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                     .redirectUri(response.getRedirectUri())
                     .scopes(scopes -> {
-                        scopes.addAll(response.getScopesList());
                         scopes.add(OidcScopes.OPENID);
-                        for (String permission : response.getScopesList()) {
+                        for (String permission : response.getPermissionsMap().keySet()) {
                             scopes.add(permission.toLowerCase());
                         }
                     })
