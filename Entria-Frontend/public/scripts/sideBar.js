@@ -9,6 +9,7 @@ import { initUserProfile } from "./user/profile.js";
 import { initUserApps } from "./user/apps.js";
 import { initUserHistory } from "./user/history.js";
 import { initUserSecurity } from "./user/security.js";
+import { initUserAccess } from "./user/access.js";
 
 const sidebarConfigs = {
   user: {
@@ -235,6 +236,10 @@ async function navigate(item) {
     if (item.id === "security" && _currentMode === "user") {
       await initUserSecurity();
     }
+
+    if (item.id === "consents" && _currentMode === "user") {
+  await initUserAccess();
+}
 
     if (item.id === "apps-detail-logs") {
       const app = JSON.parse(sessionStorage.getItem("selectedApplication"));
