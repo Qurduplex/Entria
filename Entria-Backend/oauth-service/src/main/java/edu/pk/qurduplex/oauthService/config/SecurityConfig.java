@@ -85,7 +85,17 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/login/**").permitAll()
                 .anyRequest().authenticated()
         )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(formLogin -> formLogin
+                        .loginPage("/login")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .permitAll()
+                )
                 .authenticationProvider(grpcAuthenticationProvider)
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"))
                 .addFilterAfter(mandatoryConsentValidationFilter, BasicAuthenticationFilter.class);

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Błąd Autoryzacji</title>
+    <title>Authorization Error</title>
     <style>
         * {
             margin: 0;
@@ -155,68 +155,60 @@
 <div class="error-container">
     <div class="error-icon">❌</div>
 
-    <h1>Autoryzacja Odrzucona</h1>
+    <h1>Authorization Denied</h1>
 
-    <!-- Error Type -->
     <div th:switch="${error}">
-        <div class="error-type" th:case="'access_denied'">Dostęp Odrzucony</div>
-        <div class="error-type" th:case="'missing_mandatory'">Brakuje Wymaganych Uprawnień</div>
-        <div class="error-type" th:case="*">Błąd Autoryzacji</div>
+        <div class="error-type" th:case="'access_denied'">Access Denied</div>
+        <div class="error-type" th:case="'missing_mandatory'">Missing Required Permissions</div>
+        <div class="error-type" th:case="*">Authorization Error</div>
     </div>
 
-    <!-- Error Message -->
     <div th:switch="${error}">
         <div class="error-message" th:case="'access_denied'">
-            <p>Odmówiłeś zgody na dostęp do aplikacji.</p>
-            <p>Aby użyć aplikacji, musisz zaakceptować wymagane uprawnienia.</p>
+            <p>You have denied access to the application.</p>
+            <p>To use the application, you must accept the required permissions.</p>
         </div>
 
         <div class="error-message" th:case="'missing_mandatory'">
-            <p>Nie zaakceptowałeś wszystkich wymaganych uprawnień.</p>
-            <p>Niektóre uprawnienia są obowiązkowe dla prawidłowego działania aplikacji.</p>
+            <p>You have not accepted all required permissions.</p>
+            <p>Some permissions are mandatory for the application to function properly.</p>
             <th:block th:if="${param.message}">
                 <div class="error-details">
-                    <strong>Szczegóły błędu:</strong><br>
+                    <strong>Error Details:</strong><br>
                     <span th:text="${param.message}"></span>
                 </div>
             </th:block>
         </div>
 
         <div class="error-message" th:case="*">
-            <p>Podczas procesu autoryzacji wystąpił nieoczekiwany błąd.</p>
-            <p>Spróbuj ponownie później.</p>
+            <p>An unexpected error occurred during the authorization process.</p>
+            <p>Please try again later.</p>
             <th:block th:if="${param.message}">
                 <div class="error-code">
-                    <strong>Kod błędu:</strong><br>
+                    <strong>Error Code:</strong><br>
                     <span th:text="${param.message}"></span>
                 </div>
             </th:block>
         </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="action-buttons">
         <button class="btn btn-primary" onclick="goBack()">
-            ← Wróć do aplikacji
+            ← Back to Application
         </button>
-        <a href="/" class="btn btn-secondary">
-            🏠 Strona główna
-        </a>
     </div>
 
-    <!-- Debug Info (only if state param exists) -->
     <div th:if="${param.state}" class="info-section">
-        <p><strong>Identyfikator sesji:</strong></p>
+        <p><strong>Session ID:</strong></p>
         <div class="state-param" th:text="${param.state}"></div>
         <p style="margin-top: 10px; font-size: 12px; color: #999;">
-            Możesz użyć tego identyfikatora do zgłoszenia problemu z zespołem wspierającym.
+            You can use this identifier to report the issue to the support team.
         </p>
     </div>
 </div>
 
 <script>
     function goBack() {
-        // Spróbuj wrócić do aplikacji klienckiej jeśli możliwe
         if (document.referrer) {
             window.location.href = document.referrer;
         } else {
@@ -224,7 +216,6 @@
         }
     }
 
-    // Log error details to console for debugging
     console.log('OAuth Error:', {
         error: new URLSearchParams(window.location.search).get('error'),
         message: new URLSearchParams(window.location.search).get('message'),

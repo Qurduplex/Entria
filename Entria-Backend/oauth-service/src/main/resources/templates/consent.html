@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Potwierdzenie Zgody</title>
+    <title>Consent Confirmation</title>
     <style>
         * {
             margin: 0;
@@ -195,19 +195,19 @@
     <div class="app-info">
         <div class="app-icon">🔐</div>
         <div class="app-details">
-            <h1>Potwierdzenie Zgody</h1>
-            <p>Aplikacja prosi o dostęp do Twojego konta</p>
+            <h1>Consent Confirmation</h1>
+            <p>This application is requesting access to your account</p>
             <div class="principal-info">
-                Zalogowany jako: <strong th:text="${principalName}"></strong>
+                Signed in as: <strong th:text="${principalName}"></strong>
             </div>
         </div>
     </div>
 
     <div class="info">
-        <strong>ℹ️ Uprawnienia oznaczone <span class="mandatory-badge">*</span> są obowiązkowe do korzystania z aplikacji.</strong>
+        <strong>ℹ️ Permissions marked with <span class="mandatory-badge">*</span> are required to use this application.</strong>
     </div>
 
-    <h3>Wymagane Uprawnienia</h3>
+    <h3>Requested Permissions</h3>
 
     <form method="post" action="/oauth2/consent">
         <input type="hidden" name="client_id" th:value="${clientId}">
@@ -217,7 +217,6 @@
         <ul class="scopes-list">
             <li th:each="scope : ${scopes.entrySet()}" class="scope-item">
                 <th:block th:if="${scope.getValue()}">
-                    <!-- Obowiązkowe uprawnienie -->
                     <input type="checkbox"
                            name="scope"
                            th:value="${scope.getKey()}"
@@ -229,8 +228,8 @@
                         <span class="mandatory-badge">*</span>
                     </span>
                 </th:block>
+
                 <th:block th:unless="${scope.getValue()}">
-                    <!-- Opcjonalne uprawnienie -->
                     <input type="checkbox" name="scope" th:value="${scope.getKey()}" />
                     <span class="scope-label optional-label" th:text="${scope.getKey()}"></span>
                 </th:block>
@@ -238,13 +237,13 @@
         </ul>
 
         <div class="action-buttons">
-            <button type="submit" name="consent_action" value="cancel">Odrzucam</button>
-            <button type="submit" name="consent_action" value="approve">Zezwalam</button>
+            <button type="submit" name="consent_action" value="cancel">Deny</button>
+            <button type="submit" name="consent_action" value="approve">Allow</button>
         </div>
 
         <div class="mandatory-legend">
-            <div><span class="mandatory-badge">*</span> - Uprawnienie obowiązkowe</div>
-            <div>Bez znaku - Uprawnienie opcjonalne</div>
+            <div><span class="mandatory-badge">*</span> - Required permission</div>
+            <div>No symbol - Optional permission</div>
         </div>
     </form>
 </div>
