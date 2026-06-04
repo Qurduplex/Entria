@@ -1,16 +1,10 @@
+import { navigateToDeveloperPage } from "../../sideBar.js";
+
 export function loadUserDashboardStats() {
   const data = {
-    apps: {
-      count: 4,
-      sub: "3 aktywne",
-    },
-    alerts: {
-      count: 10,
-    },
-    logins: {
-      count: 47,
-      sub: "ostatnie 30 dni",
-    },
+    apps:   { count: 4,  sub: "3 aktywne" },
+    alerts: { count: 10 },
+    logins: { count: 47, sub: "ostatnie 30 dni" },
   };
 
   const appsCount = document.getElementById("stats-apps-count");
@@ -26,4 +20,10 @@ export function loadUserDashboardStats() {
   if (alertsSub) alertsSub.textContent = data.alerts.count === 1 ? "wymaga uwagi" : data.alerts.count === 0 ? "brak alertów" : "wymagają uwagi";
   if (loginsCount) loginsCount.textContent = data.logins.count;
   if (loginsSub) loginsSub.textContent = data.logins.sub;
+
+  document.querySelectorAll("[data-target]").forEach((card) => {
+    card.addEventListener("click", () => {
+      navigateToDeveloperPage(card.dataset.target);
+    });
+  });
 }

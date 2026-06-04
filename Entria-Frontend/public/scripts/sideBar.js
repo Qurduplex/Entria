@@ -8,6 +8,7 @@ import { initUserDashboard } from "./user/dashboard.js";
 import { initUserProfile } from "./user/profile.js";
 import { initUserApps } from "./user/apps.js";
 import { initUserHistory } from "./user/history.js";
+import { initUserSecurity } from "./user/security.js";
 
 const sidebarConfigs = {
   user: {
@@ -229,6 +230,10 @@ async function navigate(item) {
     }
     if (item.id === "history" && _currentMode === "user") {
       await initUserHistory();
+    }
+
+    if (item.id === "security" && _currentMode === "user") {
+      await initUserSecurity();
     }
 
     if (item.id === "apps-detail-logs") {
