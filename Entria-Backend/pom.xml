@@ -38,10 +38,18 @@
         <module>notification-service</module>
         <module>app-registry-service</module>
         <module>userdata-service</module>
+        <module>oauth-service</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>edu.pk.qurduplex.entria</groupId>
                 <artifactId>common</artifactId>

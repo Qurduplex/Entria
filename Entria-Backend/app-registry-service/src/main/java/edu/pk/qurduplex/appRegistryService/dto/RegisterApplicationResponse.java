@@ -14,5 +14,6 @@ public class RegisterApplicationResponse {
     private String clientSecret;
     private String name;
     private String redirectUri;
+    private String authorizeUrl;
     private String logoUrl;
 }
