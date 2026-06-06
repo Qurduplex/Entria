@@ -59,11 +59,24 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                 AuthCredential auth = authOpt.get();
 
                 if (passwordEncoder.matches(request.getRawPassword(), auth.getPasswordHash())) {
+                    if (!auth.isActive()) {
+                        log.warn("Blocked login attempt: credentials correct but account is not active/verified for email: {}", request.getEmail());
+
+                        VerifyCredentialsResponse response = VerifyCredentialsResponse.newBuilder()
+                                .setIsCorrect(true)
+                                .setIsActive(false)
+                                .build();
+
+                        responseObserver.onNext(response);
+                        responseObserver.onCompleted();
+                        return;
+                    }
 
                     VerifyCredentialsResponse response = VerifyCredentialsResponse.newBuilder()
                             .setIsCorrect(true)
                             .setUserId(auth.getId().toString())
                             .setRole(auth.getRole().name())
+                            .setIsActive(true)
                             .build();
 
                     responseObserver.onNext(response);

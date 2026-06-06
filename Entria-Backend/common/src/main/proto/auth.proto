@@ -32,6 +32,7 @@ message VerifyCredentialsResponse {
   bool isCorrect = 1;
   string userId = 2;
   string role = 3;
+  bool isActive = 4;
 }
 
 message GetUserEmailRequest {

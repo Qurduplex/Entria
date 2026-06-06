@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,6 +36,14 @@ public class GrpcAuthenticationProvider implements AuthenticationProvider {
         );
 
         if (response.getIsCorrect()) {
+            if (!response.getIsActive()) {
+                throw new DisabledException("Account is unverified.");
+            }
+
+            if (!"USER".equalsIgnoreCase(response.getRole())) {
+                throw new BadCredentialsException("Access denied: only users with role 'USER' are allowed to authenticate.");
+            }
+
             List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + response.getRole()));
             return new UsernamePasswordAuthenticationToken(response.getUserId(), null, authorities);
         } else {
