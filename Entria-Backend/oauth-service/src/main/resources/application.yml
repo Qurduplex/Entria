@@ -30,3 +30,5 @@ grpc:
       negotiation-type: plaintext
     app-registry-service:
       negotiation-type: plaintext
+    userdata-service:
+      negotiation-type: plaintext

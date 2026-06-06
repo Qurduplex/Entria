@@ -49,8 +49,11 @@ public class CustomOidcUserInfoMapper implements Function<OidcUserInfoAuthentica
                 authorizedScopes.contains("picture") ||
                 authorizedScopes.contains("pesel");
 
+        log.info("[CustomOidcUserInfoMapper] needsProfileData is {}, authorizedScopes: {}", needsProfileData, authorizedScopes);
+
         if (needsProfileData) {
             try {
+                log.info("[CustomOidcUserInfoMapper] Calling userdata-service gRPC for userId: {}", userId);
                 UserProfileResponse profile = userProfileStub.getUserProfile(
                         UserProfileRequest.newBuilder().setUserId(userId).build());
 

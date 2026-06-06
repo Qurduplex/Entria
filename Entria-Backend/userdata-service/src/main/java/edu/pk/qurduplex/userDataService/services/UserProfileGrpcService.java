@@ -20,9 +20,17 @@ public class UserProfileGrpcService extends UserProfileGrpcServiceGrpc.UserProfi
 
     @Override
     public void getUserProfile(UserProfileRequest request, StreamObserver<UserProfileResponse> responseObserver) {
+        String incomingUserId = request.getUserId();
+        log.info("[gRPC userdata-service] Received getUserProfile request for userId: '{}'", incomingUserId);
+
         try {
-            userProfileRepository.findById(UUID.fromString(request.getUserId()))
+            UUID userUuid = UUID.fromString(incomingUserId);
+
+            userProfileRepository.findById(userUuid)
                     .ifPresentOrElse(profile -> {
+                        log.info("[gRPC userdata-service] Found profile in DB for user: {}. FirstName: '{}', LastName: '{}'",
+                                userUuid, profile.getFirstName(), profile.getLastName());
+
                         UserProfileResponse.Builder builder = UserProfileResponse.newBuilder()
                                 .setFirstName(profile.getFirstName() != null ? profile.getFirstName() : "")
                                 .setLastName(profile.getLastName() != null ? profile.getLastName() : "")
@@ -35,12 +43,23 @@ public class UserProfileGrpcService extends UserProfileGrpcServiceGrpc.UserProfi
                             builder.setBirthDate(profile.getBirthDate().toString());
                         }
 
-                        responseObserver.onNext(builder.build());
-                    }, () -> responseObserver.onNext(UserProfileResponse.newBuilder().build()));
+                        UserProfileResponse response = builder.build();
+                        log.debug("[gRPC userdata-service] Returning response: {}", response);
+                        responseObserver.onNext(response);
+
+                    }, () -> {
+                        log.warn("[gRPC userdata-service] Profile NOT FOUND in DB for user: {}", userUuid);
+                        responseObserver.onNext(UserProfileResponse.newBuilder().build());
+                    });
 
             responseObserver.onCompleted();
+
+        } catch (IllegalArgumentException e) {
+            log.error("[gRPC userdata-service] Invalid UUID format received: '{}'", incomingUserId, e);
+            responseObserver.onNext(UserProfileResponse.newBuilder().build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            log.error("gRPC GetUserProfile error: ", e);
+            log.error("[gRPC userdata-service] Unexpected error processing GetUserProfile: ", e);
             responseObserver.onNext(UserProfileResponse.newBuilder().build());
             responseObserver.onCompleted();
         }
