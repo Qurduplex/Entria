@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
+import edu.pk.qurduplex.oauthService.security.CustomOidcUserInfoMapper;
 import edu.pk.qurduplex.oauthService.security.GrpcAuthenticationProvider;
 import edu.pk.qurduplex.oauthService.security.MandatoryConsentValidationFilter;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -42,7 +43,8 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http,
+            CustomOidcUserInfoMapper customOidcUserInfoMapper) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
@@ -51,7 +53,11 @@ public class SecurityConfig {
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, (authorizationServer) ->
                         authorizationServer
-                                .oidc(Customizer.withDefaults())
+                                .oidc(oidc -> oidc
+                                        .userInfoEndpoint(userInfo -> userInfo
+                                                .userInfoMapper(customOidcUserInfoMapper)
+                                        )
+                                )
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint.consentPage("/oauth2/consent")
                                 )

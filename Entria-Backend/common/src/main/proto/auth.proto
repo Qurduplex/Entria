@@ -9,6 +9,8 @@ service AuthService {
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
 
   rpc VerifyCredentials (VerifyCredentialsRequest) returns (VerifyCredentialsResponse);
+
+  rpc GetUserEmail (GetUserEmailRequest) returns (GetUserEmailResponse);
 }
 
 message ValidateTokenRequest {
@@ -30,4 +32,12 @@ message VerifyCredentialsResponse {
   bool isCorrect = 1;
   string userId = 2;
   string role = 3;
+}
+
+message GetUserEmailRequest {
+  string userId = 1;
+}
+
+message GetUserEmailResponse {
+  string email = 1;
 }
