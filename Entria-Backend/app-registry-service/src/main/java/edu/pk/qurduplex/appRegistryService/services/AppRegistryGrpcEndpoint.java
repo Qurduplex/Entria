@@ -4,7 +4,7 @@ import edu.pk.qurduplex.appRegistryService.models.DeveloperApplication;
 import edu.pk.qurduplex.appRegistryService.repositories.DeveloperApplicationRepository;
 import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
 import edu.pk.qurduplex.common.grpc.AppRequest;
-import edu.pk.qurduplex.common.grpc.AppIdRequest; // Wygenerowana klasa
+import edu.pk.qurduplex.common.grpc.AppIdRequest;
 import edu.pk.qurduplex.common.grpc.AppResponse;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -60,6 +60,8 @@ public class AppRegistryGrpcEndpoint extends AppRegistryGrpcServiceGrpc.AppRegis
                     .setClientSecretHash(app.getClientSecretHash())
                     .setRedirectUri(app.getRedirectUri())
                     .putAllPermissions(grpcPermissions)
+                    .setAppName(app.getName())
+                    .setLogoUrl(app.getLogoUrl() != null ? app.getLogoUrl() : "")
                     .build();
 
             responseObserver.onNext(response);
