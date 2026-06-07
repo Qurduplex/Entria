@@ -213,6 +213,7 @@
         <input type="hidden" name="client_id" th:value="${clientId}">
         <input type="hidden" name="state" th:value="${state}">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="scope" value="openid" th:if="${requestOpenid}">
 
         <ul class="scopes-list">
             <li th:each="scope : ${scopes.entrySet()}" class="scope-item">

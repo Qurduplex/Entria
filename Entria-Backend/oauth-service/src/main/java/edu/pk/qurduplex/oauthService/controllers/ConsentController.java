@@ -31,16 +31,20 @@ public class ConsentController {
 
         String safeScope = (scope != null) ? scope : "";
 
-        List<String> scopesToApprove = Arrays.stream(scope.split(" "))
+        boolean requestOpenid = Arrays.asList(safeScope.split(" ")).contains("openid");
+        model.addAttribute("requestOpenid", requestOpenid);
+
+        List<String> scopesToApprove = Arrays.stream(safeScope.split(" "))
                 .filter(s -> !s.trim().isEmpty() && !s.equals("openid"))
                 .toList();
 
         AppResponse appResponse = appStub.getApplicationByClientId(
                 AppRequest.newBuilder().setClientId(clientId).build()
         );
-        Map<String, Boolean> permissionsMap = appResponse.getPermissionsMap();
 
+        Map<String, Boolean> permissionsMap = appResponse.getPermissionsMap();
         Map<String, Boolean> scopesMandatoryMap = new LinkedHashMap<>();
+
         for (String scopeName : scopesToApprove) {
             scopesMandatoryMap.put(scopeName, permissionsMap.getOrDefault(scopeName, false));
         }
@@ -114,11 +118,6 @@ public class ConsentController {
                             java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
                 }
             }
-
-            List<String> finalScopes = new ArrayList<>(scope != null ? scope : new ArrayList<>());
-            finalScopes.add("openid");
-
-            request.setAttribute("scope", finalScopes);
         }
 
         return "forward:/oauth2/authorize";
