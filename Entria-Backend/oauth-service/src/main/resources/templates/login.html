@@ -194,10 +194,12 @@
         </div>
     </div>
 
-    <div id="errorMessage" class="error-message"></div>
+    <div id="errorMessage" class="error-message" th:classappend="${param.error} ? 'show' : ''">
+        <span th:if="${param.error}" th:text="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message ?: 'Nieprawidłowy adres e-mail lub hasło.'}"></span>
+    </div>
     <div id="infoMessage" class="info-banner"></div>
 
-    <form id="loginForm" method="post" action="/login">
+    <form id="loginForm" method="post" th:action="@{/login}">
         <div class="form-group">
             <label for="username">Email</label>
             <input
@@ -240,15 +242,6 @@
     const infoMessage = document.getElementById('infoMessage');
     const loginButton = form.querySelector('button[type="submit"]');
     const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.has('error')) {
-        const error = urlParams.get('error');
-        errorMessage.textContent = 'Invalid email or password. Please try again.';
-        if (error === 'invalid_user') {
-            errorMessage.textContent = 'User account not found.';
-        }
-        errorMessage.classList.add('show');
-    }
 
     if (urlParams.has('logout')) {
         infoMessage.textContent = 'You have been successfully logged out.';

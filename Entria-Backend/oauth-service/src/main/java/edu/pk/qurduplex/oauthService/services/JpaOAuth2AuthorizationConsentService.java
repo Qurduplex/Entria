@@ -59,9 +59,12 @@ public class JpaOAuth2AuthorizationConsentService implements OAuth2Authorization
                 entity.getPrincipalName()
         );
 
-        if (entity.getAuthorities() != null) {
+        if (entity.getAuthorities() != null && !entity.getAuthorities().trim().isEmpty()) {
             for (String authority : entity.getAuthorities().split(",")) {
-                builder.authority(new SimpleGrantedAuthority(authority.trim()));
+                String authTrimmed = authority.trim();
+                if (!authTrimmed.isEmpty()) {
+                    builder.authority(new SimpleGrantedAuthority(authTrimmed));
+                }
             }
         }
         return builder.build();

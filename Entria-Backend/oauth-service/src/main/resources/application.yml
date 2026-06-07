@@ -1,5 +1,6 @@
 server:
   port: ${SERVER_PORT:12005}
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -29,4 +30,6 @@ grpc:
     identity-service:
       negotiation-type: plaintext
     app-registry-service:
+      negotiation-type: plaintext
+    userdata-service:
       negotiation-type: plaintext

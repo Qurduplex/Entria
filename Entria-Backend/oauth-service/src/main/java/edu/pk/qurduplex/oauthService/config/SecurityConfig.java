@@ -6,18 +6,23 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
+import edu.pk.qurduplex.oauthService.security.CustomOidcUserInfoMapper;
 import edu.pk.qurduplex.oauthService.security.GrpcAuthenticationProvider;
-import edu.pk.qurduplex.oauthService.security.MandatoryConsentValidationFilter;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,8 +35,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -42,7 +45,9 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http,
+            CustomOidcUserInfoMapper customOidcUserInfoMapper,
+            OAuth2AuthorizationConsentService authorizationConsentService) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
@@ -51,12 +56,16 @@ public class SecurityConfig {
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, (authorizationServer) ->
                         authorizationServer
-                                .oidc(Customizer.withDefaults())
+                                .authorizationConsentService(authorizationConsentService)
+                                .oidc(oidc -> oidc
+                                        .userInfoEndpoint(userInfo -> userInfo
+                                                .userInfoMapper(customOidcUserInfoMapper)
+                                        )
+                                )
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint.consentPage("/oauth2/consent")
                                 )
                 )
-
                 .authorizeHttpRequests((authorize) ->
                         authorize.anyRequest().authenticated()
                 )
@@ -76,15 +85,14 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(
             HttpSecurity http,
-            GrpcAuthenticationProvider grpcAuthenticationProvider,
-            MandatoryConsentValidationFilter mandatoryConsentValidationFilter
+            GrpcAuthenticationProvider grpcAuthenticationProvider
     ) throws Exception {
 
         http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/oauth2/**").authenticated()
-                .requestMatchers("/login", "/login/**").permitAll()
-                .anyRequest().authenticated()
-        )
+                        .requestMatchers("/oauth2/**").authenticated()
+                        .requestMatchers("/login", "/login/**").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .permitAll()
@@ -97,8 +105,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .authenticationProvider(grpcAuthenticationProvider)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"))
-                .addFilterAfter(mandatoryConsentValidationFilter, BasicAuthenticationFilter.class);
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"));
 
         return http.build();
     }
@@ -138,12 +145,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+    public OAuth2AuthorizationService authorizationService(
+            JdbcTemplate jdbcTemplate,
+            RegisteredClientRepository registeredClientRepository) {
+
+        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
     }
 
     @Bean
-    public MandatoryConsentValidationFilter mandatoryConsentValidationFilter() {
-        return new MandatoryConsentValidationFilter(appStub);
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder()
+                .issuer("http://localhost:8080/oauth")
+                .build();
     }
 }

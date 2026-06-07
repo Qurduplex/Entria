@@ -192,9 +192,9 @@
         - "${OAUTH_SERVICE_PORT:-12005}:${OAUTH_SERVICE_INTERNAL_PORT:-12005}"
       networks:
         - entria-network
-      depends_on:
-        eureka-server:
-          condition: service_healthy
+#      depends_on:
+#        eureka-server:
+#          condition: service_healthy
       environment:
         SERVER_PORT: ${OAUTH_SERVICE_INTERNAL_PORT:-12005}
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/

@@ -53,6 +53,18 @@ spring:
                 - Path=/docs/user-profile/{*segment}
               filters:
                 - RewritePath=/docs/user-profile/(?<segment>.*), /$\{segment}
+
+            - id: oauth-service-route
+              uri: lb://oauth-service
+              predicates:
+                - Path=/oauth/**
+              filters:
+                - StripPrefix=1
+                - AddRequestHeader=X-Forwarded-Prefix, /oauth
+                - AddRequestHeader=X-Forwarded-Proto, http
+                - AddRequestHeader=X-Forwarded-Host, localhost:8080
+                - AddRequestHeader=X-Forwarded-Port, 8080
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

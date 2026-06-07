@@ -99,6 +99,11 @@
             <version>4.8.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <version>${net.devh.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

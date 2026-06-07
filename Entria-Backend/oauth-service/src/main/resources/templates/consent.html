@@ -191,7 +191,33 @@
     </style>
 </head>
 <body>
-<div class="consent-container">
+<div th:if="${autoSubmit}" class="consent-container" style="text-align: center; padding: 40px;">
+    <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
+    <h2 style="color: #333;">Przekierowywanie...</h2>
+    <p style="color: #666; margin-top: 10px;">Zastosowywanie zapisanych uprawnień</p>
+
+    <form id="autoSubmitForm" method="post" th:action="@{/oauth2/consent}" style="display: none;">
+        <input type="hidden" name="client_id" th:value="${clientId}">
+        <input type="hidden" name="state" th:value="${state}">
+        <input type="hidden" name="consent_action" value="approve">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <th:block th:each="scp : ${approvedScopes}">
+            <input type="hidden" name="scope" th:value="${scp}">
+        </th:block>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('autoSubmitForm').submit();
+            }, 300);
+        });
+    </script>
+</div>
+
+
+<div th:unless="${autoSubmit}" class="consent-container">
     <div class="app-info">
         <div class="app-icon">🔐</div>
         <div class="app-details">
@@ -209,10 +235,11 @@
 
     <h3>Requested Permissions</h3>
 
-    <form method="post" action="/oauth2/consent">
+    <form method="post" th:action="@{/oauth2/consent}">
         <input type="hidden" name="client_id" th:value="${clientId}">
         <input type="hidden" name="state" th:value="${state}">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="scope" value="openid" th:if="${requestOpenid}">
 
         <ul class="scopes-list">
             <li th:each="scope : ${scopes.entrySet()}" class="scope-item">
@@ -224,9 +251,9 @@
                            disabled="disabled" />
                     <input type="hidden" name="scope" th:value="${scope.getKey()}" />
                     <span class="scope-label">
-                        <span class="mandatory-label" th:text="${scope.getKey()}"></span>
-                        <span class="mandatory-badge">*</span>
-                    </span>
+                            <span class="mandatory-label" th:text="${scope.getKey()}"></span>
+                            <span class="mandatory-badge">*</span>
+                        </span>
                 </th:block>
 
                 <th:block th:unless="${scope.getValue()}">

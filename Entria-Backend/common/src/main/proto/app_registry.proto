@@ -7,10 +7,16 @@ option java_package = "edu.pk.qurduplex.common.grpc";
 
 service AppRegistryGrpcService {
   rpc GetApplicationByClientId (AppRequest) returns (AppResponse);
+
+  rpc GetApplicationById (AppIdRequest) returns (AppResponse);
 }
 
 message AppRequest {
   string clientId = 1;
+}
+
+message AppIdRequest {
+  string id = 1;
 }
 
 message AppResponse {
