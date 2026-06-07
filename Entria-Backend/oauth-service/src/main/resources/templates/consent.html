@@ -196,7 +196,7 @@
     <h2 style="color: #333;">Przekierowywanie...</h2>
     <p style="color: #666; margin-top: 10px;">Zastosowywanie zapisanych uprawnień</p>
 
-    <form id="autoSubmitForm" method="post" action="/oauth2/consent" style="display: none;">
+    <form id="autoSubmitForm" method="post" th:action="@{/oauth2/consent}" style="display: none;">
         <input type="hidden" name="client_id" th:value="${clientId}">
         <input type="hidden" name="state" th:value="${state}">
         <input type="hidden" name="consent_action" value="approve">
@@ -235,7 +235,7 @@
 
     <h3>Requested Permissions</h3>
 
-    <form method="post" action="/oauth2/consent">
+    <form method="post" th:action="@{/oauth2/consent}">
         <input type="hidden" name="client_id" th:value="${clientId}">
         <input type="hidden" name="state" th:value="${state}">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

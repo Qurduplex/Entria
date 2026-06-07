@@ -145,15 +145,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
-    }
-
-    @Bean
     public OAuth2AuthorizationService authorizationService(
             JdbcTemplate jdbcTemplate,
             RegisteredClientRepository registeredClientRepository) {
 
         return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder()
+                .issuer("http://localhost:8080/oauth")
+                .build();
     }
 }
