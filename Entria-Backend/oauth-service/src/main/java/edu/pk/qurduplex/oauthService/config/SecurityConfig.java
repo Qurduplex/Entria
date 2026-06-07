@@ -89,6 +89,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         http.authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/oauth2/**").authenticated()
                         .requestMatchers("/login", "/login/**").permitAll()
                         .anyRequest().authenticated()
@@ -105,7 +106,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .authenticationProvider(grpcAuthenticationProvider)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"));
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize", "/api/**"));
 
         return http.build();
     }

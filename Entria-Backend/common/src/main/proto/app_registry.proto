@@ -25,4 +25,6 @@ message AppResponse {
   string clientSecretHash = 3;
   string redirectUri = 4;
   map<string, bool> permissions = 5;
+  string appName = 6;
+  string logoUrl = 7;
 }
