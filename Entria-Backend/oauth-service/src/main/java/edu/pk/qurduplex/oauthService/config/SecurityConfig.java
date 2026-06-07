@@ -8,7 +8,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
 import edu.pk.qurduplex.oauthService.security.CustomOidcUserInfoMapper;
 import edu.pk.qurduplex.oauthService.security.GrpcAuthenticationProvider;
-import edu.pk.qurduplex.oauthService.security.MandatoryConsentValidationFilter;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +29,6 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
-
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -62,7 +59,6 @@ public class SecurityConfig {
                                         authorizationEndpoint.consentPage("/oauth2/consent")
                                 )
                 )
-
                 .authorizeHttpRequests((authorize) ->
                         authorize.anyRequest().authenticated()
                 )
@@ -82,15 +78,14 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(
             HttpSecurity http,
-            GrpcAuthenticationProvider grpcAuthenticationProvider,
-            MandatoryConsentValidationFilter mandatoryConsentValidationFilter
+            GrpcAuthenticationProvider grpcAuthenticationProvider
     ) throws Exception {
 
         http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/oauth2/**").authenticated()
-                .requestMatchers("/login", "/login/**").permitAll()
-                .anyRequest().authenticated()
-        )
+                        .requestMatchers("/oauth2/**").authenticated()
+                        .requestMatchers("/login", "/login/**").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .permitAll()
@@ -103,8 +98,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .authenticationProvider(grpcAuthenticationProvider)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"))
-                .addFilterAfter(mandatoryConsentValidationFilter, BasicAuthenticationFilter.class);
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/authorize"));
 
         return http.build();
     }
@@ -146,10 +140,5 @@ public class SecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
-    }
-
-    @Bean
-    public MandatoryConsentValidationFilter mandatoryConsentValidationFilter() {
-        return new MandatoryConsentValidationFilter(appStub);
     }
 }

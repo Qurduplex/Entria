@@ -1,8 +1,6 @@
 package edu.pk.qurduplex.oauthService.controllers;
 
-import edu.pk.qurduplex.common.grpc.AppRegistryGrpcServiceGrpc;
-import edu.pk.qurduplex.common.grpc.AppRequest;
-import edu.pk.qurduplex.common.grpc.AppResponse;
+import edu.pk.qurduplex.common.grpc.*;
 import jakarta.servlet.http.HttpServletRequest;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -22,14 +20,19 @@ public class ConsentController {
     @GrpcClient("app-registry-service")
     private AppRegistryGrpcServiceGrpc.AppRegistryGrpcServiceBlockingStub appStub;
 
+    @GrpcClient("userdata-service")
+    private UserProfileGrpcServiceGrpc.UserProfileGrpcServiceBlockingStub userProfileStub;
+
     @GetMapping("/oauth2/consent")
     public String consent(Principal principal, Model model,
                           @RequestParam(OAuth2ParameterNames.CLIENT_ID) String clientId,
-                          @RequestParam(OAuth2ParameterNames.SCOPE) String scope,
+                          @RequestParam(name = OAuth2ParameterNames.SCOPE, required = false) String scope,
                           @RequestParam(OAuth2ParameterNames.STATE) String state) {
 
+        String safeScope = (scope != null) ? scope : "";
+
         List<String> scopesToApprove = Arrays.stream(scope.split(" "))
-                .filter(s -> !s.equals("openid"))
+                .filter(s -> !s.trim().isEmpty() && !s.equals("openid"))
                 .toList();
 
         AppResponse appResponse = appStub.getApplicationByClientId(
@@ -52,6 +55,7 @@ public class ConsentController {
     @PostMapping("/oauth2/consent")
     public String handleConsent(
             HttpServletRequest request,
+            Principal principal,
             @RequestParam(OAuth2ParameterNames.CLIENT_ID) String clientId,
             @RequestParam(required = false) List<String> scope,
             @RequestParam String state,
@@ -80,6 +84,37 @@ public class ConsentController {
                         java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
             }
 
+            if (principal != null && scope != null) {
+                UserProfileResponse userProfile = userProfileStub.getUserProfile(
+                        UserProfileRequest.newBuilder().setUserId(principal.getName()).build()
+                );
+
+                List<String> missingProfileData = new ArrayList<>();
+
+                if (scope.contains("profile") && (isNullOrBlank(userProfile.getFirstName()) || isNullOrBlank(userProfile.getLastName()))) {
+                    missingProfileData.add("First and last name");
+                }
+                if (scope.contains("phone") && isNullOrBlank(userProfile.getPhoneNumber())) {
+                    missingProfileData.add("Phone number");
+                }
+                if (scope.contains("pesel") && isNullOrBlank(userProfile.getPesel())) {
+                    missingProfileData.add("PESEL number");
+                }
+                if (scope.contains("sex") && isNullOrBlank(userProfile.getSex())) {
+                    missingProfileData.add("Gender");
+                }
+                if (scope.contains("birthDate") && isNullOrBlank(userProfile.getBirthDate())) {
+                    missingProfileData.add("Date of birth");
+                }
+
+                if (!missingProfileData.isEmpty()) {
+                    String errorMsg = "You cannot share this data because it is missing from your profile. Please complete: " +
+                            String.join(", ", missingProfileData);
+                    return "redirect:/oauth2/error?error=missing_profile_data&state=" + state + "&message=" +
+                            java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                }
+            }
+
             List<String> finalScopes = new ArrayList<>(scope != null ? scope : new ArrayList<>());
             finalScopes.add("openid");
 
@@ -87,5 +122,9 @@ public class ConsentController {
         }
 
         return "forward:/oauth2/authorize";
+    }
+
+    private boolean isNullOrBlank(String str) {
+        return str == null || str.trim().isEmpty();
     }
 }
