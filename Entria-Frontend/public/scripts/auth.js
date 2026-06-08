@@ -1,6 +1,8 @@
 import { api } from "./apiAuth.js";
 import { showAlert } from "./alert.js";
 
+
+
 async function loadComponents() {
     const navbarContainer = document.getElementById('navbar-container');
     const footerContainer = document.getElementById('footer-container');
@@ -80,49 +82,84 @@ async function loadComponents() {
     initResetPasswordModal();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+
     loadComponents();
+
+    const jwtToken =
+        localStorage.getItem("jwtToken");
+
+    const refreshToken =
+        localStorage.getItem("refreshToken");
+
+    if (jwtToken && refreshToken) {
+        startTokenRefresh();
+    }
 });
 
 let currentRegisterType = sessionStorage.getItem("registerType") || "user";
 
 function initRegisterForm() {
     const loginLink = document.getElementById("openLoginPage");
+
     if (loginLink) {
         loginLink.addEventListener("click", (e) => {
             e.preventDefault();
             window.location.href = "./LoginPage.html";
         });
     }
-    const form = document.getElementById("registerForm");
-    if (!form) return;
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = form.email.value.trim();
-        const profileDraft = {
-            email: email,
-        };
-        const registerData = {
-            email: email,
-            password: form.password.value,
-            firstName: form.first_name?.value.trim() || "",
-            lastName: form.last_name?.value.trim() || "",
-            userRole: currentRegisterType === "developer" ? "DEVELOPER" : "USER",
-            termsAccepted: form.checkReg.checked,
-        };
-        try {
-            const response = await api.register(registerData);
-            sessionStorage.setItem("profileDraft", JSON.stringify(profileDraft));
 
-            showAlert("Konto zostało utworzone. Sprawdź kod na emailu.", "success");
+    const userForm = document.getElementById("userRegisterForm");
+    const developerForm = document.getElementById("developerRegisterForm");
 
-            openVerifyModal(currentRegisterType, email);
-            sessionStorage.removeItem("registerType");
-        } catch (err) {
-            console.error("Błąd rejestracji:", err);
-            showAlert(err.data?.message || "Nie udało się utworzyć konta.", "error");
-        }
-    });
+    if (userForm) {
+        userForm.addEventListener("submit", handleRegister);
+    }
+
+    if (developerForm) {
+        developerForm.addEventListener("submit", handleRegister);
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const email = form.email.value.trim();
+
+    const registerType = form.id === "developerRegisterForm"
+        ? "developer"
+        : "user";
+
+    const registerData = {
+        email: email,
+        password: form.password.value,
+        firstName: form.first_name?.value.trim() || "",
+        lastName: form.last_name?.value.trim() || "",
+        userRole: registerType === "developer" ? "DEVELOPER" : "USER",
+        termsAccepted: form.checkReg.checked,
+    };
+
+    try {
+        await api.register(registerData);
+
+        sessionStorage.setItem("profileDraft", JSON.stringify({ email }));
+
+        showAlert("Konto zostało utworzone. Sprawdź kod na emailu.", "success");
+
+        openVerifyModal(registerType, email);
+
+        sessionStorage.removeItem("registerType");
+    } catch (err) {
+        console.error("Błąd rejestracji:", err);
+        showAlert(err.data?.message || "Nie udało się utworzyć konta.", "error");
+    }
+}
+
+function getRoleFromToken(token) {
+    const payload = token.split(".")[1];
+    const decodedPayload = JSON.parse(atob(payload));
+    return decodedPayload.role;
 }
 
 function initLoginForm() {
@@ -136,21 +173,23 @@ function initLoginForm() {
             showAlert("Uzupełnij email i hasło.", "warning");
             return;
         }
-        try {
+        try{
             const response = await api.login({
                 email: email,
                 password: password
             });
-            localStorage.setItem("accessToken", response.accessToken);
+            localStorage.setItem("jwtToken", response.jwtToken);
             localStorage.setItem("refreshToken", response.refreshToken);
-            showAlert("Zalogowano pomyślnie.", "success");
+            localStorage.setItem("expiresAt", response.expiresAt);
+
             startTokenRefresh();
-            if (response.role === "DEVELOPER") {
-                window.location.href =
-                    "./developer/DevelopmentLayout.html";
+
+            const role = getRoleFromToken(response.jwtToken);
+
+            if (role === "DEVELOPER") {
+                window.location.href = "./developer/DeveloperLayout.html";
             } else {
-                window.location.href =
-                    "./user/UserLayout.html";
+                window.location.href = "./user/UserLayout.html";
             }
         } catch (err) {
             console.error("Błąd logowania:", err);
@@ -163,35 +202,62 @@ let refreshInterval = null;
 
 async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refreshToken");
+
     if (!refreshToken) {
         return;
     }
+
     try {
         const response = await api.refreshToken({
             refreshToken: refreshToken
         });
-        localStorage.setItem("accessToken", response.accessToken);
-        if (response.refreshToken) {
-            localStorage.setItem("refreshToken", response.refreshToken);
-        }
+
+        console.log("REFRESH RESPONSE:", response);
+
+        localStorage.setItem(
+            "jwtToken",
+            response.jwtToken
+        );
+
+        localStorage.setItem(
+            "expiresAt",
+            response.expiresAt
+        );
+
+        console.log(
+            "Nowy token wygasa:",
+            response.expiresAt
+        );
 
     } catch (err) {
-        console.error("Nie udało się odświeżyć tokena:", err);
-        localStorage.removeItem("accessToken");
+        console.error(
+            "Nie udało się odświeżyć tokena:",
+            err
+        );
+
+        localStorage.removeItem("jwtToken");
         localStorage.removeItem("refreshToken");
-        showAlert("Sesja wygasła. Zaloguj się ponownie.", "error");
-        window.location.href = "./LoginPage.html";
+        localStorage.removeItem("expiresAt");
+
+        showAlert(
+            "Sesja wygasła. Zaloguj się ponownie.",
+            "error"
+        );
+
+        window.location.href =
+            "./LoginPage.html";
     }
 }
 
 function startTokenRefresh() {
+
     if (refreshInterval) {
         clearInterval(refreshInterval);
     }
 
     refreshInterval = setInterval(() => {
         refreshAccessToken();
-    }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000 - 1);
 }
 
 function initModal() {

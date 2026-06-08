@@ -1,51 +1,71 @@
+import { api } from "../api/apiDeveloper.js";
 import { navigateToDeveloperPage } from "../../sideBar.js";
 
 export function loadApplicationActions() {
-  const cancelButton = document.getElementById(
-    "cancel-create-application"
-  );
+    const cancelButton = document.getElementById("cancel-create-application");
+    const createButton = document.getElementById("create-application-button");
 
-  const createButton = document.getElementById(
-    "create-application-button"
-  );
+    if (cancelButton) {
+        cancelButton.addEventListener("click", async () => {
+            sessionStorage.removeItem("applicationDraft");
 
-  if (cancelButton) {
-    cancelButton.addEventListener("click", async () => {
+            window.applicationLogoFile = null;
+            window.applicationTosPdfFile = null;
 
-      sessionStorage.removeItem(
-        "applicationDraft"
-      );
+            await navigateToDeveloperPage("apps");
+        });
+    }
 
-      await navigateToDeveloperPage(
-        "apps"
-      );
-    });
-  }
+    if (createButton) {
+        createButton.addEventListener("click", async () => {
+            const draft = JSON.parse(
+                sessionStorage.getItem("applicationDraft")
+            ) || {};
 
-  if (createButton) {
-    createButton.addEventListener("click", async () => {
+            draft.logoFile = window.applicationLogoFile || null;
+            draft.tosPdfFile = window.applicationTosPdfFile || null;
 
-      const draft = JSON.parse(
-        sessionStorage.getItem("applicationDraft")
-      );
+            if (!draft.name) {
+                alert("Podaj nazwę aplikacji.");
+                return;
+            }
 
-      console.log(
-        "Aplikacja do zapisania:",
-        draft
-      );
+            if (!draft.redirectUri) {
+                alert("Podaj Redirect URI.");
+                return;
+            }
 
-      /*
-      Tutaj później:
-      await createApplication(draft);
-      */
+            if (!draft.logoFile) {
+                alert("Dodaj logo aplikacji.");
+                return;
+            }
 
-      sessionStorage.removeItem(
-        "applicationDraft"
-      );
+            if (!draft.tosPdfFile) {
+                alert("Dodaj regulamin PDF.");
+                return;
+            }
 
-      await navigateToDeveloperPage(
-        "apps"
-      );
-    });
-  }
+            console.log("Aplikacja do zapisania:", draft);
+
+            try {
+                const response = await api.registerApplication(draft);
+
+                console.log("REGISTERED APPLICATION:", response);
+
+                sessionStorage.removeItem("applicationDraft");
+
+                window.applicationLogoFile = null;
+                window.applicationTosPdfFile = null;
+
+                await navigateToDeveloperPage("apps");
+
+            } catch (err) {
+                console.error("Błąd tworzenia aplikacji:", err);
+
+                console.log("STATUS:", err.status);
+                console.log("DATA:", err.data);
+                console.log("STRING:", JSON.stringify(err.data, null, 2));
+            }
+        });
+    }
 }

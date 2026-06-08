@@ -78,6 +78,12 @@ export const api = {
             method: "POST",
             body: JSON.stringify(payload),
         }),
+        
+    refreshToken: (payload) =>
+        request("refreshToken", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
 };
 
  window.api = api;

@@ -34,14 +34,14 @@
             <div class="mt-10">
                 <p class="text-lg tracking-[0.1em] text-white/40">PODSTAWOWE</p>
 
-                <form id="registerForm" class="mt-10 space-y-6">
-                    <input type="text" name="name" placeholder="NAZWA ORGANIZACJI"
+                <form id="developerRegisterForm" class="mt-10 space-y-6">
+                    <input type="text" name="first_name" placeholder="IMIĘ"
+                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
+
+                    <input type="text" name="last_name" placeholder="NAZWISKO"
                         class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
 
                     <input type="email" name="email" placeholder="EMAIL"
-                        class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
-
-                    <input type="text" name="phone" placeholder="TELEFON"
                         class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
 
                     <input type="password" name="password" placeholder="HASŁO"
@@ -51,7 +51,7 @@
                         class="h-[56px] w-full bg-white px-4 text-[#8B8B8B] outline-none" />
 
                     <label class="flex items-center gap-4 cursor-pointer">
-                        <input type="checkbox" class="peer sr-only">
+                        <input type="checkbox" name="checkReg" class="peer sr-only">
 
                         <div class="h-7 w-7 flex items-center justify-center rounded-[12px] bg-white/90 transition-all peer-checked:[&>svg]:block">
                             <svg class="hidden w-4 h-4 text-[#9C8CFF]"

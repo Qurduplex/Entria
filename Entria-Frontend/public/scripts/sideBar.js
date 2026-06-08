@@ -9,6 +9,7 @@ import { initUserProfile } from "./user/profile.js";
 import { initUserApps } from "./user/apps.js";
 import { initUserHistory } from "./user/history.js";
 import { initUserSecurity } from "./user/security.js";
+import { api } from "./developer/api/apiDeveloper.js";
 
 const sidebarConfigs = {
   user: {
@@ -368,21 +369,42 @@ export function closeSidebar() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
+function getInitials(firstName, lastName) {
+    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
+}
 export async function initSidebar(mode = "user") {
-  _currentMode = mode;
+    _currentMode = mode;
 
-  const container = document.getElementById("sidebar-container");
-  if (container) {
-    const res = await fetch("../../components/sideBar.html");
-    container.innerHTML = await res.text();
-  }
+    const container = document.getElementById("sidebar-container");
+    if (container) {
+        const res = await fetch("../../components/sideBar.html");
+        container.innerHTML = await res.text();
+    }
 
-  renderSidebar();
-  document
-    .getElementById("sidebar-overlay")
-    ?.addEventListener("click", closeSidebar);
+    try {
+        const profile = await api.getMyProfile();
 
-  const config = sidebarConfigs[_currentMode];
-  const defaultItem = config.nav.find((n) => n.type !== "section" && n.active);
-  if (defaultItem) await navigate(defaultItem);
+        const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+
+        sidebarConfigs[_currentMode].footer = {
+            name: fullName || "Użytkownik",
+            email: profile.phoneNumber || "Brak danych",
+            initials: getInitials(profile.firstName, profile.lastName) || "U",
+            avatarColor: "#2D9A63",
+        };
+
+    } catch (err) {
+        console.error("Nie udało się pobrać profilu:", err);
+    }
+
+    renderSidebar();
+
+    document
+        .getElementById("sidebar-overlay")
+        ?.addEventListener("click", closeSidebar);
+
+    const config = sidebarConfigs[_currentMode];
+    const defaultItem = config.nav.find((n) => n.type !== "section" && n.active);
+
+    if (defaultItem) await navigate(defaultItem);
 }

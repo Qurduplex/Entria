@@ -1,44 +1,31 @@
 export function loadApplicationDetails() {
-  const nameInput = document.getElementById("application-name");
-  const domainInput = document.getElementById("application-domain");
-  const descriptionInput = document.getElementById("application-description");
+    const nameInput = document.getElementById("application-name");
 
-  if (!nameInput || !domainInput || !descriptionInput) {
-    return;
-  }
+    if (!nameInput) {
+        return;
+    }
 
-  const savedDraft = getApplicationDraft();
+    const savedDraft = getApplicationDraft();
 
-  nameInput.value = savedDraft.name ?? "";
-  domainInput.value = savedDraft.domain ?? "";
-  descriptionInput.value = savedDraft.description ?? "";
+    nameInput.value = savedDraft.name ?? "";
 
-  function saveDetails() {
-    const draft = getApplicationDraft();
+    function saveDetails() {
+        const draft = getApplicationDraft();
 
-    draft.name = nameInput.value.trim();
-    draft.domain = domainInput.value.trim();
-    draft.description = descriptionInput.value.trim();
+        draft.name = nameInput.value.trim();
 
-    saveApplicationDraft(draft);
+        saveApplicationDraft(draft);
 
-    console.log("Draft aplikacji:", draft);
-  }
+        console.log("Draft aplikacji:", draft);
+    }
 
-  nameInput.addEventListener("input", saveDetails);
-  domainInput.addEventListener("input", saveDetails);
-  descriptionInput.addEventListener("input", saveDetails);
+    nameInput.addEventListener("input", saveDetails);
 }
 
 export function getApplicationDraft() {
-  return JSON.parse(
-    sessionStorage.getItem("applicationDraft")
-  ) || {};
+    return JSON.parse(sessionStorage.getItem("applicationDraft")) || {};
 }
 
 export function saveApplicationDraft(draft) {
-  sessionStorage.setItem(
-    "applicationDraft",
-    JSON.stringify(draft)
-  );
+    sessionStorage.setItem("applicationDraft", JSON.stringify(draft));
 }
