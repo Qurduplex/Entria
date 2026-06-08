@@ -38,3 +38,7 @@ application:
     public-bucket: ${MINIO_PUBLIC_BUCKET:entria-public-files}
   oauth2:
     authorize-url: ${FRONTEND_AUTHORIZE_URL:http://localhost:3000/authorize}
+
+grpc:
+  server:
+    port: 9091

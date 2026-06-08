@@ -1,12 +1,16 @@
 package edu.pk.qurduplex.identityService.services;
 
-import edu.pk.qurduplex.common.grpc.AuthServiceGrpc;
-import edu.pk.qurduplex.common.grpc.ValidateTokenRequest;
-import edu.pk.qurduplex.common.grpc.ValidateTokenResponse;
+import edu.pk.qurduplex.common.grpc.*;
+import edu.pk.qurduplex.identityService.models.AuthCredential;
+import edu.pk.qurduplex.identityService.repositories.AuthRepository;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -14,6 +18,8 @@ import net.devh.boot.grpc.server.service.GrpcService;
 public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
     private final JwtService jwtService;
+    private final AuthRepository authRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void validateToken(ValidateTokenRequest request, StreamObserver<ValidateTokenResponse> responseObserver) {
@@ -40,6 +46,73 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                     .build();
 
             responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+    }
+
+    @Override
+    public void verifyCredentials(VerifyCredentialsRequest request, StreamObserver<VerifyCredentialsResponse> responseObserver) {
+        try {
+            Optional<AuthCredential> authOpt = authRepository.findByEmail(request.getEmail());
+
+            if (authOpt.isPresent()) {
+                AuthCredential auth = authOpt.get();
+
+                if (passwordEncoder.matches(request.getRawPassword(), auth.getPasswordHash())) {
+                    if (!auth.isActive()) {
+                        log.warn("Blocked login attempt: credentials correct but account is not active/verified for email: {}", request.getEmail());
+
+                        VerifyCredentialsResponse response = VerifyCredentialsResponse.newBuilder()
+                                .setIsCorrect(true)
+                                .setIsActive(false)
+                                .build();
+
+                        responseObserver.onNext(response);
+                        responseObserver.onCompleted();
+                        return;
+                    }
+
+                    VerifyCredentialsResponse response = VerifyCredentialsResponse.newBuilder()
+                            .setIsCorrect(true)
+                            .setUserId(auth.getId().toString())
+                            .setRole(auth.getRole().name())
+                            .setIsActive(true)
+                            .build();
+
+                    responseObserver.onNext(response);
+                    responseObserver.onCompleted();
+                    return;
+                }
+            }
+
+            VerifyCredentialsResponse response = VerifyCredentialsResponse.newBuilder()
+                    .setIsCorrect(false)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            log.error("Error while gRPC verifyCredentials: ", e);
+            responseObserver.onNext(VerifyCredentialsResponse.newBuilder().setIsCorrect(false).build());
+            responseObserver.onCompleted();
+        }
+    }
+
+    @Override
+    public void getUserEmail(GetUserEmailRequest request, StreamObserver<GetUserEmailResponse> responseObserver) {
+        try {
+            authRepository.findById(UUID.fromString(request.getUserId()))
+                    .ifPresentOrElse(authOpt -> {
+                        responseObserver.onNext(GetUserEmailResponse.newBuilder()
+                                .setEmail(authOpt.getEmail())
+                                .build());
+                    }, () -> responseObserver.onNext(GetUserEmailResponse.newBuilder().build()));
+
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            log.error("gRPC GetUserEmail error: ", e);
+            responseObserver.onNext(GetUserEmailResponse.newBuilder().build());
             responseObserver.onCompleted();
         }
     }

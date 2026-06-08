@@ -7,6 +7,10 @@ option java_package = "edu.pk.qurduplex.common.grpc";
 
 service AuthService {
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+
+  rpc VerifyCredentials (VerifyCredentialsRequest) returns (VerifyCredentialsResponse);
+
+  rpc GetUserEmail (GetUserEmailRequest) returns (GetUserEmailResponse);
 }
 
 message ValidateTokenRequest {
@@ -17,4 +21,24 @@ message ValidateTokenResponse {
   string userId = 1;
   string role = 2;
   bool isValid = 3;
+}
+
+message VerifyCredentialsRequest {
+  string email = 1;
+  string rawPassword = 2;
+}
+
+message VerifyCredentialsResponse {
+  bool isCorrect = 1;
+  string userId = 2;
+  string role = 3;
+  bool isActive = 4;
+}
+
+message GetUserEmailRequest {
+  string userId = 1;
+}
+
+message GetUserEmailResponse {
+  string email = 1;
 }

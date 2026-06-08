@@ -16,6 +16,9 @@
 
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:${EUREKA_PORT:-8761}/eureka/
 
+        GATEWAY_PUBLIC_HOST: ${PUBLIC_IP}
+        GATEWAY_PUBLIC_PORT: ${GATEWAY_PORT:-8080}
+
     identity-service:
       build: ./identity-service
       container_name: identity-service
@@ -180,6 +183,28 @@
         SPRING_RABBITMQ_PORT: ${RABBITMQ_NODE_PORT}
         SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
         SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+
+    oauth-service:
+      build: ./oauth-service
+      container_name: oauth-service
+      deploy:
+        resources:
+          limits:
+            memory: 1024M
+      ports:
+        - "${OAUTH_SERVICE_PORT:-12005}:${OAUTH_SERVICE_INTERNAL_PORT:-12005}"
+      networks:
+        - entria-network
+#      depends_on:
+#        eureka-server:
+#          condition: service_healthy
+      environment:
+        SERVER_PORT: ${OAUTH_SERVICE_INTERNAL_PORT:-12005}
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${POSTGRES_DB_PORT}/${POSTGRES_OAUTH_DB_NAME}
+        POSTGRES_USER: ${POSTGRES_DB_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
 
 
     eureka-server:
