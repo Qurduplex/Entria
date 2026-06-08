@@ -70,7 +70,7 @@ spring:
                 - StripPrefix=1
                 - AddRequestHeader=X-Forwarded-Prefix, /oauth
                 - AddRequestHeader=X-Forwarded-Proto, http
-                - AddRequestHeader=X-Forwarded-Host, localhost:8080
+                - AddRequestHeader=X-Forwarded-Host, ${GATEWAY_PUBLIC_HOST}:${GATEWAY_PUBLIC_PORT}
                 - AddRequestHeader=X-Forwarded-Port, 8080
 
 springdoc:

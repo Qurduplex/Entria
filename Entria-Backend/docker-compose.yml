@@ -16,6 +16,9 @@
 
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:${EUREKA_PORT:-8761}/eureka/
 
+        GATEWAY_PUBLIC_HOST: ${PUBLIC_IP}
+        GATEWAY_PUBLIC_PORT: ${GATEWAY_PORT:-8080}
+
     identity-service:
       build: ./identity-service
       container_name: identity-service
