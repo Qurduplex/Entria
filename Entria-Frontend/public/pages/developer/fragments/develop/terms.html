@@ -1,35 +1,61 @@
 <div class="rounded-xl border border-gray-300 bg-white shadow-sm">
 
-  <div class="border-b border-gray-300 px-6 py-5">
-    <h2 class="text-xl font-semibold text-gray-900">
+  <div class="border-b border-gray-300 px-5 py-4">
+    <h2 class="text-base font-semibold text-gray-900">
       Regulamin
     </h2>
 
-    <p class="mt-1 text-sm text-gray-600">
-      Załącz regulamin aplikacji – zostanie wyświetlony użytkownikowi podczas logowania.
+    <p class="mt-1 text-sm text-gray-500">
+      Załącz plik PDF regulaminu aplikacji.
     </p>
   </div>
 
-  <div class="space-y-4 p-6">
+  <div class="p-5">
 
-    <div>
-      <label
-        for="application-terms-url"
-        class="mb-1 block text-xs font-medium uppercase text-gray-500"
+    <label
+      for="application-terms-pdf"
+      class="flex h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-400 bg-gray-100 transition hover:bg-gray-50"
+    >
+
+      <svg
+        class="mb-3 h-10 w-10 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        viewBox="0 0 24 24"
       >
-        URL regulaminu
-      </label>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
+        />
+      </svg>
+
+      <p class="text-sm font-medium text-gray-800">
+        Przeciągnij plik lub kliknij
+      </p>
+
+      <p class="mt-1 text-xs text-gray-500">
+        PDF • maksymalnie 5 MB
+      </p>
 
       <input
-        id="application-terms-url"
-        type="text"
-        placeholder="http://mojaapp.pl/regulamin"
-        class="h-[44px] w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-purple-500"
+        id="application-terms-pdf"
+        type="file"
+        accept=".pdf,application/pdf"
+        class="hidden"
       />
-    </div>
+    </label>
 
-    <div class="rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600">
-      Podaj adres strony z treścią regulaminu. Link zostanie wyświetlony użytkownikowi jako klikalne pole wyboru.
+    <div
+      class="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+    >
+      <p
+        id="application-terms-file-name"
+        class="text-sm text-gray-700"
+      >
+        Nie wybrano pliku
+      </p>
     </div>
 
   </div>

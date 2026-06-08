@@ -1,159 +1,127 @@
 import {
-  getApplicationDraft,
-  saveApplicationDraft
+    getApplicationDraft,
+    saveApplicationDraft
 } from "./aplicationDetails.js";
 
 export function loadApplicationLogo() {
-  const logoInput = document.getElementById("application-logo");
+    const logoInput = document.getElementById("application-logo");
+    const uploadState = document.getElementById("logo-upload-state");
+    const previewState = document.getElementById("logo-preview-state");
+    const previewImage = document.getElementById("application-logo-preview");
+    const previewName = document.getElementById("application-logo-name");
+    const previewSize = document.getElementById("application-logo-size");
+    const changeButton = document.getElementById("change-logo-button");
+    const removeButton = document.getElementById("remove-logo-button");
 
-  const uploadState = document.getElementById(
-    "logo-upload-state"
-  );
-
-  const previewState = document.getElementById(
-    "logo-preview-state"
-  );
-
-  const previewImage = document.getElementById(
-    "application-logo-preview"
-  );
-
-  const previewName = document.getElementById(
-    "application-logo-name"
-  );
-
-  const previewSize = document.getElementById(
-    "application-logo-size"
-  );
-
-  const changeButton = document.getElementById(
-    "change-logo-button"
-  );
-
-  const removeButton = document.getElementById(
-    "remove-logo-button"
-  );
-
-  if (
-    !logoInput ||
-    !uploadState ||
-    !previewState ||
-    !previewImage ||
-    !previewName ||
-    !previewSize
-  ) {
-    return;
-  }
-
-  const draft = getApplicationDraft();
-
-  if (draft.logo?.dataUrl) {
-    showLogoPreview(
-      draft.logo,
-      uploadState,
-      previewState,
-      previewImage,
-      previewName,
-      previewSize
-    );
-  }
-
-  logoInput.addEventListener("change", () => {
-    const file = logoInput.files[0];
-
-    if (!file) {
-      return;
+    if (
+        !logoInput ||
+        !uploadState ||
+        !previewState ||
+        !previewImage ||
+        !previewName ||
+        !previewSize
+    ) {
+        return;
     }
 
-    const allowedTypes = [
-      "image/png",
-      "image/svg+xml"
-    ];
+    const draft = getApplicationDraft();
 
-    if (!allowedTypes.includes(file.type)) {
-      alert("Logo musi być w formacie PNG lub SVG.");
-      logoInput.value = "";
-      return;
+    if (draft.logo?.dataUrl) {
+        showLogoPreview(
+            draft.logo,
+            uploadState,
+            previewState,
+            previewImage,
+            previewName,
+            previewSize
+        );
     }
 
-    const maxSize = 2 * 1024 * 1024;
+    logoInput.addEventListener("change", () => {
+        const file = logoInput.files[0];
 
-    if (file.size > maxSize) {
-      alert("Logo nie może być większe niż 2 MB.");
-      logoInput.value = "";
-      return;
-    }
+        if (!file) return;
 
-    const reader = new FileReader();
+        const allowedTypes = ["image/png", "image/svg+xml"];
 
-    reader.onload = () => {
-      const currentDraft = getApplicationDraft();
+        if (!allowedTypes.includes(file.type)) {
+            alert("Logo musi być w formacie PNG lub SVG.");
+            logoInput.value = "";
+            return;
+        }
 
-      currentDraft.logo = {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        dataUrl: reader.result
-      };
+        const maxSize = 2 * 1024 * 1024;
 
-      saveApplicationDraft(currentDraft);
+        if (file.size > maxSize) {
+            alert("Logo nie może być większe niż 2 MB.");
+            logoInput.value = "";
+            return;
+        }
 
-      showLogoPreview(
-        currentDraft.logo,
-        uploadState,
-        previewState,
-        previewImage,
-        previewName,
-        previewSize
-      );
+        window.applicationLogoFile = file;
 
-      console.log(
-        "Draft aplikacji:",
-        currentDraft
-      );
-    };
+        const reader = new FileReader();
 
-    reader.readAsDataURL(file);
-  });
+        reader.onload = () => {
+            const currentDraft = getApplicationDraft();
 
-  changeButton?.addEventListener("click", () => {
-    logoInput.click();
-  });
+            currentDraft.logo = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                dataUrl: reader.result,
+            };
 
-  removeButton?.addEventListener("click", () => {
-    const currentDraft = getApplicationDraft();
+            saveApplicationDraft(currentDraft);
 
-    delete currentDraft.logo;
+            showLogoPreview(
+                currentDraft.logo,
+                uploadState,
+                previewState,
+                previewImage,
+                previewName,
+                previewSize
+            );
 
-    saveApplicationDraft(currentDraft);
+            console.log("Draft aplikacji:", currentDraft);
+        };
 
-    logoInput.value = "";
+        reader.readAsDataURL(file);
+    });
 
-    previewState.classList.add("hidden");
-    uploadState.classList.remove("hidden");
+    changeButton?.addEventListener("click", () => {
+        logoInput.click();
+    });
 
-    console.log(
-      "Usunięto logo:",
-      currentDraft
-    );
-  });
+    removeButton?.addEventListener("click", () => {
+        const currentDraft = getApplicationDraft();
+
+        delete currentDraft.logo;
+        window.applicationLogoFile = null;
+
+        saveApplicationDraft(currentDraft);
+
+        logoInput.value = "";
+
+        previewState.classList.add("hidden");
+        uploadState.classList.remove("hidden");
+
+        console.log("Usunięto logo:", currentDraft);
+    });
 }
 
 function showLogoPreview(
-  logo,
-  uploadState,
-  previewState,
-  previewImage,
-  previewName,
-  previewSize
+    logo,
+    uploadState,
+    previewState,
+    previewImage,
+    previewName,
+    previewSize
 ) {
-  uploadState.classList.add("hidden");
-  previewState.classList.remove("hidden");
+    uploadState.classList.add("hidden");
+    previewState.classList.remove("hidden");
 
-  previewImage.src = logo.dataUrl;
-
-  previewName.textContent = logo.name;
-
-  previewSize.textContent =
-    `${(logo.size / 1024).toFixed(0)} KB`;
+    previewImage.src = logo.dataUrl;
+    previewName.textContent = logo.name;
+    previewSize.textContent = `${(logo.size / 1024).toFixed(0)} KB`;
 }
