@@ -1,265 +1,296 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logowanie · Entria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;1,600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --surface-2: #1d1d1d;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.16);
+        --text: #f2f2f2;
+        --text-muted: #8a8a8a;
+        --accent: #7f77dd;
+        --accent-hover: #918ae6;
+        --accent-soft: rgba(127, 119, 221, 0.14);
+        --danger-bg: rgba(226, 75, 74, 0.1);
+        --danger-border: rgba(226, 75, 74, 0.35);
+        --danger-text: #f08a89;
+        --info-bg: rgba(127, 119, 221, 0.1);
+        --info-border: rgba(127, 119, 221, 0.3);
+        --info-text: #b3aef0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: var(--bg);
+        background-image: radial-gradient(
+          circle at 50% 0%,
+          rgba(127, 119, 221, 0.08),
+          transparent 55%
+        );
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        max-width: 400px;
+        width: 100%;
+        padding: 44px 40px 40px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .brand {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .brand-logo-img {
+        height: 38px;
+        width: auto;
+        display: inline-block;
+      }
+
+      .brand-sub {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--text-muted);
+        letter-spacing: 0.2px;
+      }
+
+      .alert {
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 22px;
+        font-size: 13.5px;
+        line-height: 1.45;
+      }
+
+      .alert-error {
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: var(--danger-text);
+        display: none;
+      }
+      .alert-error.show {
+        display: block;
+      }
+
+      .alert-info {
+        background: var(--info-bg);
+        border: 1px solid var(--info-border);
+        color: var(--info-text);
+        display: none;
+      }
+      .alert-info.show {
+        display: block;
+      }
+
+      .field {
+        margin-bottom: 18px;
+      }
+      .field:last-of-type {
+        margin-bottom: 26px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        letter-spacing: 0.2px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 13px 15px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--text);
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      input::placeholder {
+        color: #5c5c5c;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        position: relative;
+        transition:
+          background 0.2s ease,
+          transform 0.1s ease;
+      }
+      .btn:hover {
+        background: var(--accent-hover);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn .spinner {
+        display: none;
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        width: 16px;
+        height: 16px;
+        margin-top: -8px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      .btn.loading {
+        color: transparent;
+      }
+      .btn.loading .spinner {
+        display: block;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+          animation: none !important;
+          transition: none !important;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 400px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        .logo-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .logo-text h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .logo-text p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .error-message {
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 12px 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .login-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-button:active {
-            transform: translateY(0);
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            margin: 15px 0;
-            font-size: 14px;
-        }
-
-        .remember-me input[type="checkbox"] {
-            margin-right: 8px;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-
-        .remember-me label {
-            margin: 0;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .loading-spinner {
-            display: none;
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
-        }
-
-        .login-button.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .login-button.loading .loading-spinner {
-            display: block;
-        }
-
-        .info-banner {
-            background: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #1565c0;
-            display: none;
-        }
-
-        .info-banner.show {
-            display: block;
-        }
+      }
     </style>
-</head>
-<body>
-<div class="login-container">
-    <div class="logo-section">
-        <div class="logo-icon">🔐</div>
-        <div class="logo-text">
-            <h1>Entria</h1>
-            <p>Secure Authentication</p>
-        </div>
-    </div>
+  </head>
+  <body>
+    <div class="card">
+      <div class="brand">
+        <img src="../static/images/Entria.png" alt="Entria" class="brand-logo-img" />
+        <div class="brand-sub">Zaloguj się, aby kontynuować</div>
+      </div>
 
-    <div id="errorMessage" class="error-message" th:classappend="${param.error} ? 'show' : ''">
-        <span th:if="${param.error}" th:text="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message ?: 'Nieprawidłowy adres e-mail lub hasło.'}"></span>
-    </div>
-    <div id="infoMessage" class="info-banner"></div>
+      <div
+        id="errorMessage"
+        class="alert alert-error"
+        th:classappend="${param.error} ? 'show' : ''"
+      >
+        <span
+          th:if="${param.error}"
+          th:text="${session['SPRING_SECURITY_LAST_EXCEPTION']?.message ?: 'Nieprawidłowy adres e-mail lub hasło.'}"
+        ></span>
+      </div>
+      <div id="infoMessage" class="alert alert-info"></div>
 
-    <form id="loginForm" method="post" th:action="@{/login}">
-        <div class="form-group">
-            <label for="username">Email</label>
-            <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="Enter your email or username"
-                required
-                autocomplete="username">
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                required
-                autocomplete="current-password">
+      <form id="loginForm" method="post" th:action="@{/login}">
+        <div class="field">
+          <label for="username">Email</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="twój@email.pl"
+            required
+            autocomplete="username"
+          />
         </div>
 
-        <div class="remember-me">
-            <input type="checkbox" id="rememberMe" name="remember-me">
-            <label for="rememberMe">Remember me for 30 days</label>
+        <div class="field">
+          <label for="password">Hasło</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Wprowadź hasło"
+            required
+            autocomplete="current-password"
+          />
         </div>
 
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input
+          type="hidden"
+          th:name="${_csrf.parameterName}"
+          th:value="${_csrf.token}"
+        />
 
-        <button type="submit" class="login-button">
-            <span class="loading-spinner"></span>
-            Sign In
+        <button type="submit" class="btn">
+          <span class="spinner"></span>
+          Zaloguj się
         </button>
-    </form>
-</div>
+      </form>
+    </div>
 
-<script>
-    const form = document.getElementById('loginForm');
-    const errorMessage = document.getElementById('errorMessage');
-    const infoMessage = document.getElementById('infoMessage');
-    const loginButton = form.querySelector('button[type="submit"]');
-    const urlParams = new URLSearchParams(window.location.search);
+    <script>
+      const form = document.getElementById("loginForm");
+      const errorMessage = document.getElementById("errorMessage");
+      const infoMessage = document.getElementById("infoMessage");
+      const loginButton = form.querySelector('button[type="submit"]');
+      const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.has('logout')) {
-        infoMessage.textContent = 'You have been successfully logged out.';
-        infoMessage.classList.add('show');
-    }
+      if (urlParams.has("logout")) {
+        infoMessage.textContent = "You have been successfully logged out.";
+        infoMessage.classList.add("show");
+      }
 
-    form.addEventListener('submit', function(e) {
-        loginButton.classList.add('loading');
-    });
+      form.addEventListener("submit", function (e) {
+        loginButton.classList.add("loading");
+      });
 
-    document.getElementById('username').addEventListener('focus', function() {
-        errorMessage.classList.remove('show');
-    });
+      document
+        .getElementById("username")
+        .addEventListener("focus", function () {
+          errorMessage.classList.remove("show");
+        });
 
-    document.getElementById('password').addEventListener('focus', function() {
-        errorMessage.classList.remove('show');
-    });
-</script>
-</body>
+      document
+        .getElementById("password")
+        .addEventListener("focus", function () {
+          errorMessage.classList.remove("show");
+        });
+    </script>
+  </body>
 </html>
-

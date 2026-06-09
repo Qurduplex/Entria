@@ -1,227 +1,308 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorization Error</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Błąd autoryzacji · Entria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;1,600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --surface-2: #1d1d1d;
+        --border: rgba(255, 255, 255, 0.08);
+        --text: #f2f2f2;
+        --text-muted: #8a8a8a;
+        --text-dim: #5c5c5c;
+        --accent: #7f77dd;
+        --accent-hover: #918ae6;
+        --danger: #e24b4a;
+        --danger-soft: rgba(226, 75, 74, 0.1);
+        --danger-border: rgba(226, 75, 74, 0.3);
+        --warn-soft: rgba(239, 159, 39, 0.1);
+        --warn-border: rgba(239, 159, 39, 0.32);
+        --warn-text: #f0bd76;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: var(--bg);
+        background-image: radial-gradient(
+          circle at 50% 0%,
+          rgba(226, 75, 74, 0.07),
+          transparent 55%
+        );
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        max-width: 440px;
+        width: 100%;
+        padding: 44px 38px 36px;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .brand {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 28px;
+      }
+      .brand .e {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .brand-logo-img {
+        height: 38px;
+        width: auto;
+        display: inline-block;
+      }
+
+      .icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: var(--danger-soft);
+        border: 1px solid var(--danger-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .icon svg {
+        width: 30px;
+        height: 30px;
+        stroke: var(--danger);
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 23px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .error-type {
+        color: var(--danger);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      .error-message {
+        color: var(--text-muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .error-message p + p {
+        margin-top: 4px;
+      }
+
+      .detail-box {
+        margin-top: 18px;
+        background: var(--warn-soft);
+        border: 1px solid var(--warn-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        text-align: left;
+        color: var(--warn-text);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .detail-box strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+
+      .code-box {
+        margin-top: 18px;
+        background: var(--surface-2);
+        border-left: 3px solid var(--danger);
+        border-radius: 8px;
+        padding: 14px 16px;
+        text-align: left;
+        font-family: ui-monospace, "Courier New", monospace;
+        font-size: 13px;
+        color: var(--text-muted);
+        word-break: break-word;
+      }
+      .code-box strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+      }
+
+      .actions {
+        margin-top: 30px;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 13px 30px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14.5px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          transform 0.1s ease;
+      }
+      .btn:hover {
+        background: var(--accent-hover);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .session {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        text-align: left;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+      .session-id {
+        margin-top: 8px;
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        color: var(--text-dim);
+        word-break: break-all;
+      }
+      .session .hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+          animation: none !important;
+          transition: none !important;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .error-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .error-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .error-type {
-            color: #e74c3c;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .error-message {
-            color: #555;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .error-code {
-            background: #f8f9fa;
-            border-left: 4px solid #e74c3c;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 30px;
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .error-details {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 30px;
-            text-align: left;
-            color: #856404;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #d0d0d0;
-            transform: translateY(-2px);
-        }
-
-        .info-section {
-            background: #ecf0f1;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: left;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .info-section p {
-            margin: 5px 0;
-        }
-
-        .state-param {
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 12px;
-            color: #999;
-            margin-top: 10px;
-        }
+      }
     </style>
-</head>
-<body>
-<div class="error-container">
-    <div class="error-icon">❌</div>
+  </head>
+  <body>
+    <div class="card">
+      <div class="brand">
+        <img src="../static/images/Entria.png" alt="Entria" class="brand-logo-img" />
+      </div>
 
-    <h1>Authorization Denied</h1>
+      <div class="icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
 
-    <div th:switch="${error}">
-        <div class="error-type" th:case="'access_denied'">Access Denied</div>
-        <div class="error-type" th:case="'missing_mandatory'">Missing Required Permissions</div>
-        <div class="error-type" th:case="*">Authorization Error</div>
-    </div>
+      <h1>Autoryzacja odrzucona</h1>
 
-    <div th:switch="${error}">
+      <div th:switch="${error}">
+        <div class="error-type" th:case="'access_denied'">Odmowa dostępu</div>
+        <div class="error-type" th:case="'missing_mandatory'">
+          Brak wymaganych uprawnień
+        </div>
+        <div class="error-type" th:case="*">Błąd autoryzacji</div>
+      </div>
+
+      <div th:switch="${error}">
         <div class="error-message" th:case="'access_denied'">
-            <p>You have denied access to the application.</p>
-            <p>To use the application, you must accept the required permissions.</p>
+          <p>Odmówiłeś dostępu do aplikacji.</p>
+          <p>
+            Aby korzystać z aplikacji, musisz zaakceptować wymagane uprawnienia.
+          </p>
         </div>
 
         <div class="error-message" th:case="'missing_mandatory'">
-            <p>You have not accepted all required permissions.</p>
-            <p>Some permissions are mandatory for the application to function properly.</p>
-            <th:block th:if="${param.message}">
-                <div class="error-details">
-                    <strong>Error Details:</strong><br>
-                    <span th:text="${param.message}"></span>
-                </div>
-            </th:block>
+          <p>Nie zaakceptowałeś wszystkich wymaganych uprawnień.</p>
+          <p>
+            Niektóre uprawnienia są niezbędne do poprawnego działania aplikacji.
+          </p>
+          <th:block th:if="${param.message}">
+            <div class="detail-box">
+              <strong>Szczegóły błędu</strong>
+              <span th:text="${param.message}"></span>
+            </div>
+          </th:block>
         </div>
 
         <div class="error-message" th:case="*">
-            <p>An unexpected error occurred during the authorization process.</p>
-            <p>Please try again later.</p>
-            <th:block th:if="${param.message}">
-                <div class="error-code">
-                    <strong>Error Code:</strong><br>
-                    <span th:text="${param.message}"></span>
-                </div>
-            </th:block>
+          <p>Podczas autoryzacji wystąpił nieoczekiwany błąd.</p>
+          <p>Spróbuj ponownie później.</p>
+          <th:block th:if="${param.message}">
+            <div class="code-box">
+              <strong>Kod błędu</strong>
+              <span th:text="${param.message}"></span>
+            </div>
+          </th:block>
         </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="goBack()">← Powrót do aplikacji</button>
+      </div>
+
+      <div th:if="${param.state}" class="session">
+        <strong>Identyfikator sesji</strong>
+        <div class="session-id" th:text="${param.state}"></div>
+        <div class="hint">
+          Możesz użyć tego identyfikatora, zgłaszając problem do pomocy
+          technicznej.
+        </div>
+      </div>
     </div>
 
-    <div class="action-buttons">
-        <button class="btn btn-primary" onclick="goBack()">
-            ← Back to Application
-        </button>
-    </div>
-
-    <div th:if="${param.state}" class="info-section">
-        <p><strong>Session ID:</strong></p>
-        <div class="state-param" th:text="${param.state}"></div>
-        <p style="margin-top: 10px; font-size: 12px; color: #999;">
-            You can use this identifier to report the issue to the support team.
-        </p>
-    </div>
-</div>
-
-<script>
-    function goBack() {
+    <script>
+      function goBack() {
         if (document.referrer) {
-            window.location.href = document.referrer;
+          window.location.href = document.referrer;
         } else {
-            window.history.back();
+          window.history.back();
         }
-    }
+      }
 
-    console.log('OAuth Error:', {
-        error: new URLSearchParams(window.location.search).get('error'),
-        message: new URLSearchParams(window.location.search).get('message'),
-        state: new URLSearchParams(window.location.search).get('state')
-    });
-</script>
-</body>
+      console.log("OAuth Error:", {
+        error: new URLSearchParams(window.location.search).get("error"),
+        message: new URLSearchParams(window.location.search).get("message"),
+        state: new URLSearchParams(window.location.search).get("state"),
+      });
+    </script>
+  </body>
 </html>
-
