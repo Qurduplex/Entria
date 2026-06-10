@@ -49,8 +49,7 @@ export async function loadAppsTable() {
         const filteredData = data.filter((app) => {
             const text = `
                 ${app.name}
-                ${app.description}
-                ${app.redirectUri}
+                ${app.appId}
                 ${app.status}
             `.toLowerCase();
 
@@ -67,26 +66,12 @@ export async function loadAppsTable() {
             tableBody.innerHTML += `
                 <tr class="border-b border-gray-200">
 
-                    <td class="px-6 py-5">
-                        <p class="font-semibold text-gray-900">
-                            ${app.name}
-                        </p>
-
-                        <p class="mt-1 text-sm text-gray-500">
-                            ${app.description}
-                        </p>
-                    </td>
-
                     <td class="px-6 py-5 text-sm text-gray-700">
-                        ${app.redirectUri}
+                         ${app.name}
                     </td>
 
-                    <td class="px-6 py-5 text-center font-semibold text-gray-900">
-                        ${app.logins}
-                    </td>
-
-                    <td class="px-6 py-5 text-center text-gray-700">
-                        ${app.createdAt}
+                    <td class="px-6 py-5 text-sm text-center text-gray-700">
+                        ${app.appId}
                     </td>
 
                     <td class="px-6 py-5 text-center">

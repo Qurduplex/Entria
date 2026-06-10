@@ -6,6 +6,9 @@ const endpoints = {
 
     getDeveloperApps: "/apps/app-list",
     registerApplication: "/apps/register-application",
+    getApplicationDetails: (appId) => `/apps/details/${appId}`,
+    deactivateApplication: (appId) => `/apps/deactivate/${appId}`,
+    deleteApplication: (appId) => `/apps/delete/${appId}`,
 };
 
 async function request(endpointKey, options = {}) {
@@ -15,9 +18,14 @@ async function request(endpointKey, options = {}) {
         throw new Error(`Endpoint "${endpointKey}" nie istnieje`);
     }
 
+    const finalEndpoint =
+        typeof endpoint === "function"
+            ? endpoint(options.pathParams?.appId)
+            : endpoint;
+
     const isFormData = options.body instanceof FormData;
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
         ...options,
         headers: {
             ...(!isFormData ? { "Content-Type": "application/json" } : {}),
@@ -96,13 +104,13 @@ export const api = {
 
     registerApplication: (draft) => {
         const token = localStorage.getItem("jwtToken");
-        const userId = getUserIdFromToken();
-        const role = getUserRoleFromToken();
 
         const formData = new FormData();
 
         formData.append("name", draft.name || "");
-        formData.append("redirectUri", draft.redirectUri || "");
+
+        const redirectUri = draft.redirectUri || draft.redirectUris?.[0] || "";
+        formData.append("redirectUri", redirectUri);
 
         if (draft.logoFile) {
             formData.append("logo", draft.logoFile);
@@ -116,19 +124,26 @@ export const api = {
             profile: "PROFILE",
             email: "EMAIL",
             phone: "PHONE",
-            profile_picture: "PROFILE_PICTURE",
+            pesel: "PESEL",
+            birthdate: "BIRTHDATE",
+            gender: "GENDER",
+            picture: "PICTURE",
+            first_name: "PROFILE",
+            last_name: "PROFILE",
         };
 
         Object.entries(draft.permissions || {}).forEach(([key, value]) => {
             if (!value.enabled) return;
 
-            const backendKey = permissionMap[key];
+            const backendScope = permissionMap[key];
+            if (!backendScope) return;
 
-            formData.append(
-                `permissions[${backendKey}]`,
-                String(value.required)
-            );
+            formData.append(`permissions[${backendScope}]`, String(value.required));
         });
+
+        for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
 
         return request("registerApplication", {
             method: "POST",
@@ -136,6 +151,50 @@ export const api = {
                 Authorization: `Bearer ${token}`,
             },
             body: formData,
+        });
+    },
+
+    getApplicationDetails: (appId) => {
+        const token = localStorage.getItem("jwtToken");
+
+        return request("getApplicationDetails", {
+            method: "GET",
+            pathParams: {
+                appId,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    },
+    deactivateApplication: (appId) => {
+        const token = localStorage.getItem("jwtToken");
+        const userId = getUserIdFromToken();
+        const role = getUserRoleFromToken();
+
+        return request("deactivateApplication", {
+            method: "PATCH",
+            pathParams: {
+                appId,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    },
+    deleteApplication: (appId) => {
+        const token = localStorage.getItem("jwtToken");
+        const userId = getUserIdFromToken();
+        const role = getUserRoleFromToken();
+
+        return request("deleteApplication", {
+            method: "DELETE",
+            pathParams: {
+                appId,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
     },
 };

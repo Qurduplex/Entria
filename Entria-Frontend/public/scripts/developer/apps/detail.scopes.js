@@ -1,29 +1,48 @@
-const mockScopes = [
-  "openid",
-  "email",
-  "first_name",
-  "last_name",
-  "phone"
-];
+import { api } from "../api/apiDeveloper.js";
 
-export function loadApplicationScopes() {
+async function getCurrentApplicationDetails() {
+    const selectedApp = JSON.parse(
+        sessionStorage.getItem("selectedApplication")
+    );
 
-  const app = JSON.parse(
-    sessionStorage.getItem("selectedApplication")
-  );
+    console.log("SELECTED APP:", selectedApp);
 
-  const container = document.getElementById("data-application-scopes");
+    if (!selectedApp?.appId) {
+        console.error("Brak selectedApplication.appId");
+        return null;
+    }
 
-  if (!container) {
-    return;
-  }
+    const app = await api.getApplicationDetails(selectedApp.appId);
 
-  const scopes = app?.scopes ?? mockScopes;
+    console.log("APP DETAILS:", app);
 
-  container.innerHTML = scopes.map(scope => `
-    <div class="rounded-lg border border-gray-300 bg-gray-100 px-5 py-2 text-sm font-medium text-gray-900">
-      ${scope}
-    </div>
-  `).join("");
+    return app;
+}
 
+export async function loadApplicationScopes() {
+    const app = await getCurrentApplicationDetails();
+
+    const container = document.getElementById("data-application-scopes");
+
+    if (!container) {
+        console.error("Brak elementu #data-application-scopes");
+        return;
+    }
+
+    if (!app?.permissions) {
+        container.innerHTML = `
+            <p class="text-sm text-gray-500">
+                Brak uprawnień dla tej aplikacji.
+            </p>
+        `;
+        return;
+    }
+
+    const scopes = Object.keys(app.permissions);
+
+    container.innerHTML = scopes.map(scope => `
+        <div class="rounded-lg border border-gray-300 bg-gray-100 px-5 py-2 text-sm font-medium text-gray-900">
+            ${scope}
+        </div>
+    `).join("");
 }

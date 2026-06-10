@@ -34,12 +34,6 @@ export async function initApplicationDetails() {
   loadApplicationScopes();
 
   await loadComponent(
-    "application-logs",
-    "../../pages/developer/fragments/apps/detailLogs.html"
-  );
-  loadApplicationLogs();
-
-  await loadComponent(
     "application-danger-zone",
     "../../pages/developer/fragments/apps/detailZone.html"
   );
