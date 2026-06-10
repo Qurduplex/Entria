@@ -5,8 +5,10 @@ import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateAuthorizeUrlResponse;
 import edu.pk.qurduplex.appRegistryService.dto.UpdateApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretRequests;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateAuthorizeUrlRequest;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.services.AppRegistryService;
 import edu.pk.qurduplex.common.models.UserRole;
@@ -252,6 +254,36 @@ public class AppRegistryController {
         RegenerateClientSecretResponse response = appRegistryService.regenerateClientSecret(developerId, request.getAppId());
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+        summary = "Regenerate authorize URL",
+        description = "Regenerates the authorize URL for a specific application. The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "Authorize URL regenerated successfully",
+            content = @Content(schema = @Schema(implementation = RegenerateAuthorizeUrlResponse.class))),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid request data or validation failed",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "403",
+            description = "Forbidden - User is not a developer or does not own this application",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "404",
+            description = "Application not found",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
+    @PostMapping("/regenerate-authorize-url")
+    public ResponseEntity<RegenerateAuthorizeUrlResponse> regenerateAuthorizeUrl(
+        @RequestHeader(value = "X-User-Id") UUID developerId,
+        @RequestHeader(value = "X-User-Role") UserRole role,
+        @Valid @RequestBody RegenerateAuthorizeUrlRequest request
+    ) {
+        verifyDeveloper(role);
+        return ResponseEntity.ok(
+                appRegistryService.regenerateAuthorizeUrl(developerId, request.getAppId())
+        );
     }
 
 }

@@ -5,6 +5,7 @@ import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateAuthorizeUrlResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNotFoundException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
@@ -223,6 +224,19 @@ public class AppRegistryService {
         app.setClientSecretHash(hashedSecret);
         applicationRepository.save(app);
         return RegenerateClientSecretResponse.builder().appId(appId).clientSecret(plainClientSecret).clientId(app.getClientId()).build();
+    }
+
+    @Transactional(readOnly = true)
+    public RegenerateAuthorizeUrlResponse regenerateAuthorizeUrl(
+        UUID developerId,
+        UUID appId
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+        if (!app.isActive()) {
+            throw new IllegalStateException("Application is not active.");
+        }
+        String authorizeUrl = oAuthLinkGenerator.generateLink(app);
+        return RegenerateAuthorizeUrlResponse.builder().appId(appId).authorizeUrl(authorizeUrl).clientId(app.getClientId()).build();
     }
 
 }
