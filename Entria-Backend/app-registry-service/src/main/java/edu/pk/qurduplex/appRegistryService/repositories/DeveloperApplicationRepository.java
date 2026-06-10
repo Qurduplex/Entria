@@ -11,4 +11,5 @@ public interface DeveloperApplicationRepository extends JpaRepository<DeveloperA
     boolean existsByNameIgnoreCase(String name);
     List<DeveloperApplication> findAllByDeveloperId(UUID developerId);
     Optional<DeveloperApplication> findByClientId(String clientId);
+    boolean existsByNameIgnoreCaseAndIdNot(String name, UUID id);
 }

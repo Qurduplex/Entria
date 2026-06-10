@@ -4,6 +4,7 @@ import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
+import edu.pk.qurduplex.appRegistryService.dto.UpdateApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.services.AppRegistryService;
 import edu.pk.qurduplex.common.models.UserRole;
@@ -180,4 +181,47 @@ public class AppRegistryController {
             throw new ForbiddenAccessException("Only developers can perform this action.");
         }
     }
+
+    @Operation(
+        summary = "Update application",
+        description = "Updates a specific application. The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "Application updated successfully",
+            content = @Content(schema = @Schema(implementation = ApplicationDetails.class))),
+        @ApiResponse(responseCode = "400",
+            description = "Invalid request data or validation failed",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "403",
+            description = "Forbidden - User is not a developer or does not own this application",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "404",
+            description = "Application not found",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "409",
+            description = "Conflict - Application name is already taken",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
+    @PatchMapping("/update-application")
+    public ResponseEntity<ApplicationDetails> updateApplication(
+        @RequestHeader(value = "X-User-Id") UUID developerId,
+        @RequestHeader(value = "X-User-Role") UserRole role,
+        @Valid @ModelAttribute UpdateApplicationRequest request
+    ) {
+        verifyDeveloper(role);
+
+        ApplicationDetails response = appRegistryService.updateApplication(
+                developerId, 
+                request.getAppId(), 
+                request.getName(), 
+                request.getRedirectUri(), 
+                request.getLogo(), 
+                request.getTosPdf(), 
+                request.getPermissions());
+                
+
+        return ResponseEntity.ok(response);
+    }
+
 }

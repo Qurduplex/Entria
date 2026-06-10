@@ -72,6 +72,21 @@ public class GlobalExceptionHandler {
                 .body(createErrorMap(ex.getMessage()));
     }
 
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleApplicationNotFoundException(ApplicationNotFoundException ex) {
+        log.warn("Application not found (404): {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(createErrorMap(ex.getMessage()));
+    }
+
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Invalid request (400): {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(createErrorMap(ex.getMessage()));
+    }
+    
     // --- Helper Method ---
 
     private Map<String, String> createErrorMap(String message) {

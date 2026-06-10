@@ -139,4 +139,65 @@ public class AppRegistryService {
 
         return app;
     }
+
+    @Transactional
+    public ApplicationDetails updateApplication(
+        UUID developerId,
+        UUID appId,
+        String name,
+        String redirectUri,
+        MultipartFile logo,
+        MultipartFile tosPdf,
+        Map<OAuthPermission, Boolean> permissions
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+        boolean hasChanges =
+            (name != null && !name.isBlank()) ||
+            (redirectUri != null && !redirectUri.isBlank()) ||
+            (logo != null && !logo.isEmpty()) ||
+            (tosPdf != null && !tosPdf.isEmpty()) ||
+            (permissions != null && !permissions.isEmpty());
+
+        if (!hasChanges) {
+            throw new IllegalArgumentException("At least one field to update must be provided.");
+        }
+
+        if (name != null && !name.isEmpty() && applicationRepository.existsByNameIgnoreCaseAndIdNot(name, appId)) {
+            throw new ApplicationNameTakenException(
+                    String.format("Application with name '%s' already exists. Please choose a different name.", name)
+            );
+        }
+
+        if (logo != null && !logo.isEmpty()) {
+            app.setLogoUrl(fileStorageService.uploadFile(logo, "logos"));
+        }
+
+        if (tosPdf != null && !tosPdf.isEmpty()) {
+            app.setTosPdfUrl(fileStorageService.uploadFile(tosPdf, "tos"));
+        }
+
+        if (permissions != null && !permissions.isEmpty()) {
+            app.setPermissions(permissions);
+        }
+
+        if (name != null && !name.isBlank()){
+            if (applicationRepository.existsByNameIgnoreCaseAndIdNot(name, appId)) {
+                throw new ApplicationNameTakenException(
+                        String.format("Application with name '%s' already exists. Please choose a different name.", name)
+                );
+            }
+            app.setName(name);
+        }
+
+        if (redirectUri != null && !redirectUri.isBlank()) {
+            app.setRedirectUri(redirectUri);
+        }
+
+        app.setUpdatedAt(LocalDateTime.now());
+
+        DeveloperApplication updatedApp = applicationRepository.save(app);
+
+        return AppMapper.toApplicationDetails(updatedApp, oAuthLinkGenerator.generateLink(updatedApp));
+    }
 }
