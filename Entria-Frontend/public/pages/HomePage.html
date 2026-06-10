@@ -14,16 +14,12 @@
     </style>
 
 </head>
-<body class="bg-[#161619] text-[#FAFAFA] min-h-screen">
+<body class="bg-[#161619] text-[#FAFAFA] min-h-screen overflow-x-hidden">
 
     <div class="relative min-h-screen">
-        <div class="pointer-events-none absolute inset-0">
-            <div class="absolute left-[-120px] top-[80px] h-[260px] w-[260px] rounded-full bg-[#A89DFF]/10 blur-[130px]"></div>
-            <div class="absolute right-[-100px] top-[120px] h-[320px] w-[320px] rounded-full bg-[#8D7BFF]/10 blur-[160px]"></div>
-            <div class="absolute left-1/2 top-[220px] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#A89DFF]/5 blur-[180px]"></div>
-        </div>
+        
 
-       <header id="navbar-container" class="relative"></header>
+       <header id="navbar-container" class="sticky top-0 z-50 bg-black/30 relative"></header>
 
         <main class="relative z-10">
             <section class="flex min-h-[80vh] items-center justify-center px-6 pt-16 pb-24">
@@ -45,15 +41,6 @@
                         login który działa wszędzie. Dla deweloperów: gotowe
                         API OAuth2 w minute.
                     </p>
-
-                    <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-                        <button class="rounded-xl border border-white/15 px-6 py-3 text-sm text-white transition hover:bg-white/5">
-                            Zacznij za darmo
-                        </button>
-                        <button class="rounded-xl border border-white/15 px-6 py-3 text-sm text-white transition hover:bg-white/5">
-                            Zobacz dokumentację
-                        </button>
-                    </div>
                 </div>
             </section>
 
@@ -165,10 +152,6 @@
                     <p class="mt-8 text-base font-['DM_Sans'] text-white/55 md:text-xl">
                         Dołącz do firm, które już korzystają z Entrii.
                     </p>
-
-                    <button class="mt-10 rounded-xl border border-white/15 px-6 py-3 text-sm font-['DM_Sans'] text-white transition hover:bg-white/5">
-                        Utwórz konto firmy
-                    </button>
                 </div>
             </section>
         </main>
