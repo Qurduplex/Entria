@@ -12,7 +12,8 @@ export function loadApplicationActions() {
             window.applicationLogoFile = null;
             window.applicationTosPdfFile = null;
 
-            await navigateToDeveloperPage("apps");
+            await navigateToDeveloperPage("apps"); 
+
         });
     }
 
@@ -25,8 +26,15 @@ export function loadApplicationActions() {
             draft.logoFile = window.applicationLogoFile || null;
             draft.tosPdfFile = window.applicationTosPdfFile || null;
 
-            if (!draft.name) {
-                alert("Podaj nazwę aplikacji.");
+            const redirectUri =
+                draft.redirectUri ||
+                draft.redirectUris?.[0] ||
+                "";
+
+            draft.redirectUri = redirectUri;
+
+            if (!draft.name || draft.name.length < 3 || draft.name.length > 30) {
+                alert("Nazwa aplikacji musi mieć od 3 do 30 znaków.");
                 return;
             }
 
@@ -48,6 +56,7 @@ export function loadApplicationActions() {
             console.log("Aplikacja do zapisania:", draft);
 
             try {
+                console.log("PERMISSIONS:", draft.permissions);
                 const response = await api.registerApplication(draft);
 
                 console.log("REGISTERED APPLICATION:", response);
@@ -58,7 +67,6 @@ export function loadApplicationActions() {
                 window.applicationTosPdfFile = null;
 
                 await navigateToDeveloperPage("apps");
-
             } catch (err) {
                 console.error("Błąd tworzenia aplikacji:", err);
 
