@@ -105,7 +105,7 @@ function initRegisterForm() {
     if (loginLink) {
         loginLink.addEventListener("click", (e) => {
             e.preventDefault();
-            window.location.href = "./LoginPage.html";
+            window.location.href = "/pages/LoginPage.html";
         });
     }
 
@@ -291,23 +291,23 @@ function initModal() {
     if (registerUserBtn) {
         registerUserBtn.addEventListener("click", () => {
             sessionStorage.setItem("registerType", "user");
-            window.location.href = './RegisterUser.html';
+            window.location.href = '/pages/RegisterUser.html';
         });
     }
     if (registerDeveloperBtn) {
         registerDeveloperBtn.addEventListener("click", () => {
             sessionStorage.setItem("registerType", "developer");
-            window.location.href = './RegisterDeveloper.html';
+            window.location.href = '/pages/RegisterUser.html';
         });
     }
     if (loginBtnNavbar) {
         loginBtnNavbar.addEventListener('click', () => {
-            window.location.href = './LoginPage.html';
+            window.location.href = '/pages/LoginPage.html';
         });
     }
     if (loginBtnModal) {
         loginBtnModal.addEventListener('click', () => {
-            window.location.href = './LoginPage.html';
+            window.location.href = '/pages/LoginPage.html';
         });
     }
 }
