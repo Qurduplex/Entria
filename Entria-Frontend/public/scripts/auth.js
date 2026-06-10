@@ -487,14 +487,7 @@ function initVerifiedModal() {
     
     if (successButton) {
         successButton.addEventListener("click", () => {
-
-            if (currentVerifyType === "developer") {
-                window.location.href =
-                    "./developer/DevelopmentLayout.html";
-            } else {
-                window.location.href =
-                    "./user/UserLayout.html";
-            }
+            window.location.href = './LoginPage.html';
 
         });
     }

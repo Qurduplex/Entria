@@ -1,3 +1,5 @@
+import { api } from "../api/apiDeveloper.js";
+import { navigateToDeveloperPage } from "../../sideBar.js";
 export function loadApplicationDangerZone() {
 
   const app = JSON.parse(
@@ -35,36 +37,89 @@ export function loadApplicationDangerZone() {
 
   if (disableButton) {
 
-    disableButton.addEventListener("click", () => {
+      if (!app.active) {
+          disableButton.disabled = true;
 
-      console.log(
-        "Wyłączenie aplikacji:",
-        app.id
-      );
+          disableButton.classList.add(
+              "opacity-50",
+              "cursor-not-allowed"
+          );
 
-    });
+          disableButton.textContent = "Aplikacja wyłączona";
+      }
 
+      disableButton.addEventListener("click", async () => {
+
+          if (!app.active) {
+              return;
+          }
+
+          const confirmed = confirm(
+              "Czy na pewno chcesz dezaktywować aplikację?"
+          );
+
+          if (!confirmed) {
+              return;
+          }
+
+          const appId = app.id || app.appId;
+
+          try {
+              await api.deactivateApplication(appId);
+
+              app.active = false;
+
+              sessionStorage.setItem(
+                  "selectedApplication",
+                  JSON.stringify(app)
+              );
+
+              disableButton.disabled = true;
+
+              disableButton.classList.add(
+                  "opacity-50",
+                  "cursor-not-allowed"
+              );
+
+              disableButton.textContent =
+                  "Aplikacja wyłączona";
+
+          } catch (err) {
+              console.error(err);
+          }
+      });
   }
 
   if (deleteButton) {
+      deleteButton.addEventListener("click", async () => {
+          const confirmed = confirm(
+              "Czy na pewno chcesz trwale usunąć aplikację?"
+          );
 
-    deleteButton.addEventListener("click", () => {
+          if (!confirmed) {
+              return;
+          }
 
-      const confirmed = confirm(
-        "Czy na pewno chcesz usunąć aplikację?"
-      );
+          const appId = app.id || app.appId;
 
-      if (!confirmed) {
-        return;
-      }
+          if (!appId) {
+              console.error("Brak ID aplikacji:", app);
+              alert("Nie znaleziono ID aplikacji.");
+              return;
+          }
 
-      console.log(
-        "Usunięcie aplikacji:",
-        app.id
-      );
+          try {
+              await api.deleteApplication(appId);
 
-    });
+              alert("Aplikacja została usunięta.");
+              await navigateToDeveloperPage("apps");
+              sessionStorage.removeItem("selectedApplication");
 
+          } catch (err) {
+              console.error("Błąd usuwania aplikacji:", err);
+              alert("Nie udało się usunąć aplikacji.");
+          }
+      });
   }
 
 }
