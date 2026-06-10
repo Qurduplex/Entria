@@ -231,4 +231,36 @@ public class AuthService {
             throw new InvalidCredentialException("Invalid or expired JWT token");
         }
     }
+
+    @Transactional
+    public void changePassword(String authHeader, String currentPassword, String newPassword){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new InvalidCredentialException("Invalid Authorization header format");
+        }
+        UUID userId = null;
+        try{
+            String jwtToken = authHeader.substring(7);
+            userId = UUID.fromString(jwtService.extractUserId(jwtToken));
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token for change password: {}", e.getMessage());
+            throw new InvalidCredentialException("Invalid or expired JWT token");
+        }
+
+        AuthCredential credential = authRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
+        if(!credential.isActive()) {
+            throw new UserNotVerifiedException("Account with email " + credential.getEmail() + " is not verified");
+        }
+        if(!passwordEncoder.matches(currentPassword, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("Invalid current password");
+        }
+        if(passwordEncoder.matches(newPassword, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("New password cannot be the same as the current password");
+        }
+        credential.setPasswordHash(passwordEncoder.encode(newPassword));
+        authRepository.save(credential);
+        refreshTokenService.deleteRefreshTokenByUserId(userId);
+        log.info("Password for account with email: {} has been changed successfully", credential.getEmail());
+    
+    }
 }

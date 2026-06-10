@@ -224,4 +224,26 @@ public class AuthController {
         UserEmailResponseDTO response = authService.getUserEmail(authHeader);
         return ResponseEntity.ok(response);
     }
+
+
+    @Operation(
+            summary = "Change password",
+            description = "Changes the password of the currently authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid change password payload, malformed JSON or invalid current password", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header/token", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "403", description = "Account is not verified", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+    })
+    @PostMapping("/me/change-password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody @Valid ChangePasswordRequestDTO request,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        log.info("Received change password request");
+        authService.changePassword(authHeader, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
 }
