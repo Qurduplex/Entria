@@ -4,6 +4,8 @@ import edu.pk.qurduplex.appRegistryService.config.OauthProperties;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateAuthorizeUrlResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNotFoundException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
@@ -139,4 +141,102 @@ public class AppRegistryService {
 
         return app;
     }
+
+    @Transactional
+    public ApplicationDetails updateApplication(
+        UUID developerId,
+        UUID appId,
+        String name,
+        String redirectUri,
+        MultipartFile logo,
+        MultipartFile tosPdf,
+        Map<OAuthPermission, Boolean> permissions
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+        boolean hasChanges =
+            (name != null && !name.isBlank()) ||
+            (redirectUri != null && !redirectUri.isBlank()) ||
+            (logo != null && !logo.isEmpty()) ||
+            (tosPdf != null && !tosPdf.isEmpty()) ||
+            (permissions != null && !permissions.isEmpty());
+
+        if (!hasChanges) {
+            throw new IllegalArgumentException("At least one field to update must be provided.");
+        }
+
+        if (name != null && !name.isEmpty() && applicationRepository.existsByNameIgnoreCaseAndIdNot(name, appId)) {
+            throw new ApplicationNameTakenException(
+                    String.format("Application with name '%s' already exists. Please choose a different name.", name)
+            );
+        }
+
+        if (logo != null && !logo.isEmpty()) {
+            app.setLogoUrl(fileStorageService.uploadFile(logo, "logos"));
+        }
+
+        if (tosPdf != null && !tosPdf.isEmpty()) {
+            app.setTosPdfUrl(fileStorageService.uploadFile(tosPdf, "tos"));
+        }
+
+        if (permissions != null && !permissions.isEmpty()) {
+            app.setPermissions(permissions);
+        }
+
+        if (name != null && !name.isBlank()){
+            if (applicationRepository.existsByNameIgnoreCaseAndIdNot(name, appId)) {
+                throw new ApplicationNameTakenException(
+                        String.format("Application with name '%s' already exists. Please choose a different name.", name)
+                );
+            }
+            app.setName(name);
+        }
+
+        if (redirectUri != null && !redirectUri.isBlank()) {
+            app.setRedirectUri(redirectUri);
+        }
+
+        app.setUpdatedAt(LocalDateTime.now());
+
+        DeveloperApplication updatedApp = applicationRepository.save(app);
+
+        return AppMapper.toApplicationDetails(updatedApp, oAuthLinkGenerator.generateLink(updatedApp));
+    }
+
+    private String generatePlainClientSecret() {
+        return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    @Transactional
+    public RegenerateClientSecretResponse regenerateClientSecret(
+        UUID developerId,
+        UUID appId
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+
+        if (!app.isActive()) {
+            throw new IllegalStateException("Application is not active.");
+        }
+
+        String plainClientSecret = generatePlainClientSecret();
+        String hashedSecret = passwordEncoder.encode(plainClientSecret);
+        app.setClientSecretHash(hashedSecret);
+        applicationRepository.save(app);
+        return RegenerateClientSecretResponse.builder().appId(appId).clientSecret(plainClientSecret).clientId(app.getClientId()).build();
+    }
+
+    @Transactional(readOnly = true)
+    public RegenerateAuthorizeUrlResponse regenerateAuthorizeUrl(
+        UUID developerId,
+        UUID appId
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+        if (!app.isActive()) {
+            throw new IllegalStateException("Application is not active.");
+        }
+        String authorizeUrl = oAuthLinkGenerator.generateLink(app);
+        return RegenerateAuthorizeUrlResponse.builder().appId(appId).authorizeUrl(authorizeUrl).clientId(app.getClientId()).build();
+    }
+
 }
