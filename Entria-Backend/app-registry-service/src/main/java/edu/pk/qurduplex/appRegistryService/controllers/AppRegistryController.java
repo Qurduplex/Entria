@@ -4,7 +4,9 @@ import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationRequest;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretResponse;
 import edu.pk.qurduplex.appRegistryService.dto.UpdateApplicationRequest;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretRequests;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
 import edu.pk.qurduplex.appRegistryService.services.AppRegistryService;
 import edu.pk.qurduplex.common.models.UserRole;
@@ -220,6 +222,34 @@ public class AppRegistryController {
                 request.getTosPdf(), 
                 request.getPermissions());
                 
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+        summary = "Regenerate client secret",
+        description = "Regenerates the client secret for a specific application. The application must belong to the requesting developer."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "Client secret regenerated successfully",
+            content = @Content(schema = @Schema(implementation = RegenerateClientSecretResponse.class))),
+        @ApiResponse(responseCode = "403",
+            description = "Forbidden - User is not a developer or does not own this application",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+        @ApiResponse(responseCode = "404",
+            description = "Application not found",
+            content = @Content(schema = @Schema(implementation = java.util.Map.class)))
+    })
+    @PostMapping("/regenerate-client-secret")
+    public ResponseEntity<RegenerateClientSecretResponse> regenerateClientSecret(
+        @RequestHeader(value = "X-User-Id") UUID developerId,
+        @RequestHeader(value = "X-User-Role") UserRole role,
+        @Valid @RequestBody RegenerateClientSecretRequests request
+    ) {
+        verifyDeveloper(role);
+
+        RegenerateClientSecretResponse response = appRegistryService.regenerateClientSecret(developerId, request.getAppId());
 
         return ResponseEntity.ok(response);
     }

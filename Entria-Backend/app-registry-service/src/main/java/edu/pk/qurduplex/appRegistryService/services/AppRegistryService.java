@@ -4,6 +4,7 @@ import edu.pk.qurduplex.appRegistryService.config.OauthProperties;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationDetails;
 import edu.pk.qurduplex.appRegistryService.dto.ApplicationSummaryResponse;
 import edu.pk.qurduplex.appRegistryService.dto.RegisterApplicationResponse;
+import edu.pk.qurduplex.appRegistryService.dto.RegenerateClientSecretResponse;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNameTakenException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ApplicationNotFoundException;
 import edu.pk.qurduplex.appRegistryService.exceptions.ForbiddenAccessException;
@@ -200,4 +201,28 @@ public class AppRegistryService {
 
         return AppMapper.toApplicationDetails(updatedApp, oAuthLinkGenerator.generateLink(updatedApp));
     }
+
+    private String generatePlainClientSecret() {
+        return UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    @Transactional
+    public RegenerateClientSecretResponse regenerateClientSecret(
+        UUID developerId,
+        UUID appId
+    ) {
+        DeveloperApplication app = getAndVerifyOwnership(appId, developerId);
+
+
+        if (!app.isActive()) {
+            throw new IllegalStateException("Application is not active.");
+        }
+
+        String plainClientSecret = generatePlainClientSecret();
+        String hashedSecret = passwordEncoder.encode(plainClientSecret);
+        app.setClientSecretHash(hashedSecret);
+        applicationRepository.save(app);
+        return RegenerateClientSecretResponse.builder().appId(appId).clientSecret(plainClientSecret).clientId(app.getClientId()).build();
+    }
+
 }
