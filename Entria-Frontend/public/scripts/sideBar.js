@@ -11,6 +11,7 @@ import { initUserHistory } from "./user/history.js";
 import { initUserSecurity } from "./user/security.js";
 import { api } from "./developer/api/apiDeveloper.js";
 import { initUserAccess } from "./user/access.js";
+import { startSessionWatcher } from "./session.js";
 
 const sidebarConfigs = {
   user: {
@@ -394,6 +395,7 @@ function getInitials(firstName, lastName) {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
 }
 export async function initSidebar(mode = "user") {
+  startSessionWatcher();
     _currentMode = mode;
 
     const container = document.getElementById("sidebar-container");
