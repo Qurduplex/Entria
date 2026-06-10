@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8080/api";
+import { API_BASE_URL } from "./config.js";   
 
 const endpoints = {
     register: "/auth/register",
