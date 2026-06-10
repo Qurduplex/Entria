@@ -207,4 +207,28 @@ public class AuthService {
 
         return new ResetPasswordResponseDTO(credential.getEmail(), true);
     }
+
+    @Transactional(readOnly = true)
+    public UserEmailResponseDTO getUserEmail(String authHeader) {
+        if (!authHeader.startsWith("Bearer ")) {
+            throw new InvalidCredentialException("Invalid Authorization header format");
+        }
+
+        try{
+            String jwtToken = authHeader.substring(7);
+            UUID userId = UUID.fromString(jwtService.extractUserId(jwtToken));
+            AuthCredential credential = authRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
+            return UserEmailResponseDTO.builder()
+                    .userId(userId)
+                    .email(credential.getEmail())
+                    .build();
+        } catch (UserNotFoundException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            log.error("Failed to parse JWT token for get user email: {}", e.getMessage());
+            throw new InvalidCredentialException("Invalid or expired JWT token");
+        }
+    }
 }

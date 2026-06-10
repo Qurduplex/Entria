@@ -204,4 +204,24 @@ public class AuthController {
                 request.getPassword());
         return ResponseEntity.ok(response);
     }
+
+
+    @Operation(
+            summary = "Get user email",
+            description = "Returns the email address of the currently authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User email retrieved successfully", content = @Content(schema = @Schema(implementation = UserEmailResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header/token", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404", description = "User doesn't exist", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+
+    })
+    @GetMapping("/me/email")
+    public ResponseEntity<UserEmailResponseDTO> getUserEmail(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        log.info("Received request for user email");
+        UserEmailResponseDTO response = authService.getUserEmail(authHeader);
+        return ResponseEntity.ok(response);
+    }
 }
