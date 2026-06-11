@@ -237,13 +237,29 @@
 
 <div th:unless="${autoSubmit}" class="card">
     <div class="brand">
-        <img th:src="@{/images/Entria.png}" alt="Entria" class="brand-logo-img">
-</div>
+        <img th:if="${logoUrl != null and !logoUrl.isEmpty()}"
+             th:src="${logoUrl}"
+             th:alt="${appName}"
+             class="brand-logo-img"
+             style="border-radius: 8px; max-height: 48px; object-fit: contain;">
+
+        <img th:unless="${logoUrl != null and !logoUrl.isEmpty()}"
+             th:src="@{/images/Entria.png}"
+             alt="Entria"
+             class="brand-logo-img">
+    </div>
 
     <div class="lead">
         <h1>Prośba o dostęp</h1>
-        <p>Ta aplikacja prosi o dostęp do Twojego konta Entria.</p>
+        <p>Aplikacja <strong th:text="${appName != null and !appName.isEmpty() ? appName : 'zewnętrzna'}"></strong> prosi o dostęp do Twojego konta.</p>
         <div class="principal">Zalogowano jako <strong th:text="${principalName}"></strong></div>
+    </div>
+
+    <div th:if="${tosPdfUrl != null and !tosPdfUrl.isEmpty()}" style="text-align: center; margin-bottom: 24px;">
+        <a th:href="${tosPdfUrl}" target="_blank" style="color: var(--accent); font-size: 13px; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            Regulamin aplikacji
+        </a>
     </div>
 
     <div class="section-label">Żądane uprawnienia</div>
