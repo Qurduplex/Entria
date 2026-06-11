@@ -109,6 +109,10 @@ public class ConsentController {
         model.addAttribute("principalName", principal.getName());
         model.addAttribute("scopes", scopesMandatoryMap);
 
+        model.addAttribute("appName", appResponse.getAppName());
+        model.addAttribute("logoUrl", appResponse.getLogoUrl());
+        model.addAttribute("tosPdfUrl", appResponse.getTosPdfUrl());
+
         return "consent";
     }
 

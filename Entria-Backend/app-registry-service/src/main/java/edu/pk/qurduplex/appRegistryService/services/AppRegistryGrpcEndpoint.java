@@ -62,6 +62,7 @@ public class AppRegistryGrpcEndpoint extends AppRegistryGrpcServiceGrpc.AppRegis
                     .putAllPermissions(grpcPermissions)
                     .setAppName(app.getName())
                     .setLogoUrl(app.getLogoUrl() != null ? app.getLogoUrl() : "")
+                    .setTosPdfUrl(app.getTosPdfUrl() != null ? app.getTosPdfUrl() : "")
                     .build();
 
             responseObserver.onNext(response);

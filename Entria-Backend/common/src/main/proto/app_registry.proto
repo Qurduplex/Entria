@@ -27,4 +27,5 @@ message AppResponse {
   map<string, bool> permissions = 5;
   string appName = 6;
   string logoUrl = 7;
+  string tosPdfUrl = 8;
 }
