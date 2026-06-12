@@ -11,7 +11,7 @@ import { initUserHistory } from "./user/history.js";
 import { initUserSecurity } from "./user/security.js";
 import { api } from "./developer/api/apiDeveloper.js";
 import { initUserAccess } from "./user/access.js";
-import { startSessionWatcher } from "./session.js";
+import { startSessionWatcher,logout } from "./session.js";
 
 const sidebarConfigs = {
   user: {
@@ -338,17 +338,54 @@ function renderSidebar() {
 
   const f = config.footer;
   footer.innerHTML = `
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-semibold text-white"
-                 style="background-color: ${f.avatarColor}">
-                ${f.initials}
-            </div>
-            <div class="min-w-0">
-                <p class="text-[13px] font-medium text-white truncate">${f.name}</p>
-                <p class="text-[11px] text-white/35 truncate">${f.email}</p>
-            </div>
+    <div class="relative">
+      <div id="user-menu-popup"
+           class="hidden absolute bottom-full left-0 right-0 mb-2 rounded-[10px] border border-white/10 bg-[#17171C] p-1 shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
+        <button id="logout-btn"
+                class="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Wyloguj
+        </button>
+      </div>
+
+      <button id="user-menu-trigger"
+              class="flex w-full items-center gap-3 rounded-[10px] px-1 py-1 text-left transition-colors hover:bg-white/[0.04]">
+        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-semibold text-white"
+             style="background-color: ${f.avatarColor}">
+          ${f.initials}
         </div>
-    `;
+        <div class="min-w-0 flex-1">
+          <p class="text-[13px] font-medium text-white truncate">${f.name}</p>
+          <p class="text-[11px] text-white/35 truncate">${f.email}</p>
+        </div>
+        <span class="text-white/30 text-[18px] leading-none shrink-0">⋯</span>
+      </button>
+    </div>
+  `;
+
+   const trigger = footer.querySelector("#user-menu-trigger");
+  const popup = footer.querySelector("#user-menu-popup");
+  const logoutBtn = footer.querySelector("#logout-btn");
+
+  if (trigger && popup) {
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      popup.classList.toggle("hidden");
+    });
+
+    // klik poza menu zamyka
+    document.addEventListener("click", (e) => {
+      if (!footer.contains(e.target)) popup.classList.add("hidden");
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
 }
 
 // ─── PUBLIC API ──────────────────────────────────────────────────────────────
