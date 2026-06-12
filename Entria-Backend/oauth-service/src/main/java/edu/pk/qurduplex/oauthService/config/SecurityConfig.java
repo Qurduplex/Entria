@@ -89,6 +89,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         http.authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/oauth2/**").authenticated()
                         .requestMatchers("/login", "/login/**").permitAll()

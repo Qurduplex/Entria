@@ -207,4 +207,34 @@ public class AuthService {
 
         return new ResetPasswordResponseDTO(credential.getEmail(), true);
     }
+
+    @Transactional(readOnly = true)
+    public UserEmailResponseDTO getUserEmail(UUID userId) {
+        AuthCredential credential = authRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
+        return UserEmailResponseDTO.builder()
+                .userId(userId)
+                .email(credential.getEmail())
+                .build();
+    }
+
+    @Transactional
+    public void changePassword(UUID userId, String currentPassword, String newPassword){
+        AuthCredential credential = authRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User associated with token not found"));
+        if(!credential.isActive()) {
+            throw new UserNotVerifiedException("Account with email " + credential.getEmail() + " is not verified");
+        }
+        if(!passwordEncoder.matches(currentPassword, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("Invalid current password");
+        }
+        if(passwordEncoder.matches(newPassword, credential.getPasswordHash())) {
+            throw new InvalidCredentialException("New password cannot be the same as the current password");
+        }
+        credential.setPasswordHash(passwordEncoder.encode(newPassword));
+        authRepository.save(credential);
+        refreshTokenService.deleteRefreshTokenByUserId(userId);
+        log.info("Password for account with email: {} has been changed successfully", credential.getEmail());
+    
+    }
 }

@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
+import edu.pk.qurduplex.identityService.exceptions.InvalidCredentialException;
+import edu.pk.qurduplex.identityService.services.JwtService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Endpoints for user registration, login and session management")
 public class AuthController {
     private final AuthService authService;
-
+    private final JwtService jwtService;
     @Operation(
             summary = "Register a new user",
             description = "Creates a new user account using email and password."
@@ -203,5 +206,71 @@ public class AuthController {
                 request.getResetPasswordCode(),
                 request.getPassword());
         return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(
+            summary = "Get user email",
+            description = "Returns the email address of the currently authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User email retrieved successfully", content = @Content(schema = @Schema(implementation = UserEmailResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header/token", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404", description = "User doesn't exist", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+
+    })
+    @GetMapping("/me/email")
+    public ResponseEntity<UserEmailResponseDTO> getUserEmail(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+
+        if (!authHeader.startsWith("Bearer ")) {
+                throw new InvalidCredentialException("Invalid Authorization header format");
+        }
+
+        UUID userId = null;
+        try{
+                String jwtToken = authHeader.substring(7);
+                userId = UUID.fromString(jwtService.extractUserId(jwtToken));
+        } catch (Exception e) {
+                log.error("Failed to parse JWT token for get user email: {}", e.getMessage());
+                throw e;
+        }
+        log.info("Received request for user email");
+        UserEmailResponseDTO response = authService.getUserEmail(userId);
+        return ResponseEntity.ok(response);   
+    }
+
+
+    @Operation(
+            summary = "Change password",
+            description = "Changes the password of the currently authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid change password payload, malformed JSON or invalid current password", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header/token", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "403", description = "Account is not verified", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = java.util.Map.class))),
+    })
+    @PostMapping("/me/change-password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody @Valid ChangePasswordRequestDTO request,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        log.info("Received change password request");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                throw new InvalidCredentialException("Invalid Authorization header format");
+        }
+        UUID userId = null;
+        try{
+                String jwtToken = authHeader.substring(7);
+                userId = UUID.fromString(jwtService.extractUserId(jwtToken));
+        } catch (Exception e) {
+                log.error("Failed to parse JWT token for change password: {}", e.getMessage());
+                throw e;
+        }
+        authService.changePassword(userId, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }
