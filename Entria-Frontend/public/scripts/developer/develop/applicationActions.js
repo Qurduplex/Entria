@@ -66,7 +66,7 @@ export function loadApplicationActions() {
                 window.applicationLogoFile = null;
                 window.applicationTosPdfFile = null;
 
-                await navigateToDeveloperPage("apps");
+                openClientSecretModal(response);
             } catch (err) {
                 console.error("Błąd tworzenia aplikacji:", err);
 
@@ -75,5 +75,52 @@ export function loadApplicationActions() {
                 console.log("STRING:", JSON.stringify(err.data, null, 2));
             }
         });
+    }
+}
+
+function openClientSecretModal(response) {
+    console.log("OPEN MODAL RESPONSE:", response);
+
+    const modal = document.getElementById("client-secret-modal");
+    console.log("MODAL:", modal);
+
+    if (!modal) {
+        alert("Nie znaleziono modala client-secret-modal w HTML");
+        return;
+    }
+
+    document.getElementById("created-client-id").value =
+        response.clientId || response.client_id || "";
+
+    document.getElementById("created-client-secret").value =
+        response.clientSecret || response.client_secret || "";
+
+    document.getElementById("created-authorize-url").value =
+        response.authorizeUrl || response.authorize_url || "";
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    initClientSecretModalActions();
+}
+
+function initClientSecretModalActions() {
+    const copyButton = document.getElementById("copy-client-secret");
+    const closeButton = document.getElementById("close-client-secret-modal");
+
+    if (copyButton) {
+        copyButton.onclick = async () => {
+            const secret = document.getElementById("created-client-secret").value;
+
+            await navigator.clipboard.writeText(secret);
+
+            copyButton.textContent = "Skopiowano";
+        };
+    }
+
+    if (closeButton) {
+        closeButton.onclick = async () => {
+            await navigateToDeveloperPage("apps");
+        };
     }
 }
