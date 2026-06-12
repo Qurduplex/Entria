@@ -3,12 +3,17 @@ import { API_BASE_URL } from "../../config.js";
 const endpoints = {
     getMyProfile: "/user-profile/me",
     updateMyProfile: "/user-profile/me",
+    getMyEmail: "/auth/me/email",
+    changePassword: "/auth/me/change-password",
 
     getDeveloperApps: "/apps/app-list",
     registerApplication: "/apps/register-application",
     getApplicationDetails: (appId) => `/apps/details/${appId}`,
     deactivateApplication: (appId) => `/apps/deactivate/${appId}`,
     deleteApplication: (appId) => `/apps/delete/${appId}`,
+    updateApplication: "/apps/update-application",
+    regenerateClientSecret: "/apps/regenerate-client-secret",
+    regenerateAuthorizeUrl: "/apps/regenerate-authorize-url",
 };
 
 async function request(endpointKey, options = {}) {
@@ -58,6 +63,32 @@ function getUserRoleFromToken() {
     return getPayloadFromToken().role;
 }
 
+function mapDraftPermissionsToBackend(permissions = {}) {
+    const permissionMap = {
+        openid: "OPENID",
+        email: "EMAIL",
+        profile: "PROFILE",
+        phone: "PHONE",
+        pesel: "PESEL",
+        birthdate: "BIRTHDATE",
+        gender: "GENDER",
+        picture: "PICTURE",
+    };
+
+    const backendPermissions = {};
+
+    Object.entries(permissions).forEach(([key, value]) => {
+        if (!value.enabled) return;
+
+        const backendKey = permissionMap[key];
+        if (!backendKey) return;
+
+        backendPermissions[backendKey] = value.required;
+    });
+
+    return backendPermissions;
+}
+
 export const api = {
     getMyProfile: () => {
         console.log("JWT Z LOCAL STORAGE:", localStorage.getItem("jwtToken"));
@@ -86,6 +117,32 @@ export const api = {
                 Authorization: `Bearer ${token}`,
             },
             body: formData,
+        });
+    },
+
+    getMyEmail: () => {
+        const token = localStorage.getItem("jwtToken");
+
+        return request("getMyEmail", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    },
+
+    changePassword: (payload) => {
+        const token = localStorage.getItem("jwtToken");
+
+        return request("changePassword", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                currentPassword: payload.currentPassword,
+                newPassword: payload.newPassword,
+            }),
         });
     },
 
@@ -153,6 +210,38 @@ export const api = {
             body: formData,
         });
     },
+    
+
+    updateApplication: (payload) => {
+        const token = localStorage.getItem("jwtToken");
+
+        const formData = new FormData();
+
+        formData.append("appId", payload.appId);
+        formData.append("name", payload.name);
+        formData.append("redirectUri", payload.redirectUri);
+
+        if (payload.logoFile) {
+            formData.append("logo", payload.logoFile);
+        }
+
+        if (payload.tosPdfFile) {
+            formData.append("tosPdf", payload.tosPdfFile);
+        }
+
+        Object.entries(mapDraftPermissionsToBackend(payload.permissions))
+            .forEach(([key, value]) => {
+                formData.append(`permissions[${key}]`, String(value));
+            });
+
+        return request("updateApplication", {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+    },
 
     getApplicationDetails: (appId) => {
         const token = localStorage.getItem("jwtToken");
@@ -195,6 +284,34 @@ export const api = {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
+        });
+    },
+    regenerateClientSecret: (appId) => {
+        const userId = getUserIdFromToken();
+        const role = getUserRoleFromToken();
+
+        return request("regenerateClientSecret", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                appId,
+            }),
+        });
+    },
+    regenerateAuthorizeUrl: (appId) => {
+        const userId = getUserIdFromToken();
+        const role = getUserRoleFromToken();
+
+        return request("regenerateAuthorizeUrl", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                appId,
+            }),
         });
     },
 };

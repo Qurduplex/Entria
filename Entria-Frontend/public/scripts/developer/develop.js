@@ -5,6 +5,7 @@ import { loadApplicationLogo } from "./develop/logo.js";
 import { loadPermissions } from "./develop/permission.js";
 import { loadApplicationActions } from "./develop/applicationActions.js";
 
+
 async function loadComponent(id, path) {
   const element = document.getElementById(id);
   if (!element) return;
@@ -46,5 +47,6 @@ export async function initApplicationDevelopment() {
     loadPermissions();
 
     loadApplicationActions();
+
 }
 

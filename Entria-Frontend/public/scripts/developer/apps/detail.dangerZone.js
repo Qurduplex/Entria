@@ -1,125 +1,142 @@
 import { api } from "../api/apiDeveloper.js";
 import { navigateToDeveloperPage } from "../../sideBar.js";
-export function loadApplicationDangerZone() {
 
-  const app = JSON.parse(
-    sessionStorage.getItem("selectedApplication")
-  );
+function mapBackendPermissionsToDraft(permissions = {}) {
+    const permissionMap = {
+        OPENID: "openid",
+        EMAIL: "email",
+        PROFILE: "profile",
+        PHONE: "phone",
+        PESEL: "pesel",
+        BIRTHDATE: "birthdate",
+        GENDER: "gender",
+        PICTURE: "picture",
+    };
 
-  if (!app) {
-    return;
-  }
+    const draftPermissions = {};
 
-  const editButton = document.getElementById(
-    "edit-application-button"
-  );
+    Object.entries(permissions).forEach(([key, value]) => {
+        const frontendKey = permissionMap[key];
 
-  const disableButton = document.getElementById(
-    "disable-application-button"
-  );
+        if (!frontendKey) return;
 
-  const deleteButton = document.getElementById(
-    "delete-application-button"
-  );
-
-  if (editButton) {
-
-    editButton.addEventListener("click", () => {
-
-      console.log(
-        "Edycja aplikacji:",
-        app.id
-      );
-
+        draftPermissions[frontendKey] = {
+            enabled: true,
+            required: value === true,
+        };
     });
 
-  }
+    return draftPermissions;
+}
 
-  if (disableButton) {
+export function loadApplicationDangerZone() {
+    const app = JSON.parse(
+        sessionStorage.getItem("selectedApplication")
+    );
 
-      if (!app.active) {
-          disableButton.disabled = true;
+    if (!app?.appId) {
+        return;
+    }
 
-          disableButton.classList.add(
-              "opacity-50",
-              "cursor-not-allowed"
-          );
+    const editButton = document.getElementById("edit-application-button");
+    const disableButton = document.getElementById("disable-application-button");
+    const deleteButton = document.getElementById("delete-application-button");
 
-          disableButton.textContent = "Aplikacja wyłączona";
-      }
+    if (editButton) {
+        editButton.addEventListener("click", async () => {
+            try {
+                const applicationDetails =
+                    await api.getApplicationDetails(app.appId);
 
-      disableButton.addEventListener("click", async () => {
+                sessionStorage.setItem(
+                    "editApplication",
+                    JSON.stringify(applicationDetails)
+                );
 
-          if (!app.active) {
-              return;
-          }
+                sessionStorage.setItem(
+                    "applicationDraft",
+                    JSON.stringify({
+                        appId: applicationDetails.appId,
+                        name: applicationDetails.name,
+                        redirectUri: applicationDetails.redirectUri,
+                        logoUrl: applicationDetails.logoUrl,
+                        tosPdfUrl: applicationDetails.tosPdfUrl,
+                        permissions: mapBackendPermissionsToDraft(
+                            applicationDetails.permissions
+                        ),
+                    })
+                );
+                console.log(
+                    "EDIT APP SAVED:",
+                    JSON.parse(sessionStorage.getItem("editApplication"))
+                );
+                await navigateToDeveloperPage("develop");
 
-          const confirmed = confirm(
-              "Czy na pewno chcesz dezaktywować aplikację?"
-          );
+            } catch (err) {
+                console.error("Nie udało się pobrać danych aplikacji:", err);
+                alert("Nie udało się otworzyć edycji aplikacji.");
+            }
+        });
+    }
 
-          if (!confirmed) {
-              return;
-          }
+    if (disableButton) {
+        if (!app.active) {
+            disableButton.disabled = true;
+            disableButton.classList.add("opacity-50", "cursor-not-allowed");
+            disableButton.textContent = "Aplikacja wyłączona";
+        }
 
-          const appId = app.id || app.appId;
+        disableButton.addEventListener("click", async () => {
+            if (!app.active) return;
 
-          try {
-              await api.deactivateApplication(appId);
+            const confirmed = confirm(
+                "Czy na pewno chcesz dezaktywować aplikację?"
+            );
 
-              app.active = false;
+            if (!confirmed) return;
 
-              sessionStorage.setItem(
-                  "selectedApplication",
-                  JSON.stringify(app)
-              );
+            try {
+                await api.deactivateApplication(app.appId);
 
-              disableButton.disabled = true;
+                app.active = false;
 
-              disableButton.classList.add(
-                  "opacity-50",
-                  "cursor-not-allowed"
-              );
+                sessionStorage.setItem(
+                    "selectedApplication",
+                    JSON.stringify(app)
+                );
 
-              disableButton.textContent =
-                  "Aplikacja wyłączona";
+                disableButton.disabled = true;
+                disableButton.classList.add("opacity-50", "cursor-not-allowed");
+                disableButton.textContent = "Aplikacja wyłączona";
 
-          } catch (err) {
-              console.error(err);
-          }
-      });
-  }
+            } catch (err) {
+                console.error("Błąd dezaktywacji aplikacji:", err);
+                alert("Nie udało się dezaktywować aplikacji.");
+            }
+        });
+    }
 
-  if (deleteButton) {
-      deleteButton.addEventListener("click", async () => {
-          const confirmed = confirm(
-              "Czy na pewno chcesz trwale usunąć aplikację?"
-          );
+    if (deleteButton) {
+        deleteButton.addEventListener("click", async () => {
+            const confirmed = confirm(
+                "Czy na pewno chcesz trwale usunąć aplikację?"
+            );
 
-          if (!confirmed) {
-              return;
-          }
+            if (!confirmed) return;
 
-          const appId = app.id || app.appId;
+            try {
+                await api.deleteApplication(app.appId);
 
-          if (!appId) {
-              console.error("Brak ID aplikacji:", app);
-              alert("Nie znaleziono ID aplikacji.");
-              return;
-          }
+                alert("Aplikacja została usunięta.");
 
-          try {
-              await api.deleteApplication(appId);
+                sessionStorage.removeItem("selectedApplication");
 
-              alert("Aplikacja została usunięta.");
-              await navigateToDeveloperPage("apps");
-              sessionStorage.removeItem("selectedApplication");
+                await navigateToDeveloperPage("apps");
 
-          } catch (err) {
-              console.error("Błąd usuwania aplikacji:", err);
-              alert("Nie udało się usunąć aplikacji.");
-          }
-      });
-  }
-
+            } catch (err) {
+                console.error("Błąd usuwania aplikacji:", err);
+                alert("Nie udało się usunąć aplikacji.");
+            }
+        });
+    }
 }

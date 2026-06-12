@@ -20,10 +20,11 @@ export async function initProfileBasicData() {
 
     try {
         const data = await api.getMyProfile();
+        const email = await api.getMyEmail();
 
         profile.first_name.value = data.firstName || "";
         profile.last_name.value = data.lastName || "";
-        profile.email.value = "";
+        profile.email.value = email.email || "";
         profile.phone.value = data.phoneNumber || "";
 
         console.log("PROFILE DATA:", data);
