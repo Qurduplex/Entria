@@ -297,7 +297,7 @@ function initModal() {
     if (registerDeveloperBtn) {
         registerDeveloperBtn.addEventListener("click", () => {
             sessionStorage.setItem("registerType", "developer");
-            window.location.href = '/pages/RegisterUser.html';
+            window.location.href = '/pages/RegisterDeveloper.html';
         });
     }
     if (loginBtnNavbar) {
