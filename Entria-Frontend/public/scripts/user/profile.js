@@ -1,20 +1,38 @@
 import { showAlert } from "../alert.js";
+import { userApi } from "../user/api/apiUser.js";
 
-export function initUserProfile() {
+
+export async function initUserProfile() {
   const data = {
-    firstName: "Jan",
-    lastName: "Kowalski",
-    email: "jan.kowalski@example.com",
-    phone: "+48 000 000 000",
+    firstName: "",
+    lastName: "",
+    email: "", // na razie poza grą
+    phone: "",
     birthdate: "",
     gender: "",
-    pesel: "00000000000",
+    pesel: "",
     avatarUrl: null,
   };
+
+  // ─── ŁADOWANIE Z API ───────────────────────────────────────────────────────
+  try {
+    const profile = await userApi.getMyProfile();
+    data.firstName = profile.firstName || "";
+    data.lastName = profile.lastName || "";
+    data.phone = profile.phoneNumber || "";
+    data.birthdate = profile.birthDate || "";
+    data.pesel = profile.pesel || "";
+    data.gender = profile.sex || ""; // "M" / "F"
+    data.avatarUrl = profile.profilePictureUrl || null;
+  } catch (err) {
+    console.error("Nie udało się pobrać profilu:", err);
+    showAlert("Nie udało się pobrać danych profilu.", "error");
+  }
 
   // ─── AVATAR ──────────────────────────────────────────────────────────────
   const avatar = document.getElementById("profile-avatar");
   const deletePicBtn = document.getElementById("profile-delete-btn");
+  let pendingAvatarFile = null; // plik do wysłania
 
   function renderAvatar() {
     if (!avatar) return;
@@ -25,7 +43,6 @@ export function initUserProfile() {
       const l = document.getElementById("input-lastname")?.value || data.lastName;
       avatar.textContent = `${f[0] || ""}${l[0] || ""}`.toUpperCase();
     }
-    // Przycisk "Usuń" aktywny tylko gdy jest zdjęcie
     if (deletePicBtn) {
       deletePicBtn.disabled = !data.avatarUrl;
       deletePicBtn.classList.toggle("opacity-40", !data.avatarUrl);
@@ -36,7 +53,6 @@ export function initUserProfile() {
 
   renderAvatar();
 
-  // Wgraj zdjęcie
   const uploadBtn = document.getElementById("profile-upload-btn");
   if (uploadBtn) {
     const fileInput = document.createElement("input");
@@ -49,38 +65,41 @@ export function initUserProfile() {
     fileInput.addEventListener("change", () => {
       const file = fileInput.files[0];
       if (!file) return;
+      pendingAvatarFile = file; // zapamiętaj do wysłki
       const reader = new FileReader();
       reader.onload = (e) => {
         data.avatarUrl = e.target.result;
         renderAvatar();
+        hasChanges = true;
+        if (indicator) indicator.classList.remove("hidden");
+        updateSaveBtn();
       };
       reader.readAsDataURL(file);
       fileInput.value = "";
     });
   }
 
-  // Usuń zdjęcie
   if (deletePicBtn) {
     deletePicBtn.addEventListener("click", () => {
       data.avatarUrl = null;
+      pendingAvatarFile = null;
       renderAvatar();
     });
   }
 
-  // ─── DANE ────────────────────────────────────────────────────────────────
+  // ─── NAGŁÓWEK ────────────────────────────────────────────────────────────
   const nameEl = document.getElementById("profile-name");
   const emailEl = document.getElementById("profile-email");
-  if (nameEl) nameEl.textContent = `${data.firstName} ${data.lastName}`;
-  if (emailEl) emailEl.textContent = `Zalogowany przez ${data.email}`;
+  if (nameEl) nameEl.textContent = `${data.firstName} ${data.lastName}`.trim();
+  if (emailEl) emailEl.textContent = data.email ? `Zalogowany przez ${data.email}` : "";
 
   // ─── INPUTY ──────────────────────────────────────────────────────────────
   const fields = {
     "input-firstname": data.firstName,
-    "input-lastname":  data.lastName,
-    "input-email":     data.email,
-    "input-phone":     data.phone,
+    "input-lastname": data.lastName,
+    "input-phone": data.phone,
     "input-birthdate": data.birthdate,
-    "input-pesel":     data.pesel,
+    "input-pesel": data.pesel,
   };
 
   Object.entries(fields).forEach(([id, value]) => {
@@ -89,7 +108,16 @@ export function initUserProfile() {
   });
 
   const genderSelect = document.getElementById("input-gender");
-  if (genderSelect && data.gender) genderSelect.value = data.gender;
+  if (genderSelect) genderSelect.value = data.gender; // "M"/"F"/""
+
+  // ─── EMAIL — ZABLOKOWANY (na razie pusty, nieedytowalny) ──────────────────
+  const emailInput = document.getElementById("input-email");
+  if (emailInput) {
+    emailInput.value = data.email;
+    emailInput.readOnly = true;
+    emailInput.disabled = true; // wypada z payloadu
+    emailInput.classList.add("opacity-60", "cursor-not-allowed");
+  }
 
   // ─── WALIDACJA ───────────────────────────────────────────────────────────
   const validators = {
@@ -103,14 +131,9 @@ export function initUserProfile() {
       regex: /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]{2,40}$/,
       message: "Nazwisko nie może zawierać cyfr ani znaków specjalnych",
     },
-    "input-email": {
-      required: true,
-      regex: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-      message: "Wpisz poprawny adres e-mail",
-    },
     "input-phone": {
-      regex: /^\+\d{1,3}[\s\-]?(?:\d[\s\-]?){8,12}\d$/,
-      message: "Format: +48 000 000 000 (kierunkowy i numer)",
+      regex: /^\d{9}$/,
+      message: "Numer telefonu musi mieć dokładnie 9 cyfr",
     },
     "input-birthdate": {
       validate: validateBirthdate,
@@ -125,11 +148,10 @@ export function initUserProfile() {
 
   // Input filters
   applyInputFilter("input-firstname", (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
-  applyInputFilter("input-lastname",  (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
-  applyInputFilter("input-phone",     (v) => v.replace(/[^\d+\s\-]/g, ""));
-  applyInputFilter("input-pesel",     (v) => v.replace(/\D/g, "").slice(0, 11));
+  applyInputFilter("input-lastname", (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
+  applyInputFilter("input-phone", (v) => v.replace(/\D/g, "").slice(0, 9));
+  applyInputFilter("input-pesel", (v) => v.replace(/\D/g, "").slice(0, 11));
 
-  // Walidacja na blur / change
   Object.keys(validators).forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -144,7 +166,7 @@ export function initUserProfile() {
     }
   });
 
-  // ─── PRZYCISK ZAPISZ — aktywny tylko gdy są zmiany ───────────────────────
+  // ─── PRZYCISK ZAPISZ ─────────────────────────────────────────────────────
   const indicator = document.getElementById("unsaved-indicator");
   const saveBtn = document.getElementById("btn-save-profile");
   let hasChanges = false;
@@ -157,8 +179,8 @@ export function initUserProfile() {
     saveBtn.classList.toggle("pointer-events-none", !hasChanges);
   }
 
-  const allInputs = document.querySelectorAll(".input-field");
-  allInputs.forEach((input) => {
+  document.querySelectorAll(".input-field").forEach((input) => {
+    if (input.disabled) return; // pomiń email
     input.addEventListener("input", () => {
       hasChanges = true;
       if (indicator) indicator.classList.remove("hidden");
@@ -171,7 +193,7 @@ export function initUserProfile() {
     });
   });
 
-  updateSaveBtn(); // stan początkowy — nieaktywny
+  updateSaveBtn();
 
   // ─── ZAPISZ ──────────────────────────────────────────────────────────────
   if (saveBtn) {
@@ -179,44 +201,49 @@ export function initUserProfile() {
       const results = Object.keys(validators).map(validateField);
       if (!results.every(Boolean)) return;
 
+      const phone = document.getElementById("input-phone")?.value.trim() || "";
+      const peselVal = document.getElementById("input-pesel")?.value.trim() || "";
+      const genderVal = document.getElementById("input-gender")?.value || ""; // "M"/"F"/""
+
       const payload = {
         firstName: document.getElementById("input-firstname")?.value.trim(),
-        lastName:  document.getElementById("input-lastname")?.value.trim(),
-        email:     document.getElementById("input-email")?.value.trim(),
-        phone:     document.getElementById("input-phone")?.value.trim(),
-        birthdate: document.getElementById("input-birthdate")?.value || null,
-        gender:    document.getElementById("input-gender")?.value || null,
-        pesel:     document.getElementById("input-pesel")?.value.trim() || null,
+        lastName: document.getElementById("input-lastname")?.value.trim(),
+        phoneNumber: phone || undefined,
+        birthDate: document.getElementById("input-birthdate")?.value || undefined,
+        pesel: peselVal && !/^0+$/.test(peselVal) ? peselVal : undefined,
+        sex: genderVal || undefined,
+        profilePicture: pendingAvatarFile || undefined,
       };
 
+      saveBtn.disabled = true;
       try {
-        // TODO: zamień na prawdziwe wywołanie API
-        // const res = await fetch("/api/user/profile", {
-        //   method: "PUT",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-        //   },
-        //   body: JSON.stringify(payload),
-        // });
-        // if (!res.ok) throw new Error();
+        const updated = await userApi.updateMyProfile(payload);
 
-        console.log("Payload do API:", payload);
+        // zsynchronizuj lokalny stan
+        if (updated) {
+          data.avatarUrl = updated.profilePictureUrl || data.avatarUrl;
+          if (nameEl) nameEl.textContent = `${updated.firstName} ${updated.lastName}`.trim();
+        }
+        pendingAvatarFile = null;
         hasChanges = false;
         if (indicator) indicator.classList.add("hidden");
         updateSaveBtn();
         showAlert("Zmiany zostały zapisane.", "success");
-      } catch {
-        showAlert("Nie udało się zapisać zmian.", "error");
+      } catch (e) {
+        const msg = e?.data?.error
+          || (e?.data && Object.values(e.data)[0])
+          || "Nie udało się zapisać zmian.";
+        showAlert(msg, "error");
+        updateSaveBtn();
       }
     });
   }
 
-  // ─── ZMIEŃ HASŁO — aktywny tylko gdy wszystkie 3 pola wypełnione ─────────
-  const passwordBtn  = document.getElementById("btn-change-password");
+  // ─── ZMIEŃ HASŁO (bez zmian — wciąż mock) ────────────────────────────────
+  const passwordBtn = document.getElementById("btn-change-password");
   const inputCurrent = document.getElementById("input-current");
-  const inputNew     = document.getElementById("input-new");
-  const inputRepeat  = document.getElementById("input-repeat");
+  const inputNew = document.getElementById("input-new");
+  const inputRepeat = document.getElementById("input-repeat");
 
   function updatePasswordBtn() {
     if (!passwordBtn) return;
@@ -230,8 +257,7 @@ export function initUserProfile() {
   [inputCurrent, inputNew, inputRepeat].forEach((el) => {
     el?.addEventListener("input", updatePasswordBtn);
   });
-
-  updatePasswordBtn(); // stan początkowy — nieaktywny
+  updatePasswordBtn();
 
   // ─── HELPERY WALIDACJI ───────────────────────────────────────────────────
   function getHint(id) {
@@ -286,7 +312,7 @@ export function initUserProfile() {
     return valid;
   }
 
-  // ─── DELETE ACCOUNT POPUP ────────────────────────────────────────────────
+  // ─── DELETE ACCOUNT POPUP (bez zmian) ────────────────────────────────────
   const deleteAccountBtn = document.getElementById("btn-delete-account");
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", () => {
@@ -363,7 +389,6 @@ function validateBirthdate(value) {
 
   return { valid: true };
 }
-
 
 // ─── PESEL VALIDATOR ──────────────────────────────────────────────────────────
 function validatePesel(pesel) {
