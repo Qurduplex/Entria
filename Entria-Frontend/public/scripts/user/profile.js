@@ -6,7 +6,7 @@ export async function initUserProfile() {
   const data = {
     firstName: "",
     lastName: "",
-    email: "", // na razie poza grą
+    email: localStorage.getItem("userEmail") || "", 
     phone: "",
     birthdate: "",
     gender: "",

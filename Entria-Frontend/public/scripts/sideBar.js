@@ -479,7 +479,7 @@ export async function initSidebar(mode = "user") {
 
         sidebarConfigs[_currentMode].footer = {
             name: fullName || "Użytkownik",
-            email: profile.phoneNumber || "Brak danych",
+            email: localStorage.getItem("userEmail") || "",
             initials: getInitials(profile.firstName, profile.lastName) || "U",
             avatarColor: "#2D9A63",
         };

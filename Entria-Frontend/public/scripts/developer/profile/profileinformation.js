@@ -23,7 +23,7 @@ export async function initProfileBasicData() {
 
         profile.first_name.value = data.firstName || "";
         profile.last_name.value = data.lastName || "";
-        profile.email.value = "";
+        profile.email.value = localStorage.getItem("userEmail") || "";
         profile.phone.value = data.phoneNumber || "";
 
         console.log("PROFILE DATA:", data);
