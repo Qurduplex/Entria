@@ -177,3 +177,81 @@
     Utwórz aplikację
   </button>
 </div>
+
+<div id="client-secret-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+
+    <div class="w-full max-w-xl rounded-2xl border border-white/10 bg-[#161619] p-8 text-white shadow-2xl">
+
+        <h2 class="text-2xl font-semibold">
+            Aplikacja została utworzona
+        </h2>
+
+        <p class="mt-3 text-sm text-white/60">
+            Client Secret zostanie wyświetlony tylko raz.
+            Zapisz go przed zamknięciem okna.
+        </p>
+
+        <div class="mt-6">
+            <label class="text-sm font-medium text-white/80">
+                Client ID
+            </label>
+
+            <input
+                id="created-client-id"
+                readonly
+                class="mt-2 w-full rounded-xl border border-white/10 bg-[#0F0F0F] p-3 font-mono text-sm text-white outline-none"
+            />
+        </div>
+
+        <div class="mt-4">
+            <label class="text-sm font-medium text-white/80">
+                Client Secret
+            </label>
+
+            <input
+                id="created-client-secret"
+                readonly
+                class="mt-2 w-full rounded-xl border border-white/10 bg-[#0F0F0F] p-3 font-mono text-sm text-[#A89DFF] outline-none"
+            />
+
+            <p class="mt-2 text-xs text-red-400">
+                Po zamknięciu tego okna nie będzie możliwości ponownego wyświetlenia Client Secret.
+            </p>
+        </div>
+
+        <div class="mt-4">
+            <label class="text-sm font-medium text-white/80">
+                Authorize URL
+            </label>
+
+            <input
+                id="created-authorize-url"
+                readonly
+                class="mt-2 w-full rounded-xl border border-white/10 bg-[#0F0F0F] p-3 font-mono text-sm text-white outline-none"
+            />
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+
+            <button
+                id="copy-client-secret"
+                type="button"
+                class="rounded-xl border border-white/10 px-4 py-2 text-sm text-white transition hover:bg-white/5"
+            >
+                Kopiuj
+            </button>
+
+            <button
+                id="close-client-secret-modal"
+                type="button"
+                class="rounded-xl bg-[#A89DFF] px-4 py-2 text-sm font-medium text-black transition hover:opacity-90"
+            >
+                Przejdź do aplikacji
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
