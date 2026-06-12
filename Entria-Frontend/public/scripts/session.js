@@ -39,7 +39,7 @@ export function logout() {
   localStorage.removeItem("jwtToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("expiresAt");
-  window.location.href = "/pages/auth/login.html"; // dostosuj ścieżkę
+  window.location.href = "/pages/HomePage.html";
 }
 
 // ─── PROAKTYWNE ODNAWIANIE ────────────────────────────────────────────────
