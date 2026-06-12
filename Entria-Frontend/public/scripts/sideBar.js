@@ -432,6 +432,37 @@ function getInitials(firstName, lastName) {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
 }
 export async function initSidebar(mode = "user") {
+  const token = localStorage.getItem("jwtToken");
+
+  let payload = null;
+  try {
+    payload = JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    payload = null;
+  }
+
+  if (!payload) {
+    window.location.href = "/pages/LoginPage.html";
+    return;
+  }
+
+  // wygasły token → login
+  if (payload.exp && payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("expiresAt");
+    window.location.href = "/pages/LoginPage.html";
+    return;
+  }
+
+  const requiredRole = mode === "developer" ? "DEVELOPER" : "USER";
+
+  if (payload.role !== requiredRole) {
+    window.location.href = payload.role === "DEVELOPER"
+      ? "/pages/developer/DeveloperLayout.html"
+      : "/pages/user/UserLayout.html";
+    return;
+  }
   startSessionWatcher();
     _currentMode = mode;
 
