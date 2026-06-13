@@ -5,6 +5,12 @@
 @source "../../public/components/**/*.html";
 @source "../../public/scripts/**/*.js";
 
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 .input-hint {
   font-size: 12px;
   color: #EF4444;

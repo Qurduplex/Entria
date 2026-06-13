@@ -22,7 +22,7 @@ const sidebarConfigs = {
       avatarColor: "#7C6FFF",
     },
     nav: [
-      { type: "section", label: "KONTO" },
+      { type: "section", label: "UŻYTKOWNIK" },
       
       {
         id: "profile",
@@ -34,8 +34,6 @@ const sidebarConfigs = {
         title: "Profil",
         description: "Zarządzaj swoimi danymi osobowymi i ustawieniami konta",
       },
-      
-      { type: "section", label: "DOSTĘP" },
       {
         id: "consents",
         label: "Zgody i dostęp",
