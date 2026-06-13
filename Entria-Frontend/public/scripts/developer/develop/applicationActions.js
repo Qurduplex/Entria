@@ -5,15 +5,26 @@ export function loadApplicationActions() {
     const cancelButton = document.getElementById("cancel-create-application");
     const createButton = document.getElementById("create-application-button");
 
+    const editApplication = JSON.parse(
+        sessionStorage.getItem("editApplication")
+    );
+    console.log("EDIT MODE:", editApplication);
+
+    if (createButton) {
+        createButton.textContent = editApplication
+            ? "Zapisz zmiany"
+            : "Utwórz aplikację";
+    }
+
     if (cancelButton) {
         cancelButton.addEventListener("click", async () => {
             sessionStorage.removeItem("applicationDraft");
+            sessionStorage.removeItem("editApplication");
 
             window.applicationLogoFile = null;
             window.applicationTosPdfFile = null;
 
-            await navigateToDeveloperPage("apps"); 
-
+            await navigateToDeveloperPage("apps");
         });
     }
 
@@ -43,84 +54,51 @@ export function loadApplicationActions() {
                 return;
             }
 
-            if (!draft.logoFile) {
+            if (!editApplication && !draft.logoFile) {
                 alert("Dodaj logo aplikacji.");
                 return;
             }
 
-            if (!draft.tosPdfFile) {
+            if (!editApplication && !draft.tosPdfFile) {
                 alert("Dodaj regulamin PDF.");
                 return;
             }
 
-            console.log("Aplikacja do zapisania:", draft);
-
             try {
-                console.log("PERMISSIONS:", draft.permissions);
-                const response = await api.registerApplication(draft);
+                let response;
+                console.log("DRAFT:", draft);
+                console.log("EDIT:", editApplication);
+                if (editApplication) {
+                    response = await api.updateApplication({
+                        ...draft,
+                        appId: draft.appId || editApplication.appId || editApplication.id,
+                    });
 
-                console.log("REGISTERED APPLICATION:", response);
+                    alert("Zmiany zostały zapisane.");
+                    console.log("UPDATED APPLICATION:", response);
+                } else {
+                    response = await api.registerApplication(draft);
+
+                    console.log("REGISTERED APPLICATION:", response);
+                }
 
                 sessionStorage.removeItem("applicationDraft");
+                sessionStorage.removeItem("editApplication");
 
                 window.applicationLogoFile = null;
                 window.applicationTosPdfFile = null;
 
-                openClientSecretModal(response);
+                await navigateToDeveloperPage("apps");
+
             } catch (err) {
-                console.error("Błąd tworzenia aplikacji:", err);
+                console.error("Błąd zapisu aplikacji:", err);
 
                 console.log("STATUS:", err.status);
                 console.log("DATA:", err.data);
                 console.log("STRING:", JSON.stringify(err.data, null, 2));
+
+                alert("Nie udało się zapisać aplikacji.");
             }
         });
-    }
-}
-
-function openClientSecretModal(response) {
-    console.log("OPEN MODAL RESPONSE:", response);
-
-    const modal = document.getElementById("client-secret-modal");
-    console.log("MODAL:", modal);
-
-    if (!modal) {
-        alert("Nie znaleziono modala client-secret-modal w HTML");
-        return;
-    }
-
-    document.getElementById("created-client-id").value =
-        response.clientId || response.client_id || "";
-
-    document.getElementById("created-client-secret").value =
-        response.clientSecret || response.client_secret || "";
-
-    document.getElementById("created-authorize-url").value =
-        response.authorizeUrl || response.authorize_url || "";
-
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-
-    initClientSecretModalActions();
-}
-
-function initClientSecretModalActions() {
-    const copyButton = document.getElementById("copy-client-secret");
-    const closeButton = document.getElementById("close-client-secret-modal");
-
-    if (copyButton) {
-        copyButton.onclick = async () => {
-            const secret = document.getElementById("created-client-secret").value;
-
-            await navigator.clipboard.writeText(secret);
-
-            copyButton.textContent = "Skopiowano";
-        };
-    }
-
-    if (closeButton) {
-        closeButton.onclick = async () => {
-            await navigateToDeveloperPage("apps");
-        };
     }
 }

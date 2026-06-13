@@ -35,6 +35,19 @@ export function loadApplicationLogo() {
             previewName,
             previewSize
         );
+    } else if (draft.logoUrl) {
+        showLogoPreview(
+            {
+                name: "Aktualne logo",
+                size: 0,
+                dataUrl: draft.logoUrl,
+            },
+            uploadState,
+            previewState,
+            previewImage,
+            previewName,
+            previewSize
+        );
     }
 
     logoInput.addEventListener("change", () => {
@@ -123,5 +136,7 @@ function showLogoPreview(
 
     previewImage.src = logo.dataUrl;
     previewName.textContent = logo.name;
-    previewSize.textContent = `${(logo.size / 1024).toFixed(0)} KB`;
+    previewSize.textContent = logo.size
+        ? `${(logo.size / 1024).toFixed(0)} KB`
+        : "Zapisane logo";
 }
