@@ -84,6 +84,22 @@ export const api = {
             method: "POST",
             body: JSON.stringify(payload),
         }),
+
+    logout: (refreshToken) =>
+        request("logout", {
+            method: "POST",
+            body: JSON.stringify({ refreshToken }),
+        }),
+
+    logoutAll: () => {
+        const token = localStorage.getItem("jwtToken");
+        return request("logoutAll", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    },
 };
 
  window.api = api;
