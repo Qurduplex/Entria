@@ -239,7 +239,6 @@ function initLoginForm() {
             localStorage.setItem("jwtToken", response.jwtToken);
             localStorage.setItem("refreshToken", response.refreshToken);
             localStorage.setItem("expiresAt", response.expiresAt);
-            localStorage.setItem("userEmail", email);
 
             startTokenRefresh();
 

@@ -432,12 +432,13 @@ export async function initSidebar(mode = "user") {
 
     try {
         const profile = await api.getMyProfile();
+        const email = await api.getMyEmail();
 
         const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
 
         sidebarConfigs[_currentMode].footer = {
             name: fullName || "Użytkownik",
-            email: localStorage.getItem("userEmail") || "",
+            email: email.email || "",
             initials: getInitials(profile.firstName, profile.lastName) || "U",
             avatarColor: "#2D9A63",
         };

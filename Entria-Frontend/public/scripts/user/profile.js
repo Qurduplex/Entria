@@ -1,12 +1,11 @@
 import { showAlert } from "../alert.js";
 import { userApi } from "../user/api/apiUser.js";
 
-
 export async function initUserProfile() {
   const data = {
     firstName: "",
     lastName: "",
-    email: localStorage.getItem("userEmail") || "", 
+    email: localStorage.getItem("userEmail") || "",
     phone: "",
     birthdate: "",
     gender: "",
@@ -29,6 +28,13 @@ export async function initUserProfile() {
     showAlert("Nie udało się pobrać danych profilu.", "error");
   }
 
+  try {
+    const emailData = await userApi.getMyEmail();
+    data.email = emailData.email || data.email;
+  } catch (err) {
+    console.error("Nie udało się pobrać adresu email: ", err);
+  }
+
   // ─── AVATAR ──────────────────────────────────────────────────────────────
   const avatar = document.getElementById("profile-avatar");
   const deletePicBtn = document.getElementById("profile-delete-btn");
@@ -39,8 +45,10 @@ export async function initUserProfile() {
     if (data.avatarUrl) {
       avatar.innerHTML = `<img src="${data.avatarUrl}" alt="Avatar" class="w-full h-full object-cover" />`;
     } else {
-      const f = document.getElementById("input-firstname")?.value || data.firstName;
-      const l = document.getElementById("input-lastname")?.value || data.lastName;
+      const f =
+        document.getElementById("input-firstname")?.value || data.firstName;
+      const l =
+        document.getElementById("input-lastname")?.value || data.lastName;
       avatar.textContent = `${f[0] || ""}${l[0] || ""}`.toUpperCase();
     }
     if (deletePicBtn) {
@@ -91,7 +99,8 @@ export async function initUserProfile() {
   const nameEl = document.getElementById("profile-name");
   const emailEl = document.getElementById("profile-email");
   if (nameEl) nameEl.textContent = `${data.firstName} ${data.lastName}`.trim();
-  if (emailEl) emailEl.textContent = data.email ? `Zalogowany przez ${data.email}` : "";
+  if (emailEl)
+    emailEl.textContent = data.email ? `Zalogowany przez ${data.email}` : "";
 
   // ─── INPUTY ──────────────────────────────────────────────────────────────
   const fields = {
@@ -147,8 +156,12 @@ export async function initUserProfile() {
   };
 
   // Input filters
-  applyInputFilter("input-firstname", (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
-  applyInputFilter("input-lastname", (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
+  applyInputFilter("input-firstname", (v) =>
+    v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""),
+  );
+  applyInputFilter("input-lastname", (v) =>
+    v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""),
+  );
   applyInputFilter("input-phone", (v) => v.replace(/\D/g, "").slice(0, 9));
   applyInputFilter("input-pesel", (v) => v.replace(/\D/g, "").slice(0, 11));
 
@@ -162,7 +175,10 @@ export async function initUserProfile() {
       updateSaveBtn();
     });
     if (el.type === "date") {
-      el.addEventListener("change", () => { validateField(id); updateSaveBtn(); });
+      el.addEventListener("change", () => {
+        validateField(id);
+        updateSaveBtn();
+      });
     }
   });
 
@@ -202,14 +218,16 @@ export async function initUserProfile() {
       if (!results.every(Boolean)) return;
 
       const phone = document.getElementById("input-phone")?.value.trim() || "";
-      const peselVal = document.getElementById("input-pesel")?.value.trim() || "";
+      const peselVal =
+        document.getElementById("input-pesel")?.value.trim() || "";
       const genderVal = document.getElementById("input-gender")?.value || ""; // "M"/"F"/""
 
       const payload = {
         firstName: document.getElementById("input-firstname")?.value.trim(),
         lastName: document.getElementById("input-lastname")?.value.trim(),
         phoneNumber: phone || undefined,
-        birthDate: document.getElementById("input-birthdate")?.value || undefined,
+        birthDate:
+          document.getElementById("input-birthdate")?.value || undefined,
         pesel: peselVal && !/^0+$/.test(peselVal) ? peselVal : undefined,
         sex: genderVal || undefined,
         profilePicture: pendingAvatarFile || undefined,
@@ -222,7 +240,9 @@ export async function initUserProfile() {
         // zsynchronizuj lokalny stan
         if (updated) {
           data.avatarUrl = updated.profilePictureUrl || data.avatarUrl;
-          if (nameEl) nameEl.textContent = `${updated.firstName} ${updated.lastName}`.trim();
+          if (nameEl)
+            nameEl.textContent =
+              `${updated.firstName} ${updated.lastName}`.trim();
         }
         pendingAvatarFile = null;
         hasChanges = false;
@@ -230,9 +250,10 @@ export async function initUserProfile() {
         updateSaveBtn();
         showAlert("Zmiany zostały zapisane.", "success");
       } catch (e) {
-        const msg = e?.data?.error
-          || (e?.data && Object.values(e.data)[0])
-          || "Nie udało się zapisać zmian.";
+        const msg =
+          e?.data?.error ||
+          (e?.data && Object.values(e.data)[0]) ||
+          "Nie udało się zapisać zmian.";
         showAlert(msg, "error");
         updateSaveBtn();
       }
@@ -244,6 +265,21 @@ export async function initUserProfile() {
   const inputCurrent = document.getElementById("input-current");
   const inputNew = document.getElementById("input-new");
   const inputRepeat = document.getElementById("input-repeat");
+  const passwordError = document.getElementById("password-error");
+
+  function showPasswordError(message, success = false) {
+    if (!passwordError) return;
+    passwordError.textContent = message;
+    passwordError.classList.remove("hidden", "text-red-500", "text-green-600");
+    passwordError.classList.add(success ? "text-green-600" : "text-red-500");
+  }
+  function clearPasswordError() {
+    if (!passwordError) return;
+
+    passwordError.textContent = "";
+
+    passwordError.classList.add("hidden");
+  }
 
   function updatePasswordBtn() {
     if (!passwordBtn) return;
@@ -258,6 +294,80 @@ export async function initUserProfile() {
     el?.addEventListener("input", updatePasswordBtn);
   });
   updatePasswordBtn();
+
+  if (passwordBtn) {
+    passwordBtn.addEventListener("click", async () => {
+      clearPasswordError();
+
+      const payload = {
+        currentPassword: inputCurrent.value,
+
+        newPassword: inputNew.value,
+
+        repeatPassword: inputRepeat.value,
+      };
+
+      if (payload.newPassword !== payload.repeatPassword) {
+        showPasswordError("Nowe hasła nie są takie same.");
+
+        return;
+      }
+
+      passwordBtn.disabled = true;
+
+      try {
+        await userApi.changePassword(payload);
+
+        showPasswordError("Hasło zostało zmienione.", true);
+        showAlert("Hasło zostało zmienione.", "success");
+
+        inputCurrent.value = "";
+
+        inputNew.value = "";
+
+        inputRepeat.value = "";
+
+        updatePasswordBtn();
+      } catch (error) {
+        if (error.status === 401) {
+          if (error.data?.message === "Invalid current password") {
+            showPasswordError("Aktualne hasło jest nieprawidłowe.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+
+          if (
+            error.data?.message ===
+            "New password cannot be the same as the current password"
+          ) {
+            showPasswordError("Nowe hasło nie może być takie samo jak obecne.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+
+          if (
+            error.data?.message ===
+            "Password must be between 8 and 32 characters long"
+          ) {
+            showPasswordError("Nowe hasło musi mieć od 8 do 32 znaków.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+        }
+
+        showPasswordError("Nie udało się zmienić hasła.");
+        
+
+        updatePasswordBtn();
+      }
+    });
+  }
 
   // ─── HELPERY WALIDACJI ───────────────────────────────────────────────────
   function getHint(id) {
@@ -291,7 +401,10 @@ export async function initUserProfile() {
     if (!rule) return true;
 
     if (value === "") {
-      if (rule.required) { setError(id, "To pole jest wymagane"); return false; }
+      if (rule.required) {
+        setError(id, "To pole jest wymagane");
+        return false;
+      }
       clearError(id);
       return true;
     }
@@ -308,7 +421,8 @@ export async function initUserProfile() {
       message = rule.message;
     }
 
-    if (valid) clearError(id); else setError(id, message);
+    if (valid) clearError(id);
+    else setError(id, message);
     return valid;
   }
 
@@ -317,7 +431,8 @@ export async function initUserProfile() {
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", () => {
       const overlay = document.createElement("div");
-      overlay.className = "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center";
+      overlay.className =
+        "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center";
       overlay.innerHTML = `
         <div class="bg-white rounded-2xl p-7 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_40px_rgba(0,0,0,0.18)]">
           <div class="flex items-center gap-3 mb-4">
@@ -341,9 +456,15 @@ export async function initUserProfile() {
             <button id="delete-confirm" class="px-[18px] py-[9px] rounded-[10px] bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-colors cursor-pointer">Tak, usuń konto</button>
           </div>
         </div>`;
-      overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
-      overlay.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
-      overlay.querySelector("#delete-cancel").addEventListener("click", () => overlay.remove());
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+      overlay
+        .querySelector("div")
+        .addEventListener("click", (e) => e.stopPropagation());
+      overlay
+        .querySelector("#delete-cancel")
+        .addEventListener("click", () => overlay.remove());
       overlay.querySelector("#delete-confirm").addEventListener("click", () => {
         // TODO: API call
         overlay.remove();
@@ -372,49 +493,78 @@ function applyInputFilter(id, filterFn) {
 // ─── BIRTHDATE VALIDATOR ──────────────────────────────────────────────────────
 function validateBirthdate(value) {
   const [year, month, day] = value.split("-").map(Number);
-  if (!year || !month || !day) return { valid: false, message: "Niepoprawna data urodzenia" };
+  if (!year || !month || !day)
+    return { valid: false, message: "Niepoprawna data urodzenia" };
 
   const date = new Date(year, month - 1, day);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day)
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  )
     return { valid: false, message: "Niepoprawna data urodzenia" };
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  if (date >= today) return { valid: false, message: "Data urodzenia nie może być z przyszłości" };
+  if (date >= today)
+    return {
+      valid: false,
+      message: "Data urodzenia nie może być z przyszłości",
+    };
 
   let age = today.getFullYear() - date.getFullYear();
   const m = today.getMonth() - date.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < date.getDate())) age--;
-  if (age < 13) return { valid: false, message: "Musisz mieć co najmniej 13 lat" };
+  if (age < 13)
+    return { valid: false, message: "Musisz mieć co najmniej 13 lat" };
 
   return { valid: true };
 }
 
 // ─── PESEL VALIDATOR ──────────────────────────────────────────────────────────
 function validatePesel(pesel) {
-  if (!/^\d{11}$/.test(pesel)) return { valid: false, message: "PESEL musi mieć dokładnie 11 cyfr" };
+  if (!/^\d{11}$/.test(pesel))
+    return { valid: false, message: "PESEL musi mieć dokładnie 11 cyfr" };
 
   const yy = parseInt(pesel.slice(0, 2), 10);
   let mm = parseInt(pesel.slice(2, 4), 10);
   const dd = parseInt(pesel.slice(4, 6), 10);
 
   let year;
-  if      (mm >= 1  && mm <= 12) { year = 1900 + yy; }
-  else if (mm >= 21 && mm <= 32) { year = 2000 + yy; mm -= 20; }
-  else if (mm >= 81 && mm <= 92) { year = 1800 + yy; mm -= 80; }
-  else if (mm >= 41 && mm <= 52) { year = 2100 + yy; mm -= 40; }
-  else if (mm >= 61 && mm <= 72) { year = 2200 + yy; mm -= 60; }
-  else return { valid: false, message: "Nieprawidłowy miesiąc w numerze PESEL" };
+  if (mm >= 1 && mm <= 12) {
+    year = 1900 + yy;
+  } else if (mm >= 21 && mm <= 32) {
+    year = 2000 + yy;
+    mm -= 20;
+  } else if (mm >= 81 && mm <= 92) {
+    year = 1800 + yy;
+    mm -= 80;
+  } else if (mm >= 41 && mm <= 52) {
+    year = 2100 + yy;
+    mm -= 40;
+  } else if (mm >= 61 && mm <= 72) {
+    year = 2200 + yy;
+    mm -= 60;
+  } else
+    return { valid: false, message: "Nieprawidłowy miesiąc w numerze PESEL" };
 
   const date = new Date(year, mm - 1, dd);
-  if (date.getFullYear() !== year || date.getMonth() !== mm - 1 || date.getDate() !== dd)
-    return { valid: false, message: "Numer PESEL zawiera niepoprawną datę urodzenia" };
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== mm - 1 ||
+    date.getDate() !== dd
+  )
+    return {
+      valid: false,
+      message: "Numer PESEL zawiera niepoprawną datę urodzenia",
+    };
 
   const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
   let sum = 0;
   for (let i = 0; i < 10; i++) sum += parseInt(pesel[i], 10) * weights[i];
   const checksum = (10 - (sum % 10)) % 10;
-  if (checksum !== parseInt(pesel[10], 10)) return { valid: false, message: "Niepoprawna suma kontrolna numeru PESEL" };
+  if (checksum !== parseInt(pesel[10], 10))
+    return { valid: false, message: "Niepoprawna suma kontrolna numeru PESEL" };
 
   return { valid: true };
 }

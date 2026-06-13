@@ -3,6 +3,9 @@ import { API_BASE_URL } from "../../config.js";
 const endpoints = {
   getMyProfile: "/user-profile/me",
   updateMyProfile: "/user-profile/me",
+  getMyEmail: "/auth/me/email",
+  changePassword: "/auth/me/change-password",
+
 
   getConsents: "/oauth/user/consents",
   revokeConsent: (clientId) => `/oauth/user/consents/${clientId}`,
@@ -75,6 +78,34 @@ export const userApi = {
       body: formData,
     });
   },
+
+  getMyEmail: () => {
+    const token = localStorage.getItem("jwtToken");
+ 
+    return request("getMyEmail", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+    changePassword: (payload) => {
+    const token = localStorage.getItem("jwtToken");
+ 
+    return request("changePassword", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        currentPassword: payload.currentPassword,
+        newPassword: payload.newPassword,
+      }),
+    });
+  },
+
+
 
   // ─── ZGODY / APLIKACJE ──────────────────────────────────────────────────
   getConsents: () => {
