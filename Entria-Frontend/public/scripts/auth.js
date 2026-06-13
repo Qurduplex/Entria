@@ -125,7 +125,20 @@ async function handleRegister(e) {
     e.preventDefault();
 
     const form = e.target;
+    clearFormError(form);
     const email = form.email.value.trim();
+    const password = form.password.value.trim();
+    const confirmPassword = form.password_confirmation.value.trim();
+
+    if (!email || !password || !confirmPassword) {
+        showFormError(form, "Uzupełnij wszystkie pola.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showFormError(form, "Hasła nie są takie same.");
+        return;
+    }
 
     const registerType = form.id === "developerRegisterForm"
         ? "developer"
@@ -145,14 +158,37 @@ async function handleRegister(e) {
 
         sessionStorage.setItem("profileDraft", JSON.stringify({ email }));
 
-        showAlert("Konto zostało utworzone. Sprawdź kod na emailu.", "success");
+        showFormError(form, "Konto zostało utworzone. Sprawdź kod na emailu.");
 
         openVerifyModal(registerType, email);
 
         sessionStorage.removeItem("registerType");
     } catch (err) {
-        console.error("Błąd rejestracji:", err);
-        showAlert(err.data?.message || "Nie udało się utworzyć konta.", "error");
+        if (err.status === 409) {
+            showFormError(form, "Konto o podanym adresie email już istnieje.");
+            return;
+        } else if (err.status === 400) {
+
+        if (err.data?.password) {
+            showFormError(
+                form,
+                "Hasło musi zawierać od 8 do 32 znaków."
+            );
+            return;
+        }
+
+        if (err.data?.termsAccepted) {
+            showFormError(
+                form,
+                "Musisz zaakceptować regulamin."
+            );
+            return;
+        }
+
+        showFormError(form, "Nieprawidłowe dane.");
+        return;
+    }
+        showFormError(form, err.data?.message || "Nie udało się utworzyć konta.");
     }
 }
 
@@ -162,11 +198,33 @@ function getRoleFromToken(token) {
     return decodedPayload.role;
 }
 
+function showFormError(form, message) {
+    const errorBox = form.querySelector(".form-error");
+
+    if (!errorBox) return;
+
+    errorBox.textContent = message;
+    errorBox.classList.remove("hidden");
+}
+
+function clearFormError(form) {
+    if (!form) return;
+
+    const errorBox = form.querySelector(".form-error");
+
+    if (!errorBox) return;
+
+    errorBox.textContent = "";
+    errorBox.classList.add("hidden");
+}
+
 function initLoginForm() {
     const form = document.getElementById("LoginForm");
     if (!form) return;
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        clearFormError(form);
+
         const email = document.getElementById("LoginEmail").value.trim();
         const password = document.getElementById("LoginPassword").value.trim();
         if (!email || !password) {
@@ -194,7 +252,13 @@ function initLoginForm() {
             }
         } catch (err) {
             console.error("Błąd logowania:", err);
-            showAlert(err.data?.message || "Nie udało się zalogować.", "error");
+
+            if (err.status === 401) {
+                showFormError(document.getElementById("LoginForm"), "Nieprawidłowy email lub hasło.");
+                return;
+            }
+
+            showAlert("Nie udało się zalogować.", "error");
         }
     });
 }
