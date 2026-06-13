@@ -191,6 +191,26 @@ async function navigate(item) {
   document.getElementById("page-description").textContent =
     item.description ?? "";
 
+  if (item.id === "develop") {
+    const isEditMode =
+        sessionStorage.getItem("editApplication")
+
+    document.getElementById("topbar-breadcrumb").textContent =
+        isEditMode
+            ? "Developer / Aplikacje / Edytuj aplikację"
+            : "Developer / Aplikacje / Nowa aplikacja";
+
+    document.getElementById("page-title").textContent =
+        isEditMode
+            ? "Edytuj aplikację"
+            : "Dodaj nową aplikację";
+
+    document.getElementById("page-description").textContent =
+        isEditMode
+            ? "Zmień konfigurację istniejącej aplikacji OAuth2"
+            : "Zarejestruj nową aplikację OAuth2. Client ID i Secret zostaną wygenerowane automatycznie";
+  }
+
   // Load fragment
   const main = document.getElementById("page-content");
   if (!main || !item.fragment) return;
