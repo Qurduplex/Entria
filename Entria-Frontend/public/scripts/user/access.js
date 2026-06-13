@@ -1,6 +1,6 @@
 import { userApi } from "./api/apiUser.js";
 import { renderConsents } from "./access/consents.js";
-import { renderLogoutAllCard } from "./access/logoutAll.js";
+import { renderLogoutAllCard } from "./access/Logoutall.js";
 
 export async function initUserAccess() {
   const list = document.getElementById("consents-list");
