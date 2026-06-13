@@ -27,10 +27,7 @@ export async function initProfileBasicData() {
         profile.email.value = email.email || "";
         profile.phone.value = data.phoneNumber || "";
 
-        console.log("PROFILE DATA:", data);
-
     } catch (err) {
-        console.error("Nie udało się pobrać danych profilu:", err);
     }
 
     let isEditing = false;
@@ -68,14 +65,8 @@ export async function initProfileBasicData() {
 
             try {
                 const updatedProfile = await api.updateMyProfile(payload);
-
-                console.log("PROFILE UPDATED:", updatedProfile);
-
                 showAlert("Profil został zapisany.", "success");
-
             } catch (err) {
-                console.error("Błąd aktualizacji profilu:", err);
-
                 showAlert(
                     err.data?.message || "Nie udało się zapisać profilu.",
                     "error"

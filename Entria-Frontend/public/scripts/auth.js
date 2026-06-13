@@ -250,7 +250,6 @@ function initLoginForm() {
                 window.location.href = "./user/UserLayout.html";
             }
         } catch (err) {
-            console.error("Błąd logowania:", err);
 
             if (err.status === 401) {
                 showFormError(document.getElementById("LoginForm"), "Nieprawidłowy email lub hasło.");
@@ -276,8 +275,6 @@ async function refreshAccessToken() {
             refreshToken: refreshToken
         });
 
-        console.log("REFRESH RESPONSE:", response);
-
         localStorage.setItem(
             "jwtToken",
             response.jwtToken
@@ -288,16 +285,7 @@ async function refreshAccessToken() {
             response.expiresAt
         );
 
-        console.log(
-            "Nowy token wygasa:",
-            response.expiresAt
-        );
-
     } catch (err) {
-        console.error(
-            "Nie udało się odświeżyć tokena:",
-            err
-        );
 
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("refreshToken");
@@ -393,7 +381,6 @@ function openVerifyModal(type = "", email = "") {
     const modal = document.getElementById("verifyModal");
     const current = verifyData[type];
     if (!modal || !current) {
-        console.error("Verify modal nie istnieje albo typ jest niepoprawny:", type);
         return;
     }
     currentVerifyType = type;
@@ -435,7 +422,6 @@ function initVerifyModal() {
                 });
                 showAlert("Kod został wysłany ponownie.", "success");
             } catch (err) {
-                console.error("Błąd ponownego wysyłania kodu:", err);
                 showAlert(err.data?.message || "Nie udało się wysłać kodu ponownie.", "error");
             }
         });
@@ -501,7 +487,6 @@ function initVerifyModal() {
             openVerifiedModal(currentVerifyType);
             closeVerifyModal();
         } catch (err) {
-            console.error("Błąd weryfikacji:", err);
             showAlert(err.data?.message || "Nieprawidłowy kod.", "error");
         }
     });
@@ -571,7 +556,6 @@ function openForgotPasswordModal() {
     const modal = document.getElementById("forgotPasswordModal");
 
     if (!modal) {
-        console.error("Nie znaleziono forgotPasswordModal");
         return;
     }
     modal.classList.remove("hidden");
@@ -638,7 +622,6 @@ function initForgotPasswordModal() {
             openResetPasswordModal();
             closeForgotPasswordModal();
         } catch (err) {
-            console.error("Błąd requestu resetu:", err);
             showAlert(err.data?.message || "Nie udało się wysłać kodu.", "error");
         }
     });
@@ -647,7 +630,6 @@ function initForgotPasswordModal() {
 function openResetPasswordModal() {
     const modal = document.getElementById("resetPasswordModal");
     if (!modal) {
-        console.error("Nie znaleziono resetPasswordModal");
         return;
     }
     modal.classList.remove("hidden");
@@ -742,7 +724,6 @@ function initResetPasswordModal() {
             closeResetPasswordModal();
 
         } catch (err) {
-            console.error("Błąd resetu hasła:", err);
             showAlert(err.data?.message || "Nie udało się zmienić hasła.", "error");
         }
     });

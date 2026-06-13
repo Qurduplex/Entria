@@ -5,17 +5,11 @@ async function getCurrentApplicationDetails() {
         sessionStorage.getItem("selectedApplication")
     );
 
-    console.log("SELECTED APP:", selectedApp);
-
     if (!selectedApp?.appId) {
-        console.error("Brak selectedApplication.appId");
         return null;
     }
 
     const app = await api.getApplicationDetails(selectedApp.appId);
-
-    console.log("APP DETAILS:", app);
-
     return app;
 }
 
@@ -25,7 +19,6 @@ export async function loadApplicationScopes() {
     const container = document.getElementById("data-application-scopes");
 
     if (!container) {
-        console.error("Brak elementu #data-application-scopes");
         return;
     }
 

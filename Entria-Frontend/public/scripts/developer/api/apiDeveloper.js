@@ -91,7 +91,6 @@ function mapDraftPermissionsToBackend(permissions = {}) {
 
 export const api = {
     getMyProfile: () => {
-        console.log("JWT Z LOCAL STORAGE:", localStorage.getItem("jwtToken"));
         const token = localStorage.getItem("jwtToken");
 
         return request("getMyProfile", {
@@ -198,10 +197,6 @@ export const api = {
             formData.append(`permissions[${backendScope}]`, String(value.required));
         });
 
-        for (const [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-
         return request("registerApplication", {
             method: "POST",
             headers: {
@@ -287,8 +282,7 @@ export const api = {
         });
     },
     regenerateClientSecret: (appId) => {
-        const userId = getUserIdFromToken();
-        const role = getUserRoleFromToken();
+        const token = localStorage.getItem("jwtToken");
 
         return request("regenerateClientSecret", {
             method: "POST",
@@ -301,8 +295,7 @@ export const api = {
         });
     },
     regenerateAuthorizeUrl: (appId) => {
-        const userId = getUserIdFromToken();
-        const role = getUserRoleFromToken();
+        const token = localStorage.getItem("jwtToken");
 
         return request("regenerateAuthorizeUrl", {
             method: "POST",

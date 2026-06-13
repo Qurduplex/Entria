@@ -95,8 +95,6 @@ export function loadApplicationLogo() {
                 previewName,
                 previewSize
             );
-
-            console.log("Draft aplikacji:", currentDraft);
         };
 
         reader.readAsDataURL(file);
@@ -118,8 +116,6 @@ export function loadApplicationLogo() {
 
         previewState.classList.add("hidden");
         uploadState.classList.remove("hidden");
-
-        console.log("Usunięto logo:", currentDraft);
     });
 }
 
