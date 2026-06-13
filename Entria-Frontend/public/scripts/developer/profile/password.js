@@ -1,5 +1,23 @@
 import { api } from "../api/apiDeveloper.js";
 
+function showPasswordError(message) {
+    const errorBox = document.getElementById("password-error");
+
+    if (!errorBox) return;
+
+    errorBox.textContent = message;
+    errorBox.classList.remove("hidden");
+}
+
+function clearPasswordError() {
+    const errorBox = document.getElementById("password-error");
+
+    if (!errorBox) return;
+
+    errorBox.textContent = "";
+    errorBox.classList.add("hidden");
+}
+
 export function initProfilePassword() {
 
     const form = {
@@ -19,6 +37,9 @@ export function initProfilePassword() {
     }
 
     form.submitButton.addEventListener("click", async () => {
+
+        clearPasswordError();
+
         const payload = {
             currentPassword: form.currentPassword.value,
             newPassword: form.newPassword.value,
@@ -26,27 +47,48 @@ export function initProfilePassword() {
         };
 
         if (payload.newPassword !== payload.repeatPassword) {
-            alert("Nowe hasła nie są takie same.");
+            showPasswordError("Nowe hasła nie są takie same.");
             return;
         }
 
         try {
             await api.changePassword(payload);
 
-            alert("Hasło zostało zmienione.");
+            showPasswordError("Hasło zostało zmienione.");
+            document.getElementById("password-error")
+                .classList.replace("text-red-300", "text-green-300");
 
             form.currentPassword.value = "";
             form.newPassword.value = "";
             form.repeatPassword.value = "";
 
         } catch (error) {
-            console.error("Błąd zmiany hasła:", error);
 
-            alert(
-                error?.data?.message ||
-                error?.data ||
-                "Nie udało się zmienić hasła."
-            );
+            if (error.status === 401) {
+
+                if (
+                    error.data?.message === "Invalid current password"
+                ) {
+                    showPasswordError("Aktualne hasło jest nieprawidłowe.");
+                    return;
+                }
+
+                if (
+                    error.data?.message === "New password cannot be the same as the current password"
+                ) {
+                    showPasswordError("Nowe hasło nie może być takie samo jak obecne.");
+                    return;
+                }
+
+                if (
+                    error.data?.message === "Password must be between 8 and 32 characters long"
+                ) {
+                    showPasswordError("Nowe hasło musi mieć od 8 do 32 znaków.");
+                    return;
+                }
+            }
+
+            showPasswordError("Nie udało się zmienić hasła.");
         }
     });
 }
