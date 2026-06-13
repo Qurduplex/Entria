@@ -1,4 +1,5 @@
-import { API_BASE_URL } from "./config.js"; 
+import { API_BASE_URL } from "./config.js";
+import { showAlert } from "./alert.js"; 
 
 const SKEW_MS = 60 * 1000;        // odnów gdy zostało < 1 min
 const ACTIVITY_WINDOW_MS = 60 * 1000; // "aktywny" = interakcja w ostatniej minucie
