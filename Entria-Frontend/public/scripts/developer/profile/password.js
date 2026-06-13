@@ -1,10 +1,6 @@
-export function initProfilePassword() {
+import { api } from "../api/apiDeveloper.js";
 
-    const data = {
-        currentPassword: "Test123!",
-        newPassword: "NewPassword123!",
-        repeatPassword: "NewPassword123!",
-    };
+export function initProfilePassword() {
 
     const form = {
         currentPassword: document.getElementById("current-password"),
@@ -22,19 +18,35 @@ export function initProfilePassword() {
         return;
     }
 
-
-    form.currentPassword.value = data.currentPassword;
-    form.newPassword.value = data.newPassword;
-    form.repeatPassword.value = data.repeatPassword;
-
     form.submitButton.addEventListener("click", async () => {
-
         const payload = {
-        currentPassword: form.currentPassword.value,
-        newPassword: form.newPassword.value,
-        repeatPassword: form.repeatPassword.value,
+            currentPassword: form.currentPassword.value,
+            newPassword: form.newPassword.value,
+            repeatPassword: form.repeatPassword.value,
         };
 
-        console.log(payload);
+        if (payload.newPassword !== payload.repeatPassword) {
+            alert("Nowe hasła nie są takie same.");
+            return;
+        }
+
+        try {
+            await api.changePassword(payload);
+
+            alert("Hasło zostało zmienione.");
+
+            form.currentPassword.value = "";
+            form.newPassword.value = "";
+            form.repeatPassword.value = "";
+
+        } catch (error) {
+            console.error("Błąd zmiany hasła:", error);
+
+            alert(
+                error?.data?.message ||
+                error?.data ||
+                "Nie udało się zmienić hasła."
+            );
+        }
     });
 }

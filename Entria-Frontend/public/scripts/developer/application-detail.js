@@ -1,5 +1,6 @@
 import { loadApplicationDetailsData } from "./apps/applicationDetailsData.js";
 import { loadApplicationDetailsStats } from "./apps/detail.stats.js";
+import { loadApplicationActions } from "./apps/detail.credentials.js";
 import { loadApplicationCredentials } from "./apps/detail.credentials.js";
 import { loadApplicationScopes } from "./apps/detail.scopes.js";
 import { loadApplicationLogs } from "./apps/detail.logs.js";
@@ -25,6 +26,7 @@ export async function initApplicationDetails() {
     "application-credentials",
     "../../pages/developer/fragments/apps/detailCredentials.html"
   );
+  loadApplicationActions();
   loadApplicationCredentials();
 
   await loadComponent(

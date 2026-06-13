@@ -1,31 +1,30 @@
-export function loadAppsStats() {
-  const data = {
-    totalApplications: 4,
-    loginsLast30Days: 1024,
-    activeApplications: 3,
-  };
+import { api } from "../api/apiDeveloper.js";
 
-  const appsTotal = document.getElementById("apps-total");
-  const appsLogins = document.getElementById("apps-logins");
-  const appsActive = document.getElementById("apps-active");
+export async function loadAppsStats() {
+    const appsTotal = document.getElementById("apps-total");
+    const appsActive = document.getElementById("apps-active");
+    const appsTotalActiveCard = document.getElementById("apps-total-active-card");
 
-  if (!appsTotal || !appsLogins || !appsActive) {
-    return;
-  }
-
-  appsTotal.textContent = data.totalApplications;
-  appsLogins.textContent = data.loginsLast30Days;
-  appsActive.textContent = data.activeApplications;
-
-  /*
-  const response = await fetch("/api/developer/apps/stats", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+    if (!appsTotal || !appsActive || !appsTotalActiveCard) {
+        return;
     }
-  });
 
-  const data = await response.json();
-  */
+    try {
+        const applications = await api.getDeveloperApps();
+
+        const totalApplications = applications.length;
+
+        const activeApplications = applications.filter(app => app.active).length;
+
+        appsTotal.textContent = totalApplications;
+        appsActive.textContent = activeApplications;
+        appsTotalActiveCard.textContent = totalApplications;
+
+    } catch (err) {
+        console.error("Nie udało się pobrać statystyk aplikacji:", err);
+
+        appsTotal.textContent = "0";
+        appsActive.textContent = "0";
+        appsTotalActiveCard.textContent = "0";
+    }
 }

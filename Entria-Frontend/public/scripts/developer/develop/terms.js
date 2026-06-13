@@ -11,6 +11,17 @@ export function loadTerms() {
         return;
     }
 
+    const savedDraft = getApplicationDraft();
+
+    if (savedDraft.tosPdf?.name) {
+        fileName.textContent =
+            `${savedDraft.tosPdf.name} • ${(savedDraft.tosPdf.size / 1024).toFixed(0)} KB`;
+    } else if (savedDraft.tosPdfUrl) {
+        fileName.textContent = "Aktualny regulamin PDF";
+    } else {
+        fileName.textContent = "Nie wybrano pliku";
+    }
+
     termsInput.addEventListener("change", () => {
         const file = termsInput.files[0];
 
@@ -44,7 +55,8 @@ export function loadTerms() {
 
         saveApplicationDraft(draft);
 
-        fileName.textContent = `${file.name} • ${(file.size / 1024).toFixed(0)} KB`;
+        fileName.textContent =
+            `${file.name} • ${(file.size / 1024).toFixed(0)} KB`;
 
         console.log("Draft aplikacji:", draft);
     });
