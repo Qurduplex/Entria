@@ -20,7 +20,5 @@ export function loadRedirectUri() {
         draft.redirectUri = redirectInput.value.trim();
 
         saveApplicationDraft(draft);
-
-        console.log("Draft aplikacji:", draft);
     });
 }

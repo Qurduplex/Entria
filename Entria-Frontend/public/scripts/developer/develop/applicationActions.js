@@ -8,7 +8,6 @@ export function loadApplicationActions() {
     const editApplication = JSON.parse(
         sessionStorage.getItem("editApplication")
     );
-    console.log("EDIT MODE:", editApplication);
 
     if (createButton) {
         createButton.textContent = editApplication
@@ -66,8 +65,6 @@ export function loadApplicationActions() {
 
             try {
                 let response;
-                console.log("DRAFT:", draft);
-                console.log("EDIT:", editApplication);
                 if (editApplication) {
                     response = await api.updateApplication({
                         ...draft,
@@ -75,11 +72,8 @@ export function loadApplicationActions() {
                     });
 
                     alert("Zmiany zostały zapisane.");
-                    console.log("UPDATED APPLICATION:", response);
                 } else {
                     response = await api.registerApplication(draft);
-
-                    console.log("REGISTERED APPLICATION:", response);
                 }
 
                 sessionStorage.removeItem("applicationDraft");
@@ -91,12 +85,6 @@ export function loadApplicationActions() {
                 await navigateToDeveloperPage("apps");
 
             } catch (err) {
-                console.error("Błąd zapisu aplikacji:", err);
-
-                console.log("STATUS:", err.status);
-                console.log("DATA:", err.data);
-                console.log("STRING:", JSON.stringify(err.data, null, 2));
-
                 alert("Nie udało się zapisać aplikacji.");
             }
         });

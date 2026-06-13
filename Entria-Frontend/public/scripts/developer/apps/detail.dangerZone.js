@@ -66,14 +66,9 @@ export function loadApplicationDangerZone() {
                         ),
                     })
                 );
-                console.log(
-                    "EDIT APP SAVED:",
-                    JSON.parse(sessionStorage.getItem("editApplication"))
-                );
                 await navigateToDeveloperPage("develop");
 
             } catch (err) {
-                console.error("Nie udało się pobrać danych aplikacji:", err);
                 alert("Nie udało się otworzyć edycji aplikacji.");
             }
         });
@@ -110,7 +105,6 @@ export function loadApplicationDangerZone() {
                 disableButton.textContent = "Aplikacja wyłączona";
 
             } catch (err) {
-                console.error("Błąd dezaktywacji aplikacji:", err);
                 alert("Nie udało się dezaktywować aplikacji.");
             }
         });
@@ -134,7 +128,6 @@ export function loadApplicationDangerZone() {
                 await navigateToDeveloperPage("apps");
 
             } catch (err) {
-                console.error("Błąd usuwania aplikacji:", err);
                 alert("Nie udało się usunąć aplikacji.");
             }
         });

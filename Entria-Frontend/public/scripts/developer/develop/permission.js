@@ -67,8 +67,6 @@ export function loadPermissions() {
                 optionalButton,
                 currentDraft.permissions[permissionName].required
             );
-
-            console.log("Draft aplikacji:", currentDraft);
         });
 
         requiredButton.addEventListener("click", () => {
@@ -129,8 +127,6 @@ function updatePermission(
         optionalButton,
         isRequired
     );
-
-    console.log("Draft aplikacji:", draft);
 }
 
 function renderPermissionState(

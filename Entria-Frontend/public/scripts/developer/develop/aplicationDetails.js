@@ -15,8 +15,6 @@ export function loadApplicationDetails() {
         draft.name = nameInput.value.trim();
 
         saveApplicationDraft(draft);
-
-        console.log("Draft aplikacji:", draft);
     }
 
     nameInput.addEventListener("input", saveDetails);

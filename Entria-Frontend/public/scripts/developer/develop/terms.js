@@ -57,7 +57,5 @@ export function loadTerms() {
 
         fileName.textContent =
             `${file.name} • ${(file.size / 1024).toFixed(0)} KB`;
-
-        console.log("Draft aplikacji:", draft);
     });
 }

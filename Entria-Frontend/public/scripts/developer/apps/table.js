@@ -25,10 +25,7 @@ export async function loadAppsTable() {
             active: app.active,
         }));
 
-        console.log("APPS:", data);
-
     } catch (err) {
-        console.error("Nie udało się pobrać aplikacji:", err);
         data = [];
     }
 

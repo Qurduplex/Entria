@@ -139,8 +139,6 @@ export function loadApplicationActions() {
                         "Client Secret został wygenerowany ponownie."
                     );
                 } catch (error) {
-                    console.error(error);
-
                     alert(
                         "Nie udało się wygenerować Client Secret."
                     );
@@ -198,8 +196,6 @@ export function loadApplicationActions() {
                         "Authorize URL został wygenerowany ponownie."
                     );
                 } catch (error) {
-                    console.error(error);
-
                     alert(
                         "Nie udało się wygenerować Authorize URL."
                     );

@@ -442,7 +442,6 @@ export async function initSidebar(mode = "user") {
         };
 
     } catch (err) {
-        console.error("Nie udało się pobrać profilu:", err);
     }
 
     renderSidebar();

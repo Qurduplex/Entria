@@ -21,8 +21,6 @@ export async function loadAppsStats() {
         appsTotalActiveCard.textContent = totalApplications;
 
     } catch (err) {
-        console.error("Nie udało się pobrać statystyk aplikacji:", err);
-
         appsTotal.textContent = "0";
         appsActive.textContent = "0";
         appsTotalActiveCard.textContent = "0";
