@@ -7,6 +7,7 @@ const CHECK_INTERVAL_MS = 15 * 1000;  // jak często sprawdzać
 let lastActivity = Date.now();
 let refreshPromise = null;
 let intervalId = null;
+let expiredHandled = false;
 
 // ─── ODŚWIEŻANIE ──────────────────────────────────────────────────────────
 async function doRefresh() {
@@ -34,12 +35,21 @@ export function refreshToken() {
   return refreshPromise;
 }
 
-export function logout() {
+export function logout(message) {
   stopSessionWatcher();
   localStorage.removeItem("jwtToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("expiresAt");
-  window.location.href = "/pages/HomePage.html";
+
+  if(message){
+    showAlert(message, "error");
+    setTimeout(() => {
+      window.location.href = "/pages/LoginPage.html";
+    }, 1500);
+  } else {
+    window.location.href = "/pages/HomePage.html";
+  }
+
 }
 
 // ─── PROAKTYWNE ODNAWIANIE ────────────────────────────────────────────────
@@ -58,6 +68,20 @@ async function tick() {
 
   const remaining = msUntilExpiry();
 
+    if (remaining <= 0) {
+    if (expiredHandled) return; // już obsłużone, nie spamuj
+    expiredHandled = true;
+ 
+    try {
+      await refreshToken();
+      expiredHandled = false; // udało się odświeżyć → sesja żyje dalej
+    } catch {
+      logout("Twoja sesja wygasła. Zaloguj się ponownie.");
+    }
+    return;
+  }
+
+
   // zostało mało czasu I user aktywny → odśwież
   if (remaining < SKEW_MS && remaining > 0 && isUserActive()) {
     try {
@@ -74,6 +98,8 @@ function markActivity() { lastActivity = Date.now(); }
 
 export function startSessionWatcher() {
   if (intervalId) return; // już działa
+
+  expiredHandled=false;
 
   ["click", "keydown", "scroll", "mousemove", "touchstart"].forEach((ev) =>
     window.addEventListener(ev, markActivity, { passive: true })

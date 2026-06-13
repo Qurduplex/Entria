@@ -1,31 +1,56 @@
 import { showAlert } from "../alert.js";
+import { userApi } from "../user/api/apiUser.js";
 
-export function initUserProfile() {
+export async function initUserProfile() {
   const data = {
-    firstName: "Jan",
-    lastName: "Kowalski",
-    email: "jan.kowalski@example.com",
-    phone: "+48 000 000 000",
+    firstName: "",
+    lastName: "",
+    email: localStorage.getItem("userEmail") || "",
+    phone: "",
     birthdate: "",
     gender: "",
-    pesel: "00000000000",
+    pesel: "",
     avatarUrl: null,
   };
+
+  // ─── ŁADOWANIE Z API ───────────────────────────────────────────────────────
+  try {
+    const profile = await userApi.getMyProfile();
+    data.firstName = profile.firstName || "";
+    data.lastName = profile.lastName || "";
+    data.phone = profile.phoneNumber || "";
+    data.birthdate = profile.birthDate || "";
+    data.pesel = profile.pesel || "";
+    data.gender = profile.sex || ""; // "M" / "F"
+    data.avatarUrl = profile.profilePictureUrl || null;
+  } catch (err) {
+    console.error("Nie udało się pobrać profilu:", err);
+    showAlert("Nie udało się pobrać danych profilu.", "error");
+  }
+
+  try {
+    const emailData = await userApi.getMyEmail();
+    data.email = emailData.email || data.email;
+  } catch (err) {
+    console.error("Nie udało się pobrać adresu email: ", err);
+  }
 
   // ─── AVATAR ──────────────────────────────────────────────────────────────
   const avatar = document.getElementById("profile-avatar");
   const deletePicBtn = document.getElementById("profile-delete-btn");
+  let pendingAvatarFile = null; // plik do wysłania
 
   function renderAvatar() {
     if (!avatar) return;
     if (data.avatarUrl) {
       avatar.innerHTML = `<img src="${data.avatarUrl}" alt="Avatar" class="w-full h-full object-cover" />`;
     } else {
-      const f = document.getElementById("input-firstname")?.value || data.firstName;
-      const l = document.getElementById("input-lastname")?.value || data.lastName;
+      const f =
+        document.getElementById("input-firstname")?.value || data.firstName;
+      const l =
+        document.getElementById("input-lastname")?.value || data.lastName;
       avatar.textContent = `${f[0] || ""}${l[0] || ""}`.toUpperCase();
     }
-    // Przycisk "Usuń" aktywny tylko gdy jest zdjęcie
     if (deletePicBtn) {
       deletePicBtn.disabled = !data.avatarUrl;
       deletePicBtn.classList.toggle("opacity-40", !data.avatarUrl);
@@ -36,7 +61,6 @@ export function initUserProfile() {
 
   renderAvatar();
 
-  // Wgraj zdjęcie
   const uploadBtn = document.getElementById("profile-upload-btn");
   if (uploadBtn) {
     const fileInput = document.createElement("input");
@@ -49,38 +73,42 @@ export function initUserProfile() {
     fileInput.addEventListener("change", () => {
       const file = fileInput.files[0];
       if (!file) return;
+      pendingAvatarFile = file; // zapamiętaj do wysłki
       const reader = new FileReader();
       reader.onload = (e) => {
         data.avatarUrl = e.target.result;
         renderAvatar();
+        hasChanges = true;
+        if (indicator) indicator.classList.remove("hidden");
+        updateSaveBtn();
       };
       reader.readAsDataURL(file);
       fileInput.value = "";
     });
   }
 
-  // Usuń zdjęcie
   if (deletePicBtn) {
     deletePicBtn.addEventListener("click", () => {
       data.avatarUrl = null;
+      pendingAvatarFile = null;
       renderAvatar();
     });
   }
 
-  // ─── DANE ────────────────────────────────────────────────────────────────
+  // ─── NAGŁÓWEK ────────────────────────────────────────────────────────────
   const nameEl = document.getElementById("profile-name");
   const emailEl = document.getElementById("profile-email");
-  if (nameEl) nameEl.textContent = `${data.firstName} ${data.lastName}`;
-  if (emailEl) emailEl.textContent = `Zalogowany przez ${data.email}`;
+  if (nameEl) nameEl.textContent = `${data.firstName} ${data.lastName}`.trim();
+  if (emailEl)
+    emailEl.textContent = data.email ? `Zalogowany przez ${data.email}` : "";
 
   // ─── INPUTY ──────────────────────────────────────────────────────────────
   const fields = {
     "input-firstname": data.firstName,
-    "input-lastname":  data.lastName,
-    "input-email":     data.email,
-    "input-phone":     data.phone,
+    "input-lastname": data.lastName,
+    "input-phone": data.phone,
     "input-birthdate": data.birthdate,
-    "input-pesel":     data.pesel,
+    "input-pesel": data.pesel,
   };
 
   Object.entries(fields).forEach(([id, value]) => {
@@ -89,7 +117,16 @@ export function initUserProfile() {
   });
 
   const genderSelect = document.getElementById("input-gender");
-  if (genderSelect && data.gender) genderSelect.value = data.gender;
+  if (genderSelect) genderSelect.value = data.gender; // "M"/"F"/""
+
+  // ─── EMAIL — ZABLOKOWANY (na razie pusty, nieedytowalny) ──────────────────
+  const emailInput = document.getElementById("input-email");
+  if (emailInput) {
+    emailInput.value = data.email;
+    emailInput.readOnly = true;
+    emailInput.disabled = true; // wypada z payloadu
+    emailInput.classList.add("opacity-60", "cursor-not-allowed");
+  }
 
   // ─── WALIDACJA ───────────────────────────────────────────────────────────
   const validators = {
@@ -103,14 +140,9 @@ export function initUserProfile() {
       regex: /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]{2,40}$/,
       message: "Nazwisko nie może zawierać cyfr ani znaków specjalnych",
     },
-    "input-email": {
-      required: true,
-      regex: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-      message: "Wpisz poprawny adres e-mail",
-    },
     "input-phone": {
-      regex: /^\+\d{1,3}[\s\-]?(?:\d[\s\-]?){8,12}\d$/,
-      message: "Format: +48 000 000 000 (kierunkowy i numer)",
+      regex: /^\d{9}$/,
+      message: "Numer telefonu musi mieć dokładnie 9 cyfr",
     },
     "input-birthdate": {
       validate: validateBirthdate,
@@ -124,12 +156,15 @@ export function initUserProfile() {
   };
 
   // Input filters
-  applyInputFilter("input-firstname", (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
-  applyInputFilter("input-lastname",  (v) => v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""));
-  applyInputFilter("input-phone",     (v) => v.replace(/[^\d+\s\-]/g, ""));
-  applyInputFilter("input-pesel",     (v) => v.replace(/\D/g, "").slice(0, 11));
+  applyInputFilter("input-firstname", (v) =>
+    v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""),
+  );
+  applyInputFilter("input-lastname", (v) =>
+    v.replace(/[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż'\- ]/g, ""),
+  );
+  applyInputFilter("input-phone", (v) => v.replace(/\D/g, "").slice(0, 9));
+  applyInputFilter("input-pesel", (v) => v.replace(/\D/g, "").slice(0, 11));
 
-  // Walidacja na blur / change
   Object.keys(validators).forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -140,11 +175,14 @@ export function initUserProfile() {
       updateSaveBtn();
     });
     if (el.type === "date") {
-      el.addEventListener("change", () => { validateField(id); updateSaveBtn(); });
+      el.addEventListener("change", () => {
+        validateField(id);
+        updateSaveBtn();
+      });
     }
   });
 
-  // ─── PRZYCISK ZAPISZ — aktywny tylko gdy są zmiany ───────────────────────
+  // ─── PRZYCISK ZAPISZ ─────────────────────────────────────────────────────
   const indicator = document.getElementById("unsaved-indicator");
   const saveBtn = document.getElementById("btn-save-profile");
   let hasChanges = false;
@@ -157,8 +195,8 @@ export function initUserProfile() {
     saveBtn.classList.toggle("pointer-events-none", !hasChanges);
   }
 
-  const allInputs = document.querySelectorAll(".input-field");
-  allInputs.forEach((input) => {
+  document.querySelectorAll(".input-field").forEach((input) => {
+    if (input.disabled) return; // pomiń email
     input.addEventListener("input", () => {
       hasChanges = true;
       if (indicator) indicator.classList.remove("hidden");
@@ -171,7 +209,7 @@ export function initUserProfile() {
     });
   });
 
-  updateSaveBtn(); // stan początkowy — nieaktywny
+  updateSaveBtn();
 
   // ─── ZAPISZ ──────────────────────────────────────────────────────────────
   if (saveBtn) {
@@ -179,44 +217,69 @@ export function initUserProfile() {
       const results = Object.keys(validators).map(validateField);
       if (!results.every(Boolean)) return;
 
+      const phone = document.getElementById("input-phone")?.value.trim() || "";
+      const peselVal =
+        document.getElementById("input-pesel")?.value.trim() || "";
+      const genderVal = document.getElementById("input-gender")?.value || ""; // "M"/"F"/""
+
       const payload = {
         firstName: document.getElementById("input-firstname")?.value.trim(),
-        lastName:  document.getElementById("input-lastname")?.value.trim(),
-        email:     document.getElementById("input-email")?.value.trim(),
-        phone:     document.getElementById("input-phone")?.value.trim(),
-        birthdate: document.getElementById("input-birthdate")?.value || null,
-        gender:    document.getElementById("input-gender")?.value || null,
-        pesel:     document.getElementById("input-pesel")?.value.trim() || null,
+        lastName: document.getElementById("input-lastname")?.value.trim(),
+        phoneNumber: phone || undefined,
+        birthDate:
+          document.getElementById("input-birthdate")?.value || undefined,
+        pesel: peselVal && !/^0+$/.test(peselVal) ? peselVal : undefined,
+        sex: genderVal || undefined,
+        profilePicture: pendingAvatarFile || undefined,
       };
 
+      saveBtn.disabled = true;
       try {
-        // TODO: zamień na prawdziwe wywołanie API
-        // const res = await fetch("/api/user/profile", {
-        //   method: "PUT",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-        //   },
-        //   body: JSON.stringify(payload),
-        // });
-        // if (!res.ok) throw new Error();
+        const updated = await userApi.updateMyProfile(payload);
 
-        console.log("Payload do API:", payload);
+        // zsynchronizuj lokalny stan
+        if (updated) {
+          data.avatarUrl = updated.profilePictureUrl || data.avatarUrl;
+          if (nameEl)
+            nameEl.textContent =
+              `${updated.firstName} ${updated.lastName}`.trim();
+        }
+        pendingAvatarFile = null;
         hasChanges = false;
         if (indicator) indicator.classList.add("hidden");
         updateSaveBtn();
         showAlert("Zmiany zostały zapisane.", "success");
-      } catch {
-        showAlert("Nie udało się zapisać zmian.", "error");
+      } catch (e) {
+        const msg =
+          e?.data?.error ||
+          (e?.data && Object.values(e.data)[0]) ||
+          "Nie udało się zapisać zmian.";
+        showAlert(msg, "error");
+        updateSaveBtn();
       }
     });
   }
 
-  // ─── ZMIEŃ HASŁO — aktywny tylko gdy wszystkie 3 pola wypełnione ─────────
-  const passwordBtn  = document.getElementById("btn-change-password");
+  // ─── ZMIEŃ HASŁO (bez zmian — wciąż mock) ────────────────────────────────
+  const passwordBtn = document.getElementById("btn-change-password");
   const inputCurrent = document.getElementById("input-current");
-  const inputNew     = document.getElementById("input-new");
-  const inputRepeat  = document.getElementById("input-repeat");
+  const inputNew = document.getElementById("input-new");
+  const inputRepeat = document.getElementById("input-repeat");
+  const passwordError = document.getElementById("password-error");
+
+  function showPasswordError(message, success = false) {
+    if (!passwordError) return;
+    passwordError.textContent = message;
+    passwordError.classList.remove("hidden", "text-red-500", "text-green-600");
+    passwordError.classList.add(success ? "text-green-600" : "text-red-500");
+  }
+  function clearPasswordError() {
+    if (!passwordError) return;
+
+    passwordError.textContent = "";
+
+    passwordError.classList.add("hidden");
+  }
 
   function updatePasswordBtn() {
     if (!passwordBtn) return;
@@ -230,8 +293,81 @@ export function initUserProfile() {
   [inputCurrent, inputNew, inputRepeat].forEach((el) => {
     el?.addEventListener("input", updatePasswordBtn);
   });
+  updatePasswordBtn();
 
-  updatePasswordBtn(); // stan początkowy — nieaktywny
+  if (passwordBtn) {
+    passwordBtn.addEventListener("click", async () => {
+      clearPasswordError();
+
+      const payload = {
+        currentPassword: inputCurrent.value,
+
+        newPassword: inputNew.value,
+
+        repeatPassword: inputRepeat.value,
+      };
+
+      if (payload.newPassword !== payload.repeatPassword) {
+        showPasswordError("Nowe hasła nie są takie same.");
+
+        return;
+      }
+
+      passwordBtn.disabled = true;
+
+      try {
+        await userApi.changePassword(payload);
+
+        showPasswordError("Hasło zostało zmienione.", true);
+        showAlert("Hasło zostało zmienione.", "success");
+
+        inputCurrent.value = "";
+
+        inputNew.value = "";
+
+        inputRepeat.value = "";
+
+        updatePasswordBtn();
+      } catch (error) {
+        if (error.status === 401) {
+          if (error.data?.message === "Invalid current password") {
+            showPasswordError("Aktualne hasło jest nieprawidłowe.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+
+          if (
+            error.data?.message ===
+            "New password cannot be the same as the current password"
+          ) {
+            showPasswordError("Nowe hasło nie może być takie samo jak obecne.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+
+          if (
+            error.data?.message ===
+            "Password must be between 8 and 32 characters long"
+          ) {
+            showPasswordError("Nowe hasło musi mieć od 8 do 32 znaków.");
+
+            updatePasswordBtn();
+
+            return;
+          }
+        }
+
+        showPasswordError("Nie udało się zmienić hasła.");
+        
+
+        updatePasswordBtn();
+      }
+    });
+  }
 
   // ─── HELPERY WALIDACJI ───────────────────────────────────────────────────
   function getHint(id) {
@@ -265,7 +401,10 @@ export function initUserProfile() {
     if (!rule) return true;
 
     if (value === "") {
-      if (rule.required) { setError(id, "To pole jest wymagane"); return false; }
+      if (rule.required) {
+        setError(id, "To pole jest wymagane");
+        return false;
+      }
       clearError(id);
       return true;
     }
@@ -282,16 +421,18 @@ export function initUserProfile() {
       message = rule.message;
     }
 
-    if (valid) clearError(id); else setError(id, message);
+    if (valid) clearError(id);
+    else setError(id, message);
     return valid;
   }
 
-  // ─── DELETE ACCOUNT POPUP ────────────────────────────────────────────────
+  // ─── DELETE ACCOUNT POPUP (bez zmian) ────────────────────────────────────
   const deleteAccountBtn = document.getElementById("btn-delete-account");
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", () => {
       const overlay = document.createElement("div");
-      overlay.className = "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center";
+      overlay.className =
+        "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center";
       overlay.innerHTML = `
         <div class="bg-white rounded-2xl p-7 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_40px_rgba(0,0,0,0.18)]">
           <div class="flex items-center gap-3 mb-4">
@@ -315,9 +456,15 @@ export function initUserProfile() {
             <button id="delete-confirm" class="px-[18px] py-[9px] rounded-[10px] bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-colors cursor-pointer">Tak, usuń konto</button>
           </div>
         </div>`;
-      overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
-      overlay.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
-      overlay.querySelector("#delete-cancel").addEventListener("click", () => overlay.remove());
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+      overlay
+        .querySelector("div")
+        .addEventListener("click", (e) => e.stopPropagation());
+      overlay
+        .querySelector("#delete-cancel")
+        .addEventListener("click", () => overlay.remove());
       overlay.querySelector("#delete-confirm").addEventListener("click", () => {
         // TODO: API call
         overlay.remove();
@@ -346,50 +493,78 @@ function applyInputFilter(id, filterFn) {
 // ─── BIRTHDATE VALIDATOR ──────────────────────────────────────────────────────
 function validateBirthdate(value) {
   const [year, month, day] = value.split("-").map(Number);
-  if (!year || !month || !day) return { valid: false, message: "Niepoprawna data urodzenia" };
+  if (!year || !month || !day)
+    return { valid: false, message: "Niepoprawna data urodzenia" };
 
   const date = new Date(year, month - 1, day);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day)
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  )
     return { valid: false, message: "Niepoprawna data urodzenia" };
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  if (date >= today) return { valid: false, message: "Data urodzenia nie może być z przyszłości" };
+  if (date >= today)
+    return {
+      valid: false,
+      message: "Data urodzenia nie może być z przyszłości",
+    };
 
   let age = today.getFullYear() - date.getFullYear();
   const m = today.getMonth() - date.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < date.getDate())) age--;
-  if (age < 13) return { valid: false, message: "Musisz mieć co najmniej 13 lat" };
+  if (age < 13)
+    return { valid: false, message: "Musisz mieć co najmniej 13 lat" };
 
   return { valid: true };
 }
 
-
 // ─── PESEL VALIDATOR ──────────────────────────────────────────────────────────
 function validatePesel(pesel) {
-  if (!/^\d{11}$/.test(pesel)) return { valid: false, message: "PESEL musi mieć dokładnie 11 cyfr" };
+  if (!/^\d{11}$/.test(pesel))
+    return { valid: false, message: "PESEL musi mieć dokładnie 11 cyfr" };
 
   const yy = parseInt(pesel.slice(0, 2), 10);
   let mm = parseInt(pesel.slice(2, 4), 10);
   const dd = parseInt(pesel.slice(4, 6), 10);
 
   let year;
-  if      (mm >= 1  && mm <= 12) { year = 1900 + yy; }
-  else if (mm >= 21 && mm <= 32) { year = 2000 + yy; mm -= 20; }
-  else if (mm >= 81 && mm <= 92) { year = 1800 + yy; mm -= 80; }
-  else if (mm >= 41 && mm <= 52) { year = 2100 + yy; mm -= 40; }
-  else if (mm >= 61 && mm <= 72) { year = 2200 + yy; mm -= 60; }
-  else return { valid: false, message: "Nieprawidłowy miesiąc w numerze PESEL" };
+  if (mm >= 1 && mm <= 12) {
+    year = 1900 + yy;
+  } else if (mm >= 21 && mm <= 32) {
+    year = 2000 + yy;
+    mm -= 20;
+  } else if (mm >= 81 && mm <= 92) {
+    year = 1800 + yy;
+    mm -= 80;
+  } else if (mm >= 41 && mm <= 52) {
+    year = 2100 + yy;
+    mm -= 40;
+  } else if (mm >= 61 && mm <= 72) {
+    year = 2200 + yy;
+    mm -= 60;
+  } else
+    return { valid: false, message: "Nieprawidłowy miesiąc w numerze PESEL" };
 
   const date = new Date(year, mm - 1, dd);
-  if (date.getFullYear() !== year || date.getMonth() !== mm - 1 || date.getDate() !== dd)
-    return { valid: false, message: "Numer PESEL zawiera niepoprawną datę urodzenia" };
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== mm - 1 ||
+    date.getDate() !== dd
+  )
+    return {
+      valid: false,
+      message: "Numer PESEL zawiera niepoprawną datę urodzenia",
+    };
 
   const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
   let sum = 0;
   for (let i = 0; i < 10; i++) sum += parseInt(pesel[i], 10) * weights[i];
   const checksum = (10 - (sum % 10)) % 10;
-  if (checksum !== parseInt(pesel[10], 10)) return { valid: false, message: "Niepoprawna suma kontrolna numeru PESEL" };
+  if (checksum !== parseInt(pesel[10], 10))
+    return { valid: false, message: "Niepoprawna suma kontrolna numeru PESEL" };
 
   return { valid: true };
 }
