@@ -16,6 +16,10 @@ export function loadPermissions() {
         draft.permissions = {};
     }
 
+    const editApplication = JSON.parse(
+        sessionStorage.getItem("editApplication")
+    );
+
     permissionCards.forEach(card => {
         const checkbox = card.querySelector("[data-permission]");
         const requiredButton = card.querySelector('[data-permission-option="required"]');
@@ -44,6 +48,19 @@ export function loadPermissions() {
             optionalButton,
             savedPermission.required
         );
+
+        if (editApplication) {
+            checkbox.disabled = true;
+
+            requiredButton.disabled = true;
+            optionalButton.disabled = true;
+
+            checkbox.classList.add("cursor-not-allowed");
+            requiredButton.classList.add("cursor-not-allowed", "opacity-40");
+            optionalButton.classList.add("cursor-not-allowed", "opacity-40");
+
+            return;
+        }
 
         checkbox.addEventListener("change", () => {
             const currentDraft = getApplicationDraft();
