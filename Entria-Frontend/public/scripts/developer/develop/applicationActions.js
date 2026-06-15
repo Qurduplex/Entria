@@ -66,8 +66,10 @@ export function loadApplicationActions() {
             try {
                 let response;
                 if (editApplication) {
+                    const { permissions, ...draftWithoutPermissions } = draft;
+
                     response = await api.updateApplication({
-                        ...draft,
+                        ...draftWithoutPermissions,
                         appId: draft.appId || editApplication.appId || editApplication.id,
                     });
 

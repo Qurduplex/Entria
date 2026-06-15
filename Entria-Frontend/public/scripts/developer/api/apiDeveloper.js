@@ -224,11 +224,6 @@ export const api = {
             formData.append("tosPdf", payload.tosPdfFile);
         }
 
-        Object.entries(mapDraftPermissionsToBackend(payload.permissions))
-            .forEach(([key, value]) => {
-                formData.append(`permissions[${key}]`, String(value));
-            });
-
         return request("updateApplication", {
             method: "PATCH",
             headers: {
