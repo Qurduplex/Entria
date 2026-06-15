@@ -112,6 +112,14 @@ function initRegisterForm() {
     const userForm = document.getElementById("userRegisterForm");
     const developerForm = document.getElementById("developerRegisterForm");
 
+    [userForm, developerForm].forEach((form) => {
+        if (!form) return;
+        form.addEventListener("submit", handleRegister);
+
+        applyLettersOnlyFilter(form.first_name);
+        applyLettersOnlyFilter(form.last_name);
+    });
+
     if (userForm) {
         userForm.addEventListener("submit", handleRegister);
     }
@@ -216,6 +224,20 @@ function clearFormError(form) {
 
     errorBox.textContent = "";
     errorBox.classList.add("hidden");
+}
+
+function applyLettersOnlyFilter(input) {
+    if (!input) return;
+    input.addEventListener("input", () => {
+        const pos = input.selectionStart;
+        const before = input.value;
+        const after = before.replace(/[^A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]/g, "");
+        if (before !== after) {
+            input.value = after;
+            const diff = before.length - after.length;
+            input.setSelectionRange(pos - diff, pos - diff);
+        }
+    });
 }
 
 function initLoginForm() {

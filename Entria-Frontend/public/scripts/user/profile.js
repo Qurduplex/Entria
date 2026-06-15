@@ -119,7 +119,7 @@ export async function initUserProfile() {
   const genderSelect = document.getElementById("input-gender");
   if (genderSelect) genderSelect.value = data.gender; // "M"/"F"/""
 
-  // ─── EMAIL — ZABLOKOWANY (na razie pusty, nieedytowalny) ──────────────────
+
   const emailInput = document.getElementById("input-email");
   if (emailInput) {
     emailInput.value = data.email;
